@@ -53,6 +53,7 @@ export default function AddTransaction() {
     icon: cat.icon || '📦',
     type: cat.type as 'income' | 'expense',
     color: cat.color || '#6B7280',
+    parentId: cat.parent_id || undefined,
   }))
 
   const handleSave = () => {
