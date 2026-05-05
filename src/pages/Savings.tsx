@@ -5,19 +5,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useSavings, useCreateSavingsGoal } from '@/hooks/useSavings'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type Language } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
+import { PullToRefreshWrapper } from '@/components/shared'
 import type { SavingsGoal } from '@/types'
 
+const LOCALE_MAP: Record<Language, string> = {
+  vi: 'vi-VN',
+  en: 'en-US',
+}
+
+import { PageTransition } from '@/components/shared'
+
 export default function Savings() {
-  const { data: goals, isLoading } = useSavings()
+  const { data: goals, isLoading, refetch: refetchGoals } = useSavings()
   const createGoal = useCreateSavingsGoal()
   const [showForm, setShowForm] = useState(false)
   const [goalName, setGoalName] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
-  const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const { t, language } = useI18n()
+  const { currency, formatCurrency, showBalance } = useUIStore()
 
   const goalsData = goals as SavingsGoal[] | undefined
   const totalSaved = goalsData?.reduce((sum, g) => sum + (g.current_amount || 0), 0) || 0
@@ -40,7 +48,7 @@ export default function Savings() {
       },
       {
         onSuccess: () => {
-          toast.success('Goal created successfully')
+          toast.success(t.savingsPage.goalCreated)
           setShowForm(false)
           setGoalName('')
           setTargetAmount('')
@@ -54,14 +62,15 @@ export default function Savings() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 lg:p-8">
+    <PageTransition>
+    <PullToRefreshWrapper className="flex flex-col gap-6 p-4 lg:p-8" onRefresh={async () => { await refetchGoals() }}>
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t.savings.savings}</h1>
           <p className="text-muted-foreground">{t.savings.trackGoals}</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl" onClick={() => setShowForm(!showForm)}>
           <Plus className="mr-2 h-4 w-4" />
           {t.savings.addGoal}
         </Button>
@@ -69,7 +78,7 @@ export default function Savings() {
 
       {/* Summary */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+        <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-white/80 flex items-center gap-2">
               <PiggyBank className="h-5 w-5" />
@@ -78,14 +87,14 @@ export default function Savings() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {currency.symbol}{formatCurrency(totalSaved)}
+              {showBalance ? `${currency.symbol}${formatCurrency(totalSaved)}` : '••••••'}
             </p>
             <p className="text-sm text-white/70 mt-1">
-              {t.savings.target}: {currency.symbol}{formatCurrency(totalTarget)}
+              {t.savings.target}: {showBalance ? `${currency.symbol}${formatCurrency(totalTarget)}` : '••••••'}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
+        <Card className="bg-gradient-to-br from-rose-500 to-pink-600 text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-white/80 flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -146,7 +155,7 @@ export default function Savings() {
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAddGoal} disabled={createGoal.isPending}>
-                {createGoal.isPending ? 'Processing...' : t.common.save}
+                {createGoal.isPending ? t.savingsPage.processing : t.common.save}
               </Button>
               <Button variant="outline" onClick={() => setShowForm(false)}>{t.common.cancel}</Button>
             </div>
@@ -170,7 +179,7 @@ export default function Savings() {
             const remaining = goal.target_amount - goal.current_amount
 
             return (
-              <Card key={goal.id} className="relative overflow-hidden">
+              <Card key={goal.id} className="relative overflow-hidden rounded-2xl border-0 shadow-md">
                 <div
                   className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
                   style={{ backgroundColor: goal.color }}
@@ -188,13 +197,13 @@ export default function Savings() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-muted-foreground">
-                        {currency.symbol}{formatCurrency(goal.current_amount)}
+                        {showBalance ? `${currency.symbol}${formatCurrency(goal.current_amount)}` : '••••'}
                       </span>
                       <span className="font-medium" style={{ color: goal.color }}>
-                        {currency.symbol}{formatCurrency(goal.target_amount)}
+                        {showBalance ? `${currency.symbol}${formatCurrency(goal.target_amount)}` : '••••'}
                       </span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
                         style={{
@@ -207,13 +216,13 @@ export default function Savings() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{t.savings.remaining}</span>
                     <span className="font-medium text-orange-600">
-                      {currency.symbol}{formatCurrency(remaining)}
+                      {showBalance ? `${currency.symbol}${formatCurrency(remaining)}` : '••••'}
                     </span>
                   </div>
                   {goal.deadline && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString('vi-VN')}</span>
+                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString(LOCALE_MAP[language])}</span>
                     </div>
                   )}
                 </CardContent>
@@ -222,6 +231,7 @@ export default function Savings() {
           })
         )}
       </div>
-    </div>
+    </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

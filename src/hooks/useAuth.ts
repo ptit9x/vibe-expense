@@ -1,10 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { useEffect } from 'react'
+import { supabase, isSupabaseConfigured, isMockAuthAllowed, requireAuth } from '@/lib/supabase'
 import type { AuthUser, LoginInput, RegisterInput } from '@/types'
-
-const MOCK_USERS = {
-  'dev@example.com': { id: 'dev-user', email: 'dev@example.com', password: 'password', full_name: 'Dev User' },
-} as const
+import { getMockUsers } from '@/mocks/mockAuth'
 
 export function useAuth() {
   return useQuery({
@@ -18,24 +16,35 @@ export function useAuth() {
           // Check if email is confirmed
           const emailConfirmed = !!user.email_confirmed_at || !!user.confirmed_at
 
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('avatar_url, full_name')
+            .eq('id', user.id)
+            .single()
+
           return {
             id: user.id,
             email: user.email || '',
-            full_name: user.user_metadata?.full_name || null,
+            full_name: profile?.full_name || user.user_metadata?.full_name || null,
+            avatar_url: profile?.avatar_url || null,
             confirmed: emailConfirmed,
           }
-        } catch (e) {
-          console.warn('Supabase auth failed, using mock auth')
+        } catch {
+          if (import.meta.env.DEV) console.warn('Supabase auth failed, using mock auth')
         }
       }
 
-      // Fallback to mock auth from localStorage
+      // Fallback to mock auth from localStorage (dev only)
+      if (!isMockAuthAllowed()) return null
+
       const token = localStorage.getItem('token')
+      // eslint-disable-next-line security/detect-possible-timing-attacks
       if (token === 'mock-jwt-token') {
         return {
           id: 'dev-user',
           email: 'dev@example.com',
           full_name: 'Dev User',
+          avatar_url: null,
           confirmed: true,
         }
       }
@@ -43,6 +52,29 @@ export function useAuth() {
     },
     staleTime: 1000 * 60 * 5,
   })
+}
+
+// Listen to Supabase auth state changes for realtime session sync
+export function useAuthListener() {
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear()
+        return
+      }
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        queryClient.invalidateQueries({ queryKey: ['auth'] })
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [queryClient])
 }
 
 export function useLogin() {
@@ -66,22 +98,28 @@ export function useLogin() {
           id: data.user.id,
           email: data.user.email || '',
           full_name: data.user.user_metadata?.full_name || null,
+          avatar_url: null,
           confirmed: emailConfirmed,
         }
       }
 
-      // Mock login for development
-      const mockUser = MOCK_USERS[email as keyof typeof MOCK_USERS]
+      // Mock login for development only
+      if (!isMockAuthAllowed()) {
+        throw new Error('Authentication service unavailable')
+      }
+
+      const mockUser = getMockUsers()[email as string]
       if (mockUser && mockUser.password === password) {
         localStorage.setItem('token', 'mock-jwt-token')
         return {
           id: mockUser.id,
           email: mockUser.email,
           full_name: mockUser.full_name,
+          avatar_url: null,
           confirmed: true,
         }
       }
-      throw new Error('Email hoặc mật khẩu không đúng')
+      throw new Error('Invalid email or password')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['auth'] })
@@ -113,15 +151,21 @@ export function useRegister() {
           id: data.user.id,
           email: data.user.email || '',
           full_name: full_name,
+          avatar_url: null,
           confirmed: false, // Registration doesn't auto-confirm email
         }
       }
 
-      // Mock register for development
+      // Mock register for development only
+      if (!isMockAuthAllowed()) {
+        throw new Error('Authentication service unavailable')
+      }
+
       const mockUser: AuthUser = {
         id: crypto.randomUUID(),
         email,
         full_name,
+        avatar_url: null,
         confirmed: true, // Mock always confirmed
       }
       localStorage.setItem('token', 'mock-jwt-token')
@@ -145,7 +189,6 @@ export function useLogout() {
       localStorage.removeItem('token')
     },
     onSuccess: () => {
-      localStorage.removeItem('token')
       queryClient.clear()
     },
   })
@@ -155,13 +198,12 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (updates: { currency?: string; full_name?: string }) => {
+    mutationFn: async (updates: { currency?: string; full_name?: string; avatar_url?: string }) => {
       if (!isSupabaseConfigured()) {
         return { success: true }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { error } = await supabase
         .from('profiles')

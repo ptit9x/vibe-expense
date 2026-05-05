@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { SavingsGoal, CreateSavingsGoalInput, UpdateSavingsGoalInput, UUID } from '@/types'
+import { getMockSavings } from '@/mocks/mockSavings'
 
 export function useSavings() {
   return useQuery({
@@ -10,14 +11,18 @@ export function useSavings() {
         return getMockSavings()
       }
 
+      const user = await requireAuth()
+
       const { data, error } = await supabase
         .from('savings_goals')
-        .select('*')
+        .select('id, user_id, name, target_amount, current_amount, deadline, icon, color, created_at, updated_at')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true })
 
       if (error) throw error
       return data as SavingsGoal[]
     },
+    staleTime: 5 * 60 * 1000, // 5 min
   })
 }
 
@@ -29,6 +34,9 @@ export function useAddToSavings() {
       if (!isSupabaseConfigured()) {
         return { id: goalId, current_amount: amount }
       }
+
+      const user = await requireAuth()
+      void user // RPC function uses SECURITY DEFINER with ownership check
 
       const { data, error } = await supabase.rpc('update_savings_progress', {
         p_goal_id: goalId,
@@ -53,8 +61,7 @@ export function useCreateSavingsGoal() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('savings_goals')
@@ -80,10 +87,13 @@ export function useUpdateSavingsGoal() {
         return { id, ...input }
       }
 
+      const user = await requireAuth()
+
       const { data, error } = await supabase
         .from('savings_goals')
         .update({ ...input, updated_at: new Date().toISOString() })
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single()
 
@@ -105,10 +115,13 @@ export function useDeleteSavingsGoal() {
         return { id }
       }
 
+      const user = await requireAuth()
+
       const { error } = await supabase
         .from('savings_goals')
         .delete()
         .eq('id', id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id }
@@ -119,44 +132,3 @@ export function useDeleteSavingsGoal() {
   })
 }
 
-// Mock data
-function getMockSavings(): SavingsGoal[] {
-  return [
-    {
-      id: 's1',
-      user_id: 'user1',
-      name: 'Emergency Fund',
-      target_amount: 20000000,
-      current_amount: 8500000,
-      deadline: '2026-12-31',
-      icon: '🚨',
-      color: '#EF4444',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 's2',
-      user_id: 'user1',
-      name: 'Vacation',
-      target_amount: 15000000,
-      current_amount: 5000000,
-      deadline: '2026-06-30',
-      icon: '✈️',
-      color: '#10B981',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 's3',
-      user_id: 'user1',
-      name: 'New Phone',
-      target_amount: 8000000,
-      current_amount: 3000000,
-      deadline: null,
-      icon: '📱',
-      color: '#3B82F6',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ]
-}

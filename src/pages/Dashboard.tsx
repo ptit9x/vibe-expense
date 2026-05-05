@@ -1,54 +1,42 @@
-import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Button } from '@/components/ui/button'
-import { ExpenseAnalysis,
+import {
+  SummaryCards,
+  ExpenseAnalysis,
   RecentTransactions,
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
-import { MonthlyChart, type MonthlyData } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper, PageTransition, AnimatedFAB } from '@/components/shared'
+import { NotificationBell } from '@/components/notifications'
 import { useUIStore } from '@/stores/uiStore'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type Language } from '@/lib/i18n'
+import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import type { Transaction } from '@/types'
 
 const RECENT_TRANSACTIONS_LIMIT = 10
 
-function useMonthlyData(transactions: Transaction[]): MonthlyData[] {
-  const months = []
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date()
-    d.setMonth(d.getMonth() - i)
-    const monthKey = d.toISOString().slice(0, 7)
-    const monthLabel = `T${d.getMonth() + 1}`
-
-    const monthTransactions = transactions?.filter(t =>
-      t.transaction_date?.startsWith(monthKey)
-    ) || []
-
-    const income = monthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-    const expense = monthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
-
-    months.push({ month: monthLabel, income, expense })
-  }
-  return months
+const LOCALE_MAP: Record<Language, string> = {
+  vi: 'vi-VN',
+  en: 'en-US',
 }
 
-function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
+function computeExpenseBreakdown(transactions: Transaction[], otherCategoryName: string): ExpenseItem[] {
   const expenses = transactions?.filter(t => t.type === 'expense') || []
   const breakdown: Record<string, ExpenseItem> = {}
 
   expenses.forEach(t => {
-    const catName = t.category?.name || 'Khác'
+    const catName = t.category?.name || otherCategoryName
     const catColor = t.category?.color || '#6B7280'
     const catIcon = t.category?.icon || '💰'
 
-    if (!breakdown[catName]) {
+    if (!breakdown[catName]) { // eslint-disable-line security/detect-object-injection
       breakdown[catName] = { name: catName, value: 0, color: catColor, icon: catIcon }
     }
-    breakdown[catName].value += Number(t.amount)
+    breakdown[catName].value += Number(t.amount) // eslint-disable-line security/detect-object-injection
   })
 
   return Object.values(breakdown)
@@ -57,74 +45,104 @@ function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
 export default function Dashboard() {
   const { data: user } = useAuth()
   const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
-  const { data: transactions } = useTransactions(currentMonth)
-  const { data: wallets } = useWallets()
-  const { t } = useI18n()
+  // Fetch 12 months for chart + expense breakdown
+  const { data: allTransactions, error: txError, refetch: refetchTransactions } = useTransactions(null)
+  const { data: wallets, error: walletError, refetch: refetchWallets } = useWallets()
+  const { t, language } = useI18n()
+
+  if (txError || walletError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-red-500 mb-2">{txError?.message || walletError?.message || t.common.error}</p>
+          <Button onClick={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}>
+            {t.errors.tryAgain}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
+  const allTxns = allTransactions || []
 
-  const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  const monthlyData = useMonthlyData(transactions || [])
-  const expenseBreakdown = useExpenseBreakdown(transactions || [])
+  // Filter current month for summary cards
+  const currentMonthTxns = allTxns.filter(t => t.transaction_date?.startsWith(currentMonth))
+  const income = currentMonthTxns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0)
+  const expense = currentMonthTxns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0)
+
+  // Recent transactions from current month only
+  const recentTransactions: TransactionItem[] = currentMonthTxns.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
+  // Chart uses all 12 months of data for meaningful bars
+  const monthlyData = computeMonthlyData(allTxns, 6, LOCALE_MAP[language])
+  // Expense breakdown for current month
+  const expenseBreakdown = computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory)
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PageTransition>
+    <PullToRefreshWrapper
+      className="min-h-screen bg-gray-50 pb-20"
+      onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
+    >
       {/* Header - Greeting with User Name */}
-      <div className="bg-blue-500 px-4 pt-6 pb-8">
+      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4 pt-6 pb-8">
+        {/* Decorative blur circles */}
+        <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-8 -left-4 w-24 h-24 bg-pink-300/20 rounded-full blur-2xl" />
+        <div className="absolute top-10 right-20 w-16 h-16 bg-indigo-300/15 rounded-full blur-xl" />
+
+        <div className="relative">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-white text-xl font-medium">{t.dashboard.greeting} {displayName} 👋</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30"
-            onClick={toggleBalance}
-            aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
-          >
-            {showBalance ? (
-              <Eye className="h-5 w-5 text-white" />
-            ) : (
-              <EyeOff className="h-5 w-5 text-white" />
-            )}
-          </Button>
+          <NotificationBell />
         </div>
 
         {/* Balance Card */}
-        <div className="bg-white rounded-xl p-4 shadow-lg">
-          <p className="text-gray-500 text-xs mb-1">{t.dashboard.totalBalance}</p>
-          <p className="text-2xl font-bold text-gray-900 tracking-tight">
+        <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-5 shadow-lg border border-white/20">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-white/80 text-xs font-medium">{t.dashboard.totalBalance}</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-full hover:bg-white/20"
+              onClick={toggleBalance}
+              aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
+            >
+              {showBalance ? (
+                <Eye className="h-4 w-4 text-white/70" />
+              ) : (
+                <EyeOff className="h-4 w-4 text-white/70" />
+              )}
+            </Button>
+          </div>
+          <p className="text-2xl font-bold text-white tracking-tight">
             {showBalance ? (
               <>
                 {currency.symbol}{formatCurrency(totalBalance)}
               </>
             ) : (
-              <span className="text-gray-400">••••••••</span>
+              <span className="text-white/50">••••••••</span>
             )}
           </p>
+        </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="px-4 -mt-4 space-y-4">
-        {/* Expense Analysis */}
+        <SummaryCards totalBalance={totalBalance} income={income} expense={expense} showBalance={showBalance} />
         <ExpenseAnalysis items={expenseBreakdown} />
-
-        {/* Monthly Chart */}
         <MonthlyChart data={monthlyData} />
-
-        {/* Recent Transactions */}
         <RecentTransactions transactions={recentTransactions} />
       </div>
 
       {/* FAB */}
-      <Link
-        to="/add-transaction"
-        className="fixed right-4 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors z-20"
-        aria-label={t.transaction.add}
-      >
-        <span className="text-white text-2xl font-light">+</span>
-      </Link>
-    </div>
+      <div className="fixed right-4 bottom-24 z-20">
+        <AnimatedFAB to="/add-transaction" ariaLabel={t.transaction.add} />
+      </div>
+    </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

@@ -86,7 +86,7 @@ export function AddWalletModal({ isOpen, onClose, onSubmit, isPending }: AddWall
               )}
             >
               <span className="text-2xl">{wt.icon}</span>
-              <p className="text-xs mt-1 font-medium">
+              <p className="text-sm mt-1 font-medium">
                 {t[wt.labelKey.split('.')[0] as 'wallet'][wt.labelKey.split('.')[1] as keyof typeof t.wallet]}
               </p>
             </button>

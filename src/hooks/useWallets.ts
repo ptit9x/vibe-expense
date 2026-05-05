@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { Wallet, CreateWalletInput, UpdateWalletInput } from '@/types'
+import { getMockWallets } from '@/mocks/mockWallets'
 
 export function useWallets(includeInactive = false) {
   return useQuery({
@@ -10,12 +11,11 @@ export function useWallets(includeInactive = false) {
         return getMockWallets()
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       let query = supabase
         .from('wallets')
-        .select('*')
+        .select('id, user_id, name, type, icon, color, initial_balance, is_active, created_at, updated_at')
         .eq('user_id', user.id)
 
       // Filter by is_active unless includeInactive is true
@@ -32,18 +32,49 @@ export function useWallets(includeInactive = false) {
         return [] as Wallet[]
       }
 
-      // Get balance for each wallet using RPC
-      const walletsWithBalance = await Promise.all(
-        data.map(async (wallet) => {
-          const { data: balanceData } = await supabase.rpc('get_wallet_balance', {
-            p_wallet_id: wallet.id
-          })
-          return { ...wallet, balance: parseFloat(balanceData) || wallet.initial_balance }
-        })
-      )
+      // Batch compute balances — single query instead of N+1 RPC calls
+      const walletIds = data.map(w => w.id)
+      const { data: txData } = await supabase
+        .from('transactions')
+        .select('wallet_id, to_wallet_id, type, amount')
+        .in('wallet_id', walletIds)
+        .eq('user_id', user.id)
+
+      // Build balance map
+      const balanceMap = new Map<string, number>()
+      for (const tx of (txData || [])) {
+        const wId = tx.wallet_id
+        const prev = balanceMap.get(wId) || 0
+        if (tx.type === 'income' || tx.type === 'borrow') {
+          balanceMap.set(wId, prev + tx.amount)
+        } else if (tx.type === 'expense' || tx.type === 'lend' || tx.type === 'transfer') {
+          balanceMap.set(wId, prev - tx.amount)
+        }
+      }
+
+      // Also credit destination wallets for transfers
+      const { data: transferData } = await supabase
+        .from('transactions')
+        .select('to_wallet_id, amount')
+        .in('to_wallet_id', walletIds)
+        .eq('user_id', user.id)
+        .eq('type', 'transfer')
+
+      for (const tx of (transferData || [])) {
+        if (tx.to_wallet_id) {
+          const prev = balanceMap.get(tx.to_wallet_id) || 0
+          balanceMap.set(tx.to_wallet_id, prev + tx.amount)
+        }
+      }
+
+      const walletsWithBalance = data.map(wallet => ({
+        ...wallet,
+        balance: (balanceMap.get(wallet.id) || 0) + (wallet.initial_balance || 0),
+      }))
 
       return walletsWithBalance as Wallet[]
     },
+    staleTime: 5 * 60 * 1000, // 5 min — wallets change rarely
   })
 }
 
@@ -56,10 +87,7 @@ export function useCreateWallet() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
-
-      console.log('[DEBUG] useCreateWallet input:', input)
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('wallets')
@@ -67,7 +95,6 @@ export function useCreateWallet() {
         .select()
         .single()
 
-      console.log('[DEBUG] useCreateWallet result:', { data, error })
       if (error) throw error
       return data
     },
@@ -86,8 +113,7 @@ export function useUpdateWallet() {
         return { id, ...input }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('wallets')
@@ -120,6 +146,8 @@ export function useDeleteWallet() {
         return { id: wallet.id, deleted: true }
       }
 
+      const user = await requireAuth()
+
       // Check if wallet has any transactions
       const { data: transactions } = await supabase
         .from('transactions')
@@ -133,7 +161,7 @@ export function useDeleteWallet() {
           .from('wallets')
           .update({ is_active: false, updated_at: new Date().toISOString() })
           .eq('id', wallet.id)
-          .eq('user_id', wallet.user_id)
+          .eq('user_id', user.id)
 
         if (error) throw error
         return { id: wallet.id, deleted: false, deactivated: true }
@@ -144,7 +172,7 @@ export function useDeleteWallet() {
         .from('wallets')
         .delete()
         .eq('id', wallet.id)
-        .eq('user_id', wallet.user_id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id: wallet.id, deleted: true }
@@ -165,13 +193,15 @@ export function useToggleWalletActive() {
         return { id: wallet.id, is_active: !wallet.is_active }
       }
 
+      const user = await requireAuth()
+
       const newStatus = !wallet.is_active
 
       const { error } = await supabase
         .from('wallets')
         .update({ is_active: newStatus, updated_at: new Date().toISOString() })
         .eq('id', wallet.id)
-        .eq('user_id', wallet.user_id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id: wallet.id, is_active: newStatus }
@@ -182,47 +212,3 @@ export function useToggleWalletActive() {
   })
 }
 
-// Mock data
-function getMockWallets(): Wallet[] {
-  return [
-    {
-      id: 'w1',
-      user_id: 'user1',
-      name: 'Cash',
-      type: 'cash' as const,
-      icon: '💵',
-      color: '#3B82F6',
-      initial_balance: 2000000,
-      balance: 3500000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 'w2',
-      user_id: 'user1',
-      name: 'MB Bank',
-      type: 'bank' as const,
-      icon: '🏦',
-      color: '#10B981',
-      initial_balance: 50000000,
-      balance: 47850000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 'w3',
-      user_id: 'user1',
-      name: 'Momo',
-      type: 'e_wallet' as const,
-      icon: '📱',
-      color: '#A855F7',
-      initial_balance: 0,
-      balance: 750000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ]
-}

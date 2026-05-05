@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { Category, TransactionType } from '@/types'
 import { CATEGORIES } from '@/constants/categories'
+import { getMockCategories } from '@/mocks/mockCategories'
 
 export function useCategories(type?: TransactionType) {
   return useQuery({
@@ -11,9 +12,12 @@ export function useCategories(type?: TransactionType) {
         return getMockCategories(type)
       }
 
+      const user = await requireAuth()
+
       const { data: allCategories, error } = await supabase
         .from('categories')
-        .select('*')
+        .select('id, user_id, parent_id, name, type, icon, color, slug, is_system, created_at')
+        .or(`is_system.eq.true,user_id.eq.${user.id}`)
 
       if (error) throw error
 
@@ -23,7 +27,7 @@ export function useCategories(type?: TransactionType) {
 
       return filteredCategories.map(c => ({
         ...c,
-        i18n_key: (c as any).i18n_key || extractI18nKey(c.name),
+        i18n_key: (c as Record<string, unknown>).i18n_key || extractI18nKey(c.name),
       })) as (Category & { i18n_key?: string })[]
     },
     staleTime: 1000 * 60 * 60 * 24,
@@ -47,8 +51,7 @@ export function useUpdateCategoryOverride() {
 
       if (isSystem) {
         // System category: create a user-owned override as child
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('Not authenticated')
+        const user = await requireAuth()
 
         // Check existing override
         const { data: existing } = await supabase
@@ -63,6 +66,7 @@ export function useUpdateCategoryOverride() {
             .from('categories')
             .update({ name: customName, icon: customIcon, color: customColor })
             .eq('id', existing.id)
+            .eq('user_id', user.id)
           if (error) throw error
         } else {
           // Get original type
@@ -86,11 +90,14 @@ export function useUpdateCategoryOverride() {
           if (error) throw error
         }
       } else {
-        // User category: update directly
+        // User category: update with user_id check for safety
+        const user = await requireAuth()
+
         const { error } = await supabase
           .from('categories')
           .update({ name: customName, icon: customIcon, color: customColor })
           .eq('id', categoryId)
+          .eq('user_id', user.id)
 
         if (error) throw error
       }
@@ -114,8 +121,7 @@ export function useDeleteCategoryOverride() {
 
       if (isSystem) {
         // System category: remove user override child
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('Not authenticated')
+        const user = await requireAuth()
 
         const { error } = await supabase
           .from('categories')
@@ -125,11 +131,14 @@ export function useDeleteCategoryOverride() {
 
         if (error) throw error
       } else {
-        // User category: delete directly
+        // User category: delete with user_id check for safety
+        const user = await requireAuth()
+
         const { error } = await supabase
           .from('categories')
           .delete()
           .eq('id', categoryId)
+          .eq('user_id', user.id)
 
         if (error) throw error
       }
@@ -157,6 +166,8 @@ export function useCreateCategory() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
+      const user = await requireAuth()
+
       const { data, error } = await supabase
         .from('categories')
         .insert({
@@ -165,7 +176,7 @@ export function useCreateCategory() {
           color: input.color,
           type: input.type,
           parent_id: input.parent_id || null,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
           is_system: false,
         })
         .select()
@@ -180,37 +191,11 @@ export function useCreateCategory() {
   })
 }
 
-// Mock categories for development
-function getMockCategories(type?: TransactionType): Category[] {
-  const mockData = [
-    { id: '1', name: 'Food', icon: '🍔', color: '#FF6B6B', type: 'expense' as const },
-    { id: '2', name: 'Transport', icon: '🚗', color: '#4ECDC4', type: 'expense' as const },
-    { id: '3', name: 'Housing', icon: '🏠', color: '#45B7D1', type: 'expense' as const },
-    { id: '4', name: 'Entertainment', icon: '🎮', color: '#96CEB4', type: 'expense' as const },
-    { id: '5', name: 'Shopping', icon: '🛒', color: '#FFEAA7', type: 'expense' as const },
-    { id: '6', name: 'Health', icon: '💊', color: '#DDA0DD', type: 'expense' as const },
-    { id: '7', name: 'Other', icon: '📦', color: '#95A5A6', type: 'expense' as const },
-    { id: '101', name: 'Salary', icon: '💰', color: '#2ECC71', type: 'income' as const },
-    { id: '102', name: 'Gift', icon: '🎁', color: '#9B59B6', type: 'income' as const },
-    { id: '103', name: 'Investment', icon: '📈', color: '#3498DB', type: 'income' as const },
-  ]
-
-  const all = mockData.map(cat => ({
-    ...cat,
-    user_id: null,
-    parent_id: null,
-    is_system: true,
-    created_at: '',
-  }))
-
-  if (!type) return all
-  return all.filter(c => c.type === type)
-}
-
 function extractI18nKey(name: string): string {
   const nameLower = name.toLowerCase()
 
   for (const type of ['expense', 'income'] as const) {
+    // eslint-disable-next-line security/detect-object-injection
     for (const cat of CATEGORIES[type]) {
       const catNameLower = cat.nameKey.replace('categories.', '').replace(/([A-Z])/g, ' $1').toLowerCase().trim()
       if (nameLower.includes(catNameLower)) {

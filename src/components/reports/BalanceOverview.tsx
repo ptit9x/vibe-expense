@@ -2,6 +2,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
+import PageHeader from '../PageHeader'
 
 interface BalanceOverviewProps {
   balance: number
@@ -15,7 +16,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
   const { currency, formatCurrency } = useUIStore()
 
   return (
-    <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+    <PageHeader>
       <div className="flex items-center justify-between mb-4">
         <p className="text-white/60 text-sm">{t.reports.balance}</p>
         <Button
@@ -31,7 +32,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
           )}
         </Button>
       </div>
-      
+
       <p className="text-3xl font-bold text-white mb-2">
         {showBalance ? (
           <>
@@ -41,7 +42,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
           <span className="text-white/40">••••••••</span>
         )}
       </p>
-      
+
       <div className="flex items-center gap-2">
         <p className="text-white/60 text-sm">{t.reports.debt}</p>
         <p className="text-white font-medium">
@@ -54,6 +55,6 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
           )}
         </p>
       </div>
-    </div>
+    </PageHeader>
   )
 }

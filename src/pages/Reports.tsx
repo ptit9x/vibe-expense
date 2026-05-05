@@ -1,59 +1,76 @@
+import { Loader2 } from 'lucide-react'
 import { useWallets } from '@/hooks/useWallets'
 import { useTransactions } from '@/hooks/useTransactions'
 import {
   BalanceOverview,
   QuickActions,
+  DebtTracker,
 } from '@/components/reports'
-import { MonthlyChart } from '@/components/shared'
+import { PullToRefreshWrapper, PageTransition, MonthlyChart } from '@/components/shared'
+import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import { useUIStore } from '@/stores/uiStore'
+import { useI18n } from '@/lib/i18n'
+import type { Transaction } from '@/types'
 
 export default function Reports() {
   const { showBalance, toggleBalance, currentMonth } = useUIStore()
-  const { data: wallets } = useWallets()
-  const { data: transactions } = useTransactions(currentMonth)
+  const { t } = useI18n()
+  const { data: wallets, isLoading: walletsLoading, error: walletsError, refetch: refetchWallets } = useWallets()
+  const { data: transactions, isLoading: txLoading, error: txError, refetch: refetchTransactions } = useTransactions(currentMonth)
+
+  const isLoading = walletsLoading || txLoading
+  const error = walletsError || txError
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
-  const debt = 0
 
-  const generateMonthlyData = () => {
-    const months = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date()
-      d.setMonth(d.getMonth() - i)
-      const monthKey = d.toISOString().slice(0, 7)
-      const monthLabel = `T${d.getMonth() + 1}`
+  const debt = (transactions ?? [])
+    .filter((t: Transaction) => t.type === 'borrow')
+    .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
+    -
+    (transactions ?? [])
+    .filter((t: Transaction) => t.type === 'lend')
+    .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
 
-      const monthTransactions = (transactions ?? []).filter((txn: any) => 
-        txn.transaction_date?.startsWith(monthKey)
-      ) || []
-
-      const income = monthTransactions
-        .filter((txn: any) => txn.type === 'income')
-        .reduce((sum: number, txn: any) => sum + Number(txn.amount), 0)
-      
-      const expense = monthTransactions
-        .filter((txn: any) => txn.type === 'expense')
-        .reduce((sum: number, txn: any) => sum + Number(txn.amount), 0)
-
-      months.push({ month: monthLabel, income, expense })
-    }
-    return months
-  }
-
-  const monthlyData = generateMonthlyData()
+  const monthlyData = computeMonthlyData(transactions ?? [], 6)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <BalanceOverview
-        balance={totalBalance}
-        debt={debt}
-        showBalance={showBalance}
-        onToggleBalance={toggleBalance}
-      />
+    <PageTransition>
+    <PullToRefreshWrapper
+      className="min-h-screen bg-gray-50 pb-20"
+      onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
+    >
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <Loader2 className="h-8 w-8 animate-spin mb-3" />
+          <p className="text-sm">{t.common.loading}</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+          <p className="text-sm text-red-500 mb-3">{t.common.error}</p>
+          <button
+            onClick={() => { void refetchTransactions(); void refetchWallets() }}
+            className="text-sm text-indigo-500 font-medium hover:text-indigo-600"
+          >
+            {t.common.retry || 'Retry'}
+          </button>
+        </div>
+      ) : (
+        <>
+          <BalanceOverview
+            balance={totalBalance}
+            debt={Math.max(debt, 0)}
+            showBalance={showBalance}
+            onToggleBalance={toggleBalance}
+          />
 
-      <MonthlyChart data={monthlyData} />
+          <DebtTracker transactions={transactions ?? []} />
 
-      <QuickActions />
-    </div>
+          <MonthlyChart data={monthlyData} />
+
+          <QuickActions />
+        </>
+      )}
+    </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

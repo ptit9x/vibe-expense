@@ -15,7 +15,7 @@ export function SaveButton({ onClick, isPending, label }: SaveButtonProps) {
       <button
         onClick={onClick}
         disabled={isPending}
-        className="w-full py-4 bg-blue-500 text-white font-semibold text-lg rounded-2xl hover:bg-blue-600 active:bg-blue-700 transition-colors disabled:bg-blue-300 shadow-sm"
+        className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-lg rounded-2xl hover:from-indigo-600 hover:to-purple-700 active:from-indigo-700 active:to-purple-800 transition-colors disabled:opacity-50 shadow-md shadow-indigo-500/20"
       >
         {isPending ? t.common.loading : (label || defaultLabel)}
       </button>

@@ -1,7 +1,7 @@
 # Money Keeper Clone - Database Schema
 
-**Version:** 2.0.0  
-**Last Updated:** 2026-05-05
+**Version:** 2.3.0  
+**Last Updated:** 2026-05-08
 
 ---
 
@@ -143,6 +143,7 @@ CREATE TABLE public.categories (
   type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
   icon TEXT DEFAULT '📦',
   color TEXT DEFAULT '#6B7280',
+  slug TEXT,
   parent_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
   is_system BOOLEAN DEFAULT false,
   i18n_key TEXT,
@@ -158,6 +159,7 @@ CREATE TABLE public.categories (
 | `type` | TEXT | - | NOT NULL, CHECK (income, expense) | Transaction type category |
 | `icon` | TEXT | `'📦'` | - | Emoji icon for display |
 | `color` | TEXT | `'#6B7280'` | - | Hex color code for UI |
+| `slug` | TEXT | NULL | UNIQUE (where not null) | Stable identifier for system categories (e.g., `lend`, `borrow`) |
 | `parent_id` | UUID | NULL | REFERENCES categories(id) ON DELETE SET NULL | Parent category for sub-categories |
 | `is_system` | BOOLEAN | `false` | - | TRUE = system default |
 | `i18n_key` | TEXT | NULL | - | i18n key for translated labels (e.g., "categories.food") |
@@ -191,29 +193,34 @@ CREATE POLICY "categories_delete" ON public.categories
 ### System Categories (Pre-seeded)
 
 **Expense Categories:**
-| Name | i18n_key | Icon | Color | Subcategories |
-|------|----------|------|-------|---------------|
-| 🍔 Ăn uống | categories.food | 🍔 | #EF4444 | Đi chợ/Siêu thị, Ăn tiệm, Cafe, Tiệc tùng |
-| ⚡ Dịch vụ sinh hoạt | categories.utilities | ⚡ | #F59E0B | Tiền điện, Tiền nước, Internet, Truyền hình cáp, Điện thoại, Gas |
-| 🚗 Đi lại | categories.transport | 🚗 | #3B82F6 | Đổ xăng, Bảo dưỡng xe, Taxi/Grab, Gửi xe, Xe buýt/Tàu |
-| 💄 Trang phục & Mỹ phẩm | categories.shopping | 💄 | #EC4899 | Quần áo, Giày dép, Phụ kiện, Mỹ phẩm, Cắt tóc/Làm đẹp |
-| 💊 Sức khỏe | categories.health | 💊 | #10B981 | Thuốc men, Khám chữa bệnh, Bảo hiểm sức khỏe |
-| 📚 Giáo dục | categories.education | 📚 | #6366F1 | Học phí, Sách vở, Tài liệu, Khóa học kỹ năng |
-| 🎮 Hưởng thụ | categories.entertainment | 🎮 | #8B5CF6 | Du lịch, Xem phim, Nhạc/Sách báo, Đồ chơi/Game |
-| 🤝 Giao lưu & Quan hệ | categories.social | 🤝 | #F43F5E | Biếu quà, Đám cưới, Đám tang, Làm từ thiện |
-| 👶 Con cái | categories.children | 👶 | #06B6D4 | Sữa, Tã bỉm, Đồ chơi, Học phí cho con |
-| 🏠 Nhà cửa | categories.housing | 🏠 | #6B7280 | Tiền thuê nhà, Sửa chữa nhà, Mua sắm đồ gia dụng |
+| Name | i18n_key | Slug | Icon | Color | Subcategories |
+|------|----------|------|------|-------|---------------|
+| 🍔 Ăn uống | categories.food | food | 🍔 | #EF4444 | Đi chợ/Siêu thị, Ăn tiệm, Cafe, Tiệc tùng |
+| ⚡ Dịch vụ sinh hoạt | categories.utilities | utilities | ⚡ | #F59E0B | Tiền điện, Tiền nước, Internet, Truyền hình cáp, Điện thoại, Gas |
+| 🚗 Đi lại | categories.transport | transport | 🚗 | #3B82F6 | Đổ xăng, Bảo dưỡng xe, Taxi/Grab, Gửi xe, Xe buýt/Tàu |
+| 💄 Trang phục & Mỹ phẩm | categories.shopping | shopping | 💄 | #EC4899 | Quần áo, Giày dép, Phụ kiện, Mỹ phẩm, Cắt tóc/Làm đẹp |
+| 💊 Sức khỏe | categories.health | health | 💊 | #10B981 | Thuốc men, Khám chữa bệnh, Bảo hiểm sức khỏe |
+| 📚 Giáo dục | categories.education | education | 📚 | #6366F1 | Học phí, Sách vở, Tài liệu, Khóa học kỹ năng |
+| 🎮 Hưởng thụ | categories.entertainment | entertainment | 🎮 | #8B5CF6 | Du lịch, Xem phim, Nhạc/Sách báo, Đồ chơi/Game |
+| 🤝 Giao lưu & Quan hệ | categories.social | social | 🤝 | #F43F5E | Biếu quà, Đám cưới, Đám tang, Làm từ thiện |
+| 👶 Con cái | categories.children | children | 👶 | #06B6D4 | Sữa, Tã bỉm, Đồ chơi, Học phí cho con |
+| 🏠 Nhà cửa | categories.housing | housing | 🏠 | #6B7280 | Tiền thuê nhà, Sửa chữa nhà, Mua sắm đồ gia dụng |
+| 🤝 Cho vay | categories.lend | lend | 🤝 | #E74C3C | _(none)_ |
+| 💳 Trả nợ | categories.repayDebt | repay-debt | 💳 | #C0392B | _(none)_ |
 
 **Income Categories:**
-| Name | i18n_key | Icon | Color | Subcategories |
-|------|----------|------|-------|---------------|
-| 💵 Lương | categories.salary | 💵 | #10B981 | Lương chính thức, Lương làm thêm, Tiền thưởng |
-| 📈 Kinh doanh | categories.business | 📈 | #3B82F6 | Doanh thu bán hàng, Tiền lãi đầu tư/Chứng khoán |
-| 💰 Khác | categories.otherIncome | 💰 | #F59E0B | Tiền được tặng/biếu, Tiền lãi ngân hàng, Thu nợ, Thu nhập vãng lai |
+| Name | i18n_key | Slug | Icon | Color | Subcategories |
+|------|----------|------|------|-------|---------------|
+| 💵 Lương | categories.salary | salary | 💵 | #10B981 | Lương chính thức, Lương làm thêm, Tiền thưởng |
+| 📈 Kinh doanh | categories.business | business | 📈 | #3B82F6 | Doanh thu bán hàng, Tiền lãi đầu tư/Chứng khoán |
+| 💰 Khác | categories.otherIncome | other-income | 💰 | #F59E0B | Tiền được tặng/biếu, Tiền lãi ngân hàng, Thu nợ, Thu nhập vãng lai |
+| 📋 Đi vay | categories.borrow | borrow | 📋 | #8E44AD | _(none)_ |
+| 💵 Thu nợ | categories.collectDebt | collect-debt | 💵 | #27AE60 | _(none)_ |
 
 ### Indexes
 ```sql
 CREATE INDEX idx_categories_i18n_key ON public.categories(i18n_key);
+CREATE UNIQUE INDEX idx_categories_slug ON public.categories(slug) WHERE slug IS NOT NULL;
 ```
 
 ---
@@ -227,10 +234,12 @@ CREATE TABLE public.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   wallet_id UUID REFERENCES public.wallets(id) ON DELETE SET NULL,
+  to_wallet_id UUID REFERENCES public.wallets(id) ON DELETE SET NULL,
   category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
-  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense', 'transfer', 'lend', 'borrow')),
   amount DECIMAL(15,2) NOT NULL CHECK (amount > 0),
   description TEXT,
+  contact_person TEXT,
   transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -241,14 +250,25 @@ CREATE TABLE public.transactions (
 |-------|------|---------|-------------|-------------|
 | `id` | UUID | `gen_random_uuid()` | PRIMARY KEY | Unique transaction identifier |
 | `user_id` | UUID | - | NOT NULL, REFERENCES auth.users(id) ON DELETE CASCADE | Owner user ID |
-| `wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Target wallet |
+| `wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Source wallet |
+| `to_wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Destination wallet (for transfers) |
 | `category_id` | UUID | NULL | REFERENCES categories(id) ON DELETE SET NULL | Transaction category |
-| `type` | TEXT | - | NOT NULL, CHECK (income, expense) | Income or expense |
-| `amount` | DECIMAL(15,2) | - | NOT NULL, CHECK (amount > 0) | Transaction amount in VND |
+| `type` | TEXT | - | NOT NULL, CHECK (income, expense, transfer, lend, borrow) | Transaction type |
+| `amount` | DECIMAL(15,2) | - | NOT NULL, CHECK (amount > 0) | Transaction amount |
 | `description` | TEXT | NULL | - | Transaction note/memo |
+| `contact_person` | TEXT | NULL | - | Person name for lend/borrow transactions |
 | `transaction_date` | DATE | `CURRENT_DATE` | NOT NULL | Date of transaction |
 | `created_at` | TIMESTAMPTZ | `now()` | - | Transaction creation timestamp |
 | `updated_at` | TIMESTAMPTZ | `now()` | - | Last transaction update timestamp |
+
+### Transaction Types
+| Value | Description |
+|-------|-------------|
+| `expense` | Money going out |
+| `income` | Money coming in |
+| `transfer` | Moving money between wallets |
+| `lend` | Money lent to someone |
+| `borrow` | Money borrowed from someone |
 
 ### Row Level Security
 ```sql
@@ -262,6 +282,7 @@ CREATE POLICY "transactions_delete" ON public.transactions FOR DELETE USING (aut
 ```sql
 CREATE INDEX idx_transactions_user_date ON public.transactions(user_id, transaction_date DESC);
 CREATE INDEX idx_transactions_wallet ON public.transactions(wallet_id);
+CREATE INDEX idx_transactions_to_wallet ON public.transactions(to_wallet_id);
 CREATE INDEX idx_transactions_category ON public.transactions(category_id);
 ```
 
@@ -364,7 +385,7 @@ CREATE POLICY "savings_goals_delete" ON public.savings_goals FOR DELETE USING (a
 -- Get wallet balance
 CREATE OR REPLACE FUNCTION public.get_wallet_balance(p_wallet_id UUID)
 RETURNS DECIMAL AS $$
--- Returns: initial_balance + income - expense
+-- Returns: initial_balance + income + borrow - expense - lend
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Get wallet transactions within date range
@@ -464,6 +485,19 @@ Wallets use `is_active` boolean flag instead of hard delete. This preserves tran
 ---
 
 ## Changelog
+
+### v2.3.0 (2026-05-08)
+- **Added:** `slug` column to `categories` table — stable identifier for system categories (e.g., `lend`, `borrow`, `food`)
+- **Added:** `contact_person` column to `transactions` table — person name for lend/borrow transactions
+- **Added:** `get_wallet_balance()` updated — `lend` treated as expense (subtracts), `borrow` treated as income (adds)
+- **Added:** New system categories: 🤝 Cho vay (`lend`), 💳 Trả nợ (`repay-debt`), 📋 Đi vay (`borrow`), 💵 Thu nợ (`collect-debt`)
+- **Added:** Unique index on `categories.slug` (partial, where not null)
+
+### v2.2.0 (2026-05-07)
+- **Clarified:** `currency` column is in `profiles` table, NOT in `wallets` table
+- **Fixed:** Removed `currency` from `Wallet` TypeScript interface and `useWallets` select query
+- **Updated:** `supabase-schema.sql` synced with actual DB schema (proper RLS, triggers, indexes, expanded transaction types, `to_wallet_id`, `is_active`, `i18n_key`)
+- **Added:** `handle_wallet_user_id` trigger in schema reference
 
 ### v2.0.0 (2026-05-05)
 - **Removed:** `user_categories` table (unused)

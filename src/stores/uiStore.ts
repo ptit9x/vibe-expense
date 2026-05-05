@@ -26,6 +26,8 @@ export interface UIState {
   setCurrentMonth: (month: string) => void
   setCurrency: (currency: Currency) => void
   formatCurrency: (amount: number) => string
+  /** Returns masked string '••••••' if balance hidden, else formatted amount with symbol */
+  displayAmount: (amount: number) => string
 }
 
 const getStoredCurrency = (): Currency => {
@@ -56,5 +58,10 @@ export const useUIStore = create<UIState>((set, get) => ({
       minimumFractionDigits: currency.code === 'VND' || currency.code === 'JPY' ? 0 : 2,
       maximumFractionDigits: currency.code === 'VND' || currency.code === 'JPY' ? 0 : 2,
     }).format(amount)
+  },
+  displayAmount: (amount: number) => {
+    const { showBalance, currency } = get()
+    if (!showBalance) return '••••••'
+    return currency.symbol + get().formatCurrency(amount)
   },
 }))

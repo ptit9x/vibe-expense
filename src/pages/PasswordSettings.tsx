@@ -3,6 +3,10 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import PageHeader from '@/components/PageHeader'
+
+import { PageTransition } from '@/components/shared'
 
 export default function PasswordSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
@@ -12,43 +16,58 @@ export default function PasswordSettings() {
   const [showNew, setShowNew] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
   const { t } = useI18n()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (newPassword !== confirmPassword) {
       setMessage(t.settings.passwordNotMatch)
       return
     }
-    
-    if (newPassword.length < 6) {
+
+    if (newPassword.length < 8) {
       setMessage(t.auth.passwordMinLength)
       return
     }
-    
+
     setIsLoading(true)
     setMessage('')
-    
-    setTimeout(() => {
+    setIsSuccess(false)
+
+    try {
+      if (isSupabaseConfigured()) {
+        const { error: reauthError } = await supabase.auth.reauthenticate()
+        if (reauthError) throw reauthError
+
+        const { error } = await supabase.auth.updateUser({ password: newPassword })
+        if (error) throw error
+      }
+
       setIsLoading(false)
       setMessage(t.settings.changePasswordSuccess)
+      setIsSuccess(true)
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-    }, 1000)
+    } catch (err) {
+      setIsLoading(false)
+      setMessage(err instanceof Error ? err.message : 'Password change failed')
+    }
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
-      </div>
-      
+      </PageHeader>
+
       <div className="bg-white mt-2 px-5 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.currentPassword}
             </label>
             <div className="relative">
@@ -68,9 +87,9 @@ export default function PasswordSettings() {
               </button>
             </div>
           </div>
-          
+
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.newPassword}
             </label>
             <div className="relative">
@@ -90,9 +109,9 @@ export default function PasswordSettings() {
               </button>
             </div>
           </div>
-          
+
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.confirmPassword}
             </label>
             <Input
@@ -103,13 +122,13 @@ export default function PasswordSettings() {
               placeholder={t.settings.enterConfirmPassword}
             />
           </div>
-          
+
           {message && (
-            <p className={`text-sm ${message.includes('thành công') || message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-sm ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
               {message}
             </p>
           )}
-          
+
           <Button
             type="submit"
             disabled={isLoading}
@@ -120,5 +139,6 @@ export default function PasswordSettings() {
         </form>
       </div>
     </div>
+    </PageTransition>
   )
 }

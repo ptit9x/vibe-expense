@@ -3,6 +3,7 @@ import { useI18n } from '@/lib/i18n'
 import {
   Receipt,
   PiggyBank,
+  HandCoins,
 } from 'lucide-react'
 
 interface QuickActionsProps {
@@ -12,6 +13,7 @@ interface QuickActionsProps {
 const defaultItems = [
   { icon: Receipt, labelKey: 'reports.expenseReport', href: '/reports/expense', color: '#EF4444' },
   { icon: PiggyBank, labelKey: 'reports.incomeReport', href: '/reports/income', color: '#10B981' },
+  { icon: HandCoins, labelKey: 'reports.debtReport', href: '/reports/debt', color: '#6366F1' },
 ]
 
 export function QuickActions({ items = defaultItems }: QuickActionsProps) {

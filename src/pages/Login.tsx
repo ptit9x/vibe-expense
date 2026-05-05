@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { useLogin } from "@/hooks/useAuth"
@@ -43,16 +43,16 @@ export default function Login() {
 
   return (
     <>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
         {t.loginPage.welcomeBack}
       </h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
         {t.loginPage.loginDescription}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-2 block">
             {t.auth.email}
           </label>
           <input
@@ -60,12 +60,12 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
-            className="w-full h-12 px-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
           />
         </div>
 
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-2 block">
             {t.auth.password}
           </label>
           <div className="relative">
@@ -74,7 +74,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.loginPage.enterPassword}
-              className="w-full h-12 px-4 pr-12 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-12 px-4 pr-12 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
             />
             <button
               type="button"
@@ -88,7 +88,7 @@ export default function Login() {
         </div>
 
         <div className="text-right">
-          <button type="button" className="text-sm text-blue-500 hover:text-blue-600">
+          <button type="button" onClick={() => navigate('/forgot-password')} className="text-sm text-indigo-500 hover:text-indigo-600">
             {t.auth.forgotPassword}
           </button>
         </div>
@@ -96,22 +96,13 @@ export default function Login() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-blue-500 text-white font-semibold text-base rounded-xl hover:bg-blue-600 transition-colors disabled:bg-blue-300 flex items-center justify-center gap-2"
+          className="w-full h-12 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-base rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
           {t.auth.login}
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
-        {t.auth.dontHaveAccount}{" "}
-        <Link
-          to="/register"
-          className="text-blue-500 font-medium hover:text-blue-600"
-        >
-          {t.auth.registerNow}
-        </Link>
-      </div>
     </>
   )
 }

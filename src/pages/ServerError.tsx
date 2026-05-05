@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { ServerCrash } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 const ServerError = () => {
+    const { t } = useI18n();
+
     return (
         <div className="flex h-screen w-full flex-col items-center justify-center bg-background px-4">
             <div className="flex flex-col items-center space-y-6 text-center">
@@ -10,10 +13,10 @@ const ServerError = () => {
                 </div>
                 <div className="space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">500</h1>
-                    <h2 className="text-2xl font-semibold tracking-tight">Internal Server Error</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight">{t.errors.internalServerError}</h2>
                 </div>
                 <p className="max-w-[600px] text-muted-foreground">
-                    We're sorry, something went wrong on our end. Please try refreshing the page or come back later.
+                    {t.errors.serverErrorDesc}
                 </p>
                 <div className="flex gap-4 mt-4">
                     <Button
@@ -21,13 +24,13 @@ const ServerError = () => {
                         size="lg"
                         onClick={() => window.location.reload()}
                     >
-                        Try again
+                        {t.errors.tryAgain}
                     </Button>
                     <Button
                         size="lg"
                         onClick={() => window.location.href = '/'}
                     >
-                        Go to home
+                        {t.errors.goToHome}
                     </Button>
                 </div>
             </div>

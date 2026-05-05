@@ -18,7 +18,7 @@ export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+    <>
       <p className="text-white/60 text-sm mb-1 text-center">{t.transaction.amount}</p>
       <div className="flex items-center justify-center">
         <input
@@ -26,11 +26,12 @@ export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
           inputMode="decimal"
           value={value}
           onChange={handleChange}
+          aria-label={t.transaction.amount}
           placeholder="0"
           className="text-center text-5xl font-bold text-white placeholder-white/40 bg-transparent focus:outline-none w-full max-w-[280px]"
         />
         <span className="text-2xl text-white/60 ml-1">{currency.symbol}</span>
       </div>
-    </div>
+    </>
   )
 }

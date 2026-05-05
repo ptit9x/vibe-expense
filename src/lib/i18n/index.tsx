@@ -1,6 +1,9 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react'
 import { translations } from './translations'
 import type { Language, TranslationKey } from './translations'
+
+export type { Language }
 
 type I18nProviderProps = {
   children: React.ReactNode
@@ -43,6 +46,7 @@ export function I18nProvider({
   const value: I18nProviderState = {
     language,
     setLanguage,
+    // eslint-disable-next-line security/detect-object-injection
     t: translations[language] as TranslationKey,
   }
 

@@ -3,8 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from './components/theme-provider'
 import { I18nProvider } from './lib/i18n'
+import { injectSpeedInsights } from '@vercel/speed-insights'
 import './index.css'
 import App from './App.tsx'
+
+// Inject Speed Insights for Vercel performance monitoring
+injectSpeedInsights()
 
 const queryClient = new QueryClient()
 
