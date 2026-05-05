@@ -33,6 +33,35 @@ export function useTransactions(month?: string) {
   })
 }
 
+// Fetch single transaction by ID
+export function useTransaction(id: string | undefined) {
+  return useQuery({
+    queryKey: ['transaction', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No ID')
+
+      if (!isSupabaseConfigured()) {
+        const mocks = getMockTransactions()
+        return mocks.find(t => t.id === id) || null
+      }
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*, wallet:wallets(id, name, icon, color), category:categories(id, name, icon, color)')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single()
+
+      if (error) throw error
+      return data as Transaction
+    },
+    enabled: !!id,
+  })
+}
+
 // Create transaction
 export function useCreateTransaction() {
   const queryClient = useQueryClient()

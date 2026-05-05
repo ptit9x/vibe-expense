@@ -11,6 +11,7 @@ import VerifyEmail from './pages/VerifyEmail'
 import Dashboard from './pages/Dashboard'
 import TransactionsPage from './pages/Transactions'
 import AddTransactionPage from './pages/AddTransaction'
+import EditTransactionPage from './pages/EditTransaction'
 import WalletsPage from './pages/Wallets'
 import ReportsPage from './pages/Reports'
 import ExpenseReportPage from './pages/ExpenseReport'
@@ -51,7 +52,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/add-transaction" element={<AddTransactionPage />} />
-            <Route path="/edit-transaction/:id" element={<AddTransactionPage />} />
+            <Route path="/edit-transaction/:id" element={<EditTransactionPage />} />
             <Route path="/wallets" element={<WalletsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/expense" element={<ExpenseReportPage />} />

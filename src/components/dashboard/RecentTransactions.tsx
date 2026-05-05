@@ -52,8 +52,9 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 : txDate.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' })
 
               return (
-                <div
+                <Link
                   key={tx.id}
+                  to={`/edit-transaction/${tx.id}`}
                   className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0"
                 >
                   <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -79,7 +80,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                     {tx.type === 'income' ? '+' : '-'}
                     {currency.symbol}{formatCurrency(tx.amount)}
                   </span>
-                </div>
+                </Link>
               )
             })}
           </div>

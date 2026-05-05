@@ -113,9 +113,10 @@ export default function Transactions() {
           ) : (
             <div className="space-y-2">
               {filteredTransactions?.map((transaction) => (
-                <div
+                <Link
                   key={transaction.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                  to={`/edit-transaction/${transaction.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -143,7 +144,7 @@ export default function Transactions() {
                       {new Date(transaction.transaction_date).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
