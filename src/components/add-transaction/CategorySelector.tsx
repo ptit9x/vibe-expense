@@ -19,14 +19,16 @@ interface CategorySelectorProps {
 export function CategorySelector({ categories, selectedId, onSelect, isLoading }: CategorySelectorProps) {
   const { t } = useI18n()
 
-
   if (isLoading) {
     return (
       <div className="bg-white mt-2 px-5 py-4">
         <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">{t.transaction.category}</p>
-        <div className="flex gap-2 overflow-x-auto pb-2 px-5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-10 w-24 bg-gray-100 rounded-full animate-pulse shrink-0" />
+        <div className="grid grid-cols-4 gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="flex flex-col items-center gap-1.5 py-2">
+              <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+              <div className="h-3 w-12 bg-gray-100 rounded animate-pulse" />
+            </div>
           ))}
         </div>
       </div>
@@ -45,9 +47,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
   return (
     <div className="bg-white mt-2 px-5 py-4">
       <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">{t.transaction.category}</p>
-      <div
-        className="flex gap-2 overflow-x-auto pb-2 px-5 scrollbar-hide"
-      >
+      <div className="grid grid-cols-4 gap-1">
         {categories.map((cat) => {
           const isSelected = selectedId === cat.id
           return (
@@ -55,15 +55,32 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
               key={cat.id}
               onClick={() => onSelect(cat.id)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all text-sm shrink-0",
+                "flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-all",
                 isSelected
-                  ? "text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-blue-50"
+                  : "hover:bg-gray-50 active:scale-95"
               )}
-              style={isSelected && cat.color ? { backgroundColor: cat.color } : {}}
             >
-              <span className="text-lg">{cat.icon}</span>
-              <span className="font-medium whitespace-nowrap">{cat.name}</span>
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all",
+                  isSelected && "ring-2 ring-offset-1"
+                )}
+                style={{
+                  backgroundColor: isSelected ? (cat.color || '#3B82F6') + '20' : '#F3F4F6',
+                  ...(isSelected ? { ringColor: cat.color || '#3B82F6' } : {}),
+                }}
+              >
+                <span className="text-lg">{cat.icon}</span>
+              </div>
+              <span
+                className={cn(
+                  "text-[11px] leading-tight text-center line-clamp-1 w-full",
+                  isSelected ? "text-gray-900 font-medium" : "text-gray-500"
+                )}
+              >
+                {cat.name}
+              </span>
             </button>
           )
         })}
