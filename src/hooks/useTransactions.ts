@@ -23,7 +23,12 @@ export function useTransactions(month?: string) {
         .order('transaction_date', { ascending: false })
 
       if (month) {
-        query = query.like('transaction_date', `${month}%`)
+        // month = 'YYYY-MM', filter from 1st to end of month
+        const [year, mon] = month.split('-').map(Number)
+        const nextMonth = mon === 12 ? `${year + 1}-01` : `${year}-${String(mon + 1).padStart(2, '0')}`
+        query = query
+          .gte('transaction_date', `${month}-01`)
+          .lt('transaction_date', `${nextMonth}-01`)
       }
 
       const { data, error } = await query
