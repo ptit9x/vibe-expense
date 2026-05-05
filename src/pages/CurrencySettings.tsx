@@ -1,45 +1,27 @@
-import { useState, useEffect } from 'react'
 import { Check } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 import { useUpdateProfile } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
-
-const CURRENCIES = [
-  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫', flag: '🇻🇳' },
-  { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸' },
-  { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵' },
-  { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧' },
-]
+import { useUIStore, CURRENCIES } from '@/stores/uiStore'
 
 export default function CurrencySettings() {
   const { t } = useI18n()
-  const { data: user } = useAuth()
+  const { currency, setCurrency } = useUIStore()
   const updateProfile = useUpdateProfile()
-  const [selectedCurrency, setSelectedCurrency] = useState('VND')
-  const [isUpdating, setIsUpdating] = useState(false)
-
-  useEffect(() => {
-    // Get current currency from user metadata or default to VND
-    const currentCurrency = (user as any)?.currency || 'VND'
-    setSelectedCurrency(currentCurrency)
-  }, [user])
 
   const handleSelectCurrency = async (code: string) => {
-    if (code === selectedCurrency) return
+    if (code === currency.code) return
 
-    setSelectedCurrency(code)
-    setIsUpdating(true)
+    const newCurrency = CURRENCIES.find(c => c.code === code)
+    if (!newCurrency) return
+
+    setCurrency(newCurrency)
 
     try {
       await updateProfile.mutateAsync({ currency: code })
-      toast.success('Currency updated successfully')
+      toast.success(t.common.success)
     } catch (error) {
-      toast.error('Failed to update currency')
-      setSelectedCurrency(selectedCurrency) // Revert on error
-    } finally {
-      setIsUpdating(false)
+      toast.error(t.common.error)
     }
   }
 
@@ -52,27 +34,27 @@ export default function CurrencySettings() {
       <div className="bg-white mt-2 px-5 py-4">
         <p className="text-sm font-medium text-gray-500 mb-3">Select your preferred currency</p>
         <div className="space-y-3">
-          {CURRENCIES.map((currency) => (
+          {CURRENCIES.map((curr) => (
             <button
-              key={currency.code}
-              onClick={() => handleSelectCurrency(currency.code)}
-              disabled={isUpdating}
+              key={curr.code}
+              onClick={() => handleSelectCurrency(curr.code)}
+              disabled={updateProfile.isPending}
               className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
-                selectedCurrency === currency.code
+                currency.code === curr.code
                   ? 'bg-blue-50 border-2 border-blue-500'
                   : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{currency.flag}</span>
+                <span className="text-2xl">{curr.flag}</span>
                 <div className="text-left">
-                  <span className="text-gray-900 font-medium block">{currency.code}</span>
-                  <span className="text-gray-500 text-sm">{currency.name}</span>
+                  <span className="text-gray-900 font-medium block">{curr.code}</span>
+                  <span className="text-gray-500 text-sm">{curr.name}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-medium text-gray-700">{currency.symbol}</span>
-                {selectedCurrency === currency.code && (
+                <span className="text-lg font-medium text-gray-700">{curr.symbol}</span>
+                {currency.code === curr.code && (
                   <Check className="h-5 w-5 text-blue-500" />
                 )}
               </div>

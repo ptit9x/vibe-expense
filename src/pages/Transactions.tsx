@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 export default function Transactions() {
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7))
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
   const { data: transactions, isLoading } = useTransactions(month)
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   const filteredTransactions = transactions?.filter(txn =>
     typeFilter === 'all' || txn.type === typeFilter
@@ -65,7 +67,7 @@ export default function Transactions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {new Intl.NumberFormat('vi-VN').format(totalIncome)} ₫
+              {currency.symbol}{formatCurrency(totalIncome)}
             </div>
           </CardContent>
         </Card>
@@ -76,7 +78,7 @@ export default function Transactions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {new Intl.NumberFormat('vi-VN').format(totalExpense)} ₫
+              {currency.symbol}{formatCurrency(totalExpense)}
             </div>
           </CardContent>
         </Card>
@@ -90,7 +92,7 @@ export default function Transactions() {
               "text-2xl font-bold",
               totalIncome - totalExpense >= 0 ? "text-blue-600" : "text-red-600"
             )}>
-              {new Intl.NumberFormat('vi-VN').format(totalIncome - totalExpense)} ₫
+              {currency.symbol}{formatCurrency(totalIncome - totalExpense)}
             </div>
           </CardContent>
         </Card>
@@ -134,7 +136,8 @@ export default function Transactions() {
                       "font-bold",
                       transaction.type === 'income' ? "text-green-600" : "text-red-600"
                     )}>
-                      {transaction.type === 'income' ? '+' : '-'}{new Intl.NumberFormat('vi-VN').format(transaction.amount)} ₫
+                      {transaction.type === 'income' ? '+' : '-'}
+                      {currency.symbol}{formatCurrency(transaction.amount)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(transaction.transaction_date).toLocaleDateString('vi-VN')}

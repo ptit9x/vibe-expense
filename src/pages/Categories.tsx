@@ -1,16 +1,69 @@
-import { useState } from 'react'
-import { ChevronLeft, ChevronDown, Plus, Pencil, Trash2, X } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { ChevronLeft, ChevronDown, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCategories, useDeleteCategoryOverride, useUpdateCategoryOverride, useCreateCategory } from '@/hooks/useCategories'
 import { useI18n } from '@/lib/i18n'
 import type { Category } from '@/types'
 import { toast } from 'sonner'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 
 // Predefined icons and colors for category picker
-const ICON_OPTIONS = ['🍔', '🚗', '🏠', '🎮', '🛒', '💊', '📦', '💰', '🎁', '📈', '☕', '🎵', '📚', '🏋️', '🛠️', '💼']
-const COLOR_OPTIONS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#95A5A6', '#2ECC71', '#9B59B6', '#3498DB']
+const ICON_OPTIONS = [
+  // Food & Drink
+  '🍔', '🍕', '🍜', '🍣', '☕', '🍺', '🧃', '🍰', '🥗', '🍳',
+  // Transport
+  '🚗', '🚌', '🚕', '🚲', '✈️', '🛵', '⛽', '🅿️',
+  // Home & Living
+  '🏠', '🛋️', '💡', '🚿', '🧹', '🔑', '🏡',
+  // Shopping
+  '🛒', '👗', '👟', '💄', '💍', '🧳',
+  // Entertainment
+  '🎮', '🎬', '🎵', '🎯', '🎲', '🧩', '🎪', '🎭',
+  // Health
+  '💊', '🏥', '🩺', '🧘', '💪', '🦷',
+  // Education
+  '📚', '🎓', '✏️', '🏫', '💡', '🔬',
+  // Finance
+  '💰', '📈', '💳', '🏦', '💵', '📊', '🏧',
+  // Work
+  '💼', '🖥️', '📱', '📋', '🔧', '🛠️', '⚙️',
+  // Social
+  '🎁', '🎂', '💌', '💐', '🎊', '🤝',
+  // Sports
+  '🏋️', '⚽', '🏀', '🎾', '🏊', '🚴', '🏔️',
+  // Travel
+  '✈️', '🏖️', '🗺️', '📸', '🌍', '🎒',
+  // Pets
+  '🐾', '🐶', '🐱', '🐟',
+  // Kids
+  '👶', '🧸', '🍼', '🚸',
+  // Other
+  '📦', '❓', '⭐', '🏷️', '📌', '🔔', '🧪',
+]
+const COLOR_OPTIONS = [
+  // Red
+  '#FF6B6B', '#E74C3C', '#C0392B', '#FF4757',
+  // Orange
+  '#FF9F43', '#E67E22', '#F39C12', '#FFA502',
+  // Yellow
+  '#FFEAA7', '#F1C40F', '#FFD93D',
+  // Green
+  '#2ECC71', '#27AE60', '#96CEB4', '#00B894', '#55E6C1',
+  // Teal
+  '#4ECDC4', '#1ABC9C', '#00CEC9',
+  // Blue
+  '#3498DB', '#2980B9', '#45B7D1', '#74B9FF', '#0984E3',
+  // Purple
+  '#9B59B6', '#8E44AD', '#A29BFE', '#6C5CE7',
+  // Pink
+  '#DDA0DD', '#FD79A8', '#E84393', '#FF6B81',
+  // Gray
+  '#95A5A6', '#636E72', '#B2BEC3',
+  // Dark
+  '#2D3436', '#34495E',
+]
 
 interface CategoryFormData {
   name: string
@@ -29,6 +82,14 @@ export default function Categories() {
   const [formName, setFormName] = useState('')
   const [formIcon, setFormIcon] = useState('📦')
   const [formColor, setFormColor] = useState('#95A5A6')
+  const [formParentId, setFormParentId] = useState<string | undefined>(undefined)
+  const [confirmState, setConfirmState] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
+    open: false, title: '', description: '', onConfirm: () => {},
+  })
+
+  const showConfirm = useCallback((title: string, description: string, onConfirm: () => void) => {
+    setConfirmState({ open: true, title, description, onConfirm })
+  }, [])
 
   const { data: categories, isLoading } = useCategories()
   const deleteOverride = useDeleteCategoryOverride()
@@ -58,6 +119,16 @@ export default function Categories() {
     setFormName('')
     setFormIcon('📦')
     setFormColor('#95A5A6')
+    setFormParentId(undefined)
+    setModalMode('add')
+    setShowModal(true)
+  }
+
+  const openAddSubModal = (parentId: string) => {
+    setFormName('')
+    setFormIcon('📦')
+    setFormColor('#95A5A6')
+    setFormParentId(parentId)
     setModalMode('add')
     setShowModal(true)
   }
@@ -66,6 +137,7 @@ export default function Categories() {
     setFormName(getCategoryDisplayName(cat.name))
     setFormIcon(cat.icon || '📦')
     setFormColor(cat.color || '#95A5A6')
+    setFormParentId(cat.parent_id || undefined)
     setEditingCategory(cat)
     setModalMode('edit')
     setShowModal(true)
@@ -85,7 +157,7 @@ export default function Categories() {
       icon: formIcon,
       color: formColor,
       type: activeTab,
-      parent_id: editingCategory?.parent_id || undefined,
+      parent_id: formParentId || undefined,
     }
 
     if (modalMode === 'add') {
@@ -103,6 +175,7 @@ export default function Categories() {
           customName: data.name,
           customIcon: data.icon,
           customColor: data.color,
+          isSystem: editingCategory.is_system,
         },
         {
           onSuccess: () => {
@@ -113,22 +186,6 @@ export default function Categories() {
         }
       )
     }
-  }
-
-  const handleDeleteSubcategory = (subId: string) => {
-    if (confirm('Delete this subcategory?')) {
-      deleteOverride.mutate(subId, {
-        onSuccess: () => toast.success('Category deleted'),
-        onError: () => toast.error('Failed to delete category'),
-      })
-    }
-  }
-
-  const handleResetSubcategory = (subId: string) => {
-    deleteOverride.mutate(subId, {
-      onSuccess: () => toast.success('Category reset to default'),
-      onError: () => toast.error('Failed to reset category'),
-    })
   }
 
   return (
@@ -192,22 +249,30 @@ export default function Categories() {
               {userCategories.map(cat => {
                 const children = getSubcategories(cat.id)
                 return (
-                  <UserCategoryCard
+                  <CategoryCard
                     key={cat.id}
                     category={cat}
                     subcategories={children}
+                    resolveName={getCategoryDisplayName}
                     onEdit={() => openEditModal(cat)}
                     onDelete={() => {
-                      if (confirm('Delete this category?')) {
-                        deleteOverride.mutate(cat.id, {
+                      showConfirm('Delete Category', `Are you sure you want to delete "${getCategoryDisplayName(cat.name)}"? This cannot be undone.`, () => {
+                        deleteOverride.mutate({ categoryId: cat.id, isSystem: false }, {
                           onSuccess: () => toast.success('Category deleted'),
                           onError: () => toast.error('Failed to delete category'),
                         })
-                      }
+                      })
                     }}
+                    onAddSub={() => openAddSubModal(cat.id)}
                     onEditSub={openEditModal}
-                    onDeleteSub={handleDeleteSubcategory}
-                    resolveName={getCategoryDisplayName}
+                    onDeleteSub={(subId) => {
+                      showConfirm('Delete Subcategory', 'Are you sure you want to delete this subcategory?', () => {
+                        deleteOverride.mutate({ categoryId: subId, isSystem: false }, {
+                          onSuccess: () => toast.success('Subcategory deleted'),
+                          onError: () => toast.error('Failed to delete subcategory'),
+                        })
+                      })
+                    }}
                   />
                 )
               })}
@@ -230,22 +295,13 @@ export default function Categories() {
             <div className="space-y-2">
               {systemCategories.map(cat => {
                 const children = getSubcategories(cat.id)
-                const catWithMeta = cat as Category & { is_customized?: boolean }
                 return (
-                  <SystemCategoryCard
+                  <CategoryCard
                     key={cat.id}
-                    category={catWithMeta}
+                    category={cat}
                     subcategories={children}
                     resolveName={getCategoryDisplayName}
-                    onEdit={() => openEditModal(cat)}
-                    onReset={() => {
-                      deleteOverride.mutate(cat.id, {
-                        onSuccess: () => toast.success('Category reset to default'),
-                        onError: () => toast.error('Failed to reset category'),
-                      })
-                    }}
-                    onEditSub={openEditModal}
-                    onResetSub={handleResetSubcategory}
+                    isSystem
                   />
                 )
               })}
@@ -278,168 +334,164 @@ export default function Categories() {
         </BottomSheetFormField>
 
         <BottomSheetFormField label="Color">
-          <ColorPicker value={formColor} onChange={setFormColor} options={COLOR_OPTIONS} />
+          <ColorPicker value={formColor} onChange={setFormColor} options={COLOR_OPTIONS} previewIcon={formIcon} />
+        </BottomSheetFormField>
+
+        <BottomSheetFormField label="Parent Category">
+          <select
+            value={formParentId || ''}
+            onChange={(e) => setFormParentId(e.target.value || undefined)}
+            className="w-full h-12 px-3 bg-gray-50 rounded-lg text-base appearance-none"
+          >
+            <option value="">None (Top-level)</option>
+            {parentCategories.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.icon} {getCategoryDisplayName(p.name)}
+              </option>
+            ))}
+          </select>
         </BottomSheetFormField>
       </BottomSheet>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmState.open}
+        onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}
+        title={confirmState.title}
+        description={confirmState.description}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={confirmState.onConfirm}
+      />
     </div>
   )
 }
 
-interface UserCategoryCardProps {
+
+interface CategoryCardProps {
   category: Category
   subcategories: Category[]
-  onEdit: () => void
-  onDelete: () => void
-  onEditSub: (sub: Category) => void
-  onDeleteSub: (subId: string) => void
   resolveName: (name: string | null | undefined) => string
+  isSystem?: boolean
+  onEdit?: () => void
+  onDelete?: () => void
+  onAddSub?: () => void
+  onEditSub?: (sub: Category) => void
+  onDeleteSub?: (subId: string) => void
 }
 
-function UserCategoryCard({ category, subcategories, onEdit, onDelete, onEditSub, onDeleteSub, resolveName }: UserCategoryCardProps) {
-  const [expanded, setExpanded] = useState(false)
+function CategoryCard({
+  category,
+  subcategories,
+  resolveName,
+  isSystem = false,
+  onEdit,
+  onDelete,
+  onAddSub,
+  onEditSub,
+  onDeleteSub,
+}: CategoryCardProps) {
+  const [expanded, setExpanded] = useState(true)
+  const hasChildren = subcategories.length > 0
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* Parent row */}
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
             style={{ backgroundColor: (category.color || '#6B7280') + '20' }}
           >
             {category.icon}
           </div>
-          <span className="font-medium text-gray-900">{resolveName(category.name)}</span>
+          <span className="font-medium text-gray-900 truncate">{resolveName(category.name)}</span>
+          {hasChildren && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full shrink-0">
+              {subcategories.length}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={onEdit} className="p-2 text-gray-400 hover:text-blue-500">
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button onClick={onDelete} className="p-2 text-gray-400 hover:text-red-500">
-            <Trash2 className="h-4 w-4" />
-          </button>
-          {subcategories.length > 0 && (
-            <button onClick={() => setExpanded(!expanded)} className="p-1">
-              <ChevronDown className={cn("h-5 w-5 text-gray-400 transition-transform", expanded && "rotate-180")} />
+        <div className="flex items-center gap-1 shrink-0">
+          {!isSystem && onAddSub && (
+            <button onClick={onAddSub} className="p-2 text-gray-400 hover:text-green-500 rounded-lg" title="Add subcategory">
+              <Plus className="h-4 w-4" />
             </button>
           )}
+          {!isSystem && onEdit && (
+            <button onClick={onEdit} className="p-2 text-gray-400 hover:text-blue-500 rounded-lg">
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+          {!isSystem && onDelete && (
+            <button onClick={onDelete} className="p-2 text-gray-400 hover:text-red-500 rounded-lg">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-gray-400 transition-transform duration-200",
+                expanded && "rotate-180"
+              )}
+            />
+          </button>
         </div>
       </div>
 
-      {expanded && subcategories.length > 0 && (
-        <div className="px-4 pb-4 pt-0">
-          <div className="border-t border-gray-100 pt-3 space-y-2">
-            {subcategories.map(sub => (
-              <div key={sub.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>{sub.icon}</span>
-                  <span className="text-gray-600 text-sm">{resolveName(sub.name)}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => onEditSub(sub)}
-                    className="p-1.5 text-gray-400 hover:text-blue-500"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  {!sub.is_system && (
+      {/* Subcategories */}
+      {expanded && (
+        <div className="border-t border-gray-100">
+          {subcategories.map(sub => (
+            <div
+              key={sub.id}
+              className="flex items-center justify-between py-3 px-4 pl-8 border-b border-gray-50 last:border-0"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-base">{sub.icon}</span>
+                <span className="text-sm text-gray-700 truncate">{resolveName(sub.name)}</span>
+              </div>
+              {!isSystem && (
+                <div className="flex items-center gap-0.5 shrink-0">
+                  {onEditSub && (
+                    <button
+                      onClick={() => onEditSub(sub)}
+                      className="p-1.5 text-gray-300 hover:text-blue-500 rounded-lg"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  {onDeleteSub && (
                     <button
                       onClick={() => onDeleteSub(sub.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-500"
+                      className="p-1.5 text-gray-300 hover:text-red-500 rounded-lg"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-interface SystemCategoryCardProps {
-  category: Category & { is_customized?: boolean }
-  subcategories: Category[]
-  resolveName: (name: string | null | undefined) => string
-  onEdit: () => void
-  onReset: () => void
-  onEditSub: (sub: Category) => void
-  onResetSub: (subId: string) => void
-}
-
-function SystemCategoryCard({ category, subcategories, resolveName, onEdit, onReset, onEditSub, onResetSub }: SystemCategoryCardProps) {
-  const [expanded, setExpanded] = useState(false)
-  const isCustomized = !!(category as any).is_customized
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-            style={{ backgroundColor: (category.color || '#6B7280') + '20' }}
-          >
-            {category.icon}
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900">{resolveName(category.name)}</span>
-              {isCustomized && (
-                <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded-full">Customized</span>
               )}
             </div>
-          </div>
-        </div>
+          ))}
 
-        <div className="flex items-center gap-2">
-          <button onClick={onEdit} className="p-2 text-gray-400 hover:text-blue-500">
-            <Pencil className="h-4 w-4" />
-          </button>
-          {isCustomized && (
-            <button onClick={onReset} className="p-2 text-gray-400 hover:text-blue-500" title="Reset to default">
-              <X className="h-4 w-4" />
+          {/* Add subcategory row */}
+          {!isSystem && onAddSub && (
+            <button
+              onClick={onAddSub}
+              className="w-full flex items-center gap-2.5 py-3 px-4 pl-8 text-gray-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="text-sm">Add subcategory</span>
             </button>
           )}
-          {subcategories.length > 0 && (
-            <button onClick={() => setExpanded(!expanded)} className="p-1">
-              <ChevronDown className={cn("h-5 w-5 text-gray-400 transition-transform", expanded && "rotate-180")} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {expanded && subcategories.length > 0 && (
-        <div className="px-4 pb-4 pt-0">
-          <div className="border-t border-gray-100 pt-3 space-y-2">
-            {subcategories.map(sub => (
-              <div key={sub.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>{sub.icon}</span>
-                  <span className="text-gray-600 text-sm">{resolveName(sub.name)}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => onEditSub(sub)}
-                    className="p-1.5 text-gray-400 hover:text-blue-500"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  {isCustomized && (
-                    <button
-                      onClick={() => onResetSub(sub.id)}
-                      className="p-1.5 text-gray-400 hover:text-blue-500"
-                      title="Reset to default"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>

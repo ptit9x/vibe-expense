@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useSavings, useCreateSavingsGoal } from '@/hooks/useSavings'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 import type { SavingsGoal } from '@/types'
 
 export default function Savings() {
@@ -16,6 +17,7 @@ export default function Savings() {
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   const goalsData = goals as SavingsGoal[] | undefined
   const totalSaved = goalsData?.reduce((sum, g) => sum + (g.current_amount || 0), 0) || 0
@@ -76,10 +78,10 @@ export default function Savings() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {new Intl.NumberFormat('vi-VN').format(totalSaved)} ₫
+              {currency.symbol}{formatCurrency(totalSaved)}
             </p>
             <p className="text-sm text-white/70 mt-1">
-              {t.savings.target}: {new Intl.NumberFormat('vi-VN').format(totalTarget)} ₫
+              {t.savings.target}: {currency.symbol}{formatCurrency(totalTarget)}
             </p>
           </CardContent>
         </Card>
@@ -186,10 +188,10 @@ export default function Savings() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-muted-foreground">
-                        {new Intl.NumberFormat('vi-VN').format(goal.current_amount)} ₫
+                        {currency.symbol}{formatCurrency(goal.current_amount)}
                       </span>
                       <span className="font-medium" style={{ color: goal.color }}>
-                        {new Intl.NumberFormat('vi-VN').format(goal.target_amount)} ₫
+                        {currency.symbol}{formatCurrency(goal.target_amount)}
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -205,7 +207,7 @@ export default function Savings() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{t.savings.remaining}</span>
                     <span className="font-medium text-orange-600">
-                      {new Intl.NumberFormat('vi-VN').format(remaining)} ₫
+                      {currency.symbol}{formatCurrency(remaining)}
                     </span>
                   </div>
                   {goal.deadline && (

@@ -11,21 +11,16 @@ export function useCategories(type?: TransactionType) {
         return getMockCategories(type)
       }
 
-      // Fetch categories: RLS handles filtering
-      // - System categories (user_id = null) visible to all authenticated users
-      // - User categories (user_id = auth.uid()) visible only to owner
       const { data: allCategories, error } = await supabase
         .from('categories')
         .select('*')
 
       if (error) throw error
 
-      // Filter by type if specified
       const filteredCategories = type
         ? allCategories.filter(c => c.type === type)
         : allCategories
 
-      // Map to include i18n_key for label resolution
       return filteredCategories.map(c => ({
         ...c,
         i18n_key: (c as any).i18n_key || extractI18nKey(c.name),
@@ -35,54 +30,71 @@ export function useCategories(type?: TransactionType) {
   })
 }
 
-// Seed categories for new user on first login
-export async function seedUserCategories(userId: string) {
-  if (!isSupabaseConfigured()) return
-
-  const { data: systemCategories, error: fetchError } = await supabase
-    .from('categories')
-    .select('id')
-    .is('is_system', true)
-
-  if (fetchError || !systemCategories) return
-
-  const userCategoryEntries = systemCategories.map(cat => ({
-    user_id: userId,
-    category_id: cat.id,
-  }))
-
-  await supabase.from('user_categories').upsert(userCategoryEntries, {
-    onConflict: 'user_id,category_id',
-    ignoreDuplicates: true,
-  })
-}
-
-// Update category override for user
 export function useUpdateCategoryOverride() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ categoryId, customName, customIcon, customColor }: {
+    mutationFn: async ({ categoryId, customName, customIcon, customColor, isSystem }: {
       categoryId: string
       customName?: string
       customIcon?: string
       customColor?: string
+      isSystem?: boolean
     }) => {
       if (!isSupabaseConfigured()) {
         return { categoryId, customName, customIcon, customColor }
       }
 
-      const { error } = await supabase
-        .from('user_categories')
-        .update({
-          custom_name: customName,
-          custom_icon: customIcon,
-          custom_color: customColor,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('category_id', categoryId)
+      if (isSystem) {
+        // System category: create a user-owned override as child
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
 
-      if (error) throw error
+        // Check existing override
+        const { data: existing } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('parent_id', categoryId)
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (existing) {
+          const { error } = await supabase
+            .from('categories')
+            .update({ name: customName, icon: customIcon, color: customColor })
+            .eq('id', existing.id)
+          if (error) throw error
+        } else {
+          // Get original type
+          const { data: original } = await supabase
+            .from('categories')
+            .select('type')
+            .eq('id', categoryId)
+            .single()
+
+          const { error } = await supabase
+            .from('categories')
+            .insert({
+              name: customName,
+              icon: customIcon,
+              color: customColor,
+              type: original?.type || 'expense',
+              parent_id: categoryId,
+              user_id: user.id,
+              is_system: false,
+            })
+          if (error) throw error
+        }
+      } else {
+        // User category: update directly
+        const { error } = await supabase
+          .from('categories')
+          .update({ name: customName, icon: customIcon, color: customColor })
+          .eq('id', categoryId)
+
+        if (error) throw error
+      }
+
       return { categoryId, customName, customIcon, customColor }
     },
     onSuccess: () => {
@@ -91,22 +103,37 @@ export function useUpdateCategoryOverride() {
   })
 }
 
-// Reset category override (remove customizations)
 export function useDeleteCategoryOverride() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (categoryId: string) => {
+    mutationFn: async ({ categoryId, isSystem }: { categoryId: string; isSystem?: boolean }) => {
       if (!isSupabaseConfigured()) {
         return { categoryId }
       }
 
-      const { error } = await supabase
-        .from('user_categories')
-        .delete()
-        .eq('category_id', categoryId)
+      if (isSystem) {
+        // System category: remove user override child
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
 
-      if (error) throw error
+        const { error } = await supabase
+          .from('categories')
+          .delete()
+          .eq('parent_id', categoryId)
+          .eq('user_id', user.id)
+
+        if (error) throw error
+      } else {
+        // User category: delete directly
+        const { error } = await supabase
+          .from('categories')
+          .delete()
+          .eq('id', categoryId)
+
+        if (error) throw error
+      }
+
       return { categoryId }
     },
     onSuccess: () => {
@@ -115,7 +142,6 @@ export function useDeleteCategoryOverride() {
   })
 }
 
-// Create custom category for user
 export function useCreateCategory() {
   const queryClient = useQueryClient()
 
@@ -181,24 +207,21 @@ function getMockCategories(type?: TransactionType): Category[] {
   return all.filter(c => c.type === type)
 }
 
-// Extract i18n key from category name (e.g., "🍔 Food" -> "categories.food")
 function extractI18nKey(name: string): string {
-  // Try to match against known i18n keys in CATEGORIES
   const nameLower = name.toLowerCase()
-  
+
   for (const type of ['expense', 'income'] as const) {
     for (const cat of CATEGORIES[type]) {
       const catNameLower = cat.nameKey.replace('categories.', '').replace(/([A-Z])/g, ' $1').toLowerCase().trim()
       if (nameLower.includes(catNameLower)) {
         return cat.nameKey
       }
-      // Also check with spaces removed
       const catNameSlug = cat.nameKey.replace('categories.', '').toLowerCase()
       if (nameLower.replace(/\s+/g, '').includes(catNameSlug)) {
         return cat.nameKey
       }
     }
   }
-  
+
   return 'categories.other'
 }

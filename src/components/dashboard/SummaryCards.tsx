@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 interface SummaryCardsProps {
   totalBalance: number
@@ -10,13 +11,14 @@ interface SummaryCardsProps {
   showBalance: boolean
 }
 
-function formatMoney(amount: number, show: boolean): string {
+function formatMoney(amount: number, show: boolean, symbol: string, formatFn: (n: number) => string): string {
   if (!show) return '••••••'
-  return new Intl.NumberFormat('vi-VN').format(amount)
+  return symbol + formatFn(amount)
 }
 
 export function SummaryCards({ totalBalance, income, expense, showBalance }: SummaryCardsProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
   const remaining = income - expense
 
   return (
@@ -31,9 +33,9 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
           </div>
           <p className="text-[10px] text-blue-600 font-medium mb-0.5">{t.dashboard.totalBalance.split(' ').pop()}</p>
           <p className="text-sm font-bold text-blue-700 leading-tight">
-            {formatMoney(totalBalance, showBalance)}
+            {formatMoney(totalBalance, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-blue-400">đ</p>
+          <p className="text-[9px] text-blue-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
@@ -47,9 +49,9 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
           </div>
           <p className="text-[10px] text-green-600 font-medium mb-0.5">{t.dashboard.income}</p>
           <p className="text-sm font-bold text-green-700 leading-tight">
-            {formatMoney(income, showBalance)}
+            {formatMoney(income, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-green-400">đ</p>
+          <p className="text-[9px] text-green-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
@@ -63,9 +65,9 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
           </div>
           <p className="text-[10px] text-red-600 font-medium mb-0.5">{t.dashboard.expense}</p>
           <p className="text-sm font-bold text-red-700 leading-tight">
-            {formatMoney(expense, showBalance)}
+            {formatMoney(expense, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-red-400">đ</p>
+          <p className="text-[9px] text-red-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
@@ -87,9 +89,9 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
           </div>
           <p className={cn("text-[10px] font-medium mb-0.5", remaining >= 0 ? "text-teal-600" : "text-orange-600")}>{t.dashboard.remaining}</p>
           <p className={cn("text-sm font-bold leading-tight", remaining >= 0 ? "text-teal-700" : "text-orange-700")}>
-            {formatMoney(Math.abs(remaining), showBalance)}
+            {formatMoney(Math.abs(remaining), showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className={cn("text-[9px]", remaining >= 0 ? "text-teal-400" : "text-orange-400")}>đ</p>
+          <p className={cn("text-[9px]", remaining >= 0 ? "text-teal-400" : "text-orange-400")}>{currency.symbol}</p>
         </CardContent>
       </Card>
     </div>

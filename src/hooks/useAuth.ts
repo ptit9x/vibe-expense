@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import type { AuthUser, LoginInput, RegisterInput } from '@/types'
-import { seedUserCategories } from '@/hooks/useCategories'
 
 const MOCK_USERS = {
   'dev@example.com': { id: 'dev-user', email: 'dev@example.com', password: 'password', full_name: 'Dev User' },
@@ -61,8 +60,7 @@ export function useLogin() {
 
         const emailConfirmed = !!data.user?.email_confirmed_at || !!data.user?.confirmed_at
 
-        // Seed categories for user if first login
-        await seedUserCategories(data.user.id)
+        // Login successful
 
         return {
           id: data.user.id,

@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 interface TotalBalanceCardProps {
   totalBalance: number
@@ -10,9 +11,10 @@ interface TotalBalanceCardProps {
 
 export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }: TotalBalanceCardProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   return (
-    <div className="bg-linear-to-r from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+    <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-5 pt-4 pb-6">
       <div className="flex items-center justify-between mb-3">
         <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{t.wallet.totalBalance}</p>
         <Button
@@ -32,8 +34,7 @@ export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }:
       <p className="text-3xl font-bold text-white tracking-tight">
         {showBalance ? (
           <>
-            {new Intl.NumberFormat('vi-VN').format(totalBalance)}
-            <span className="text-lg text-white/60 ml-1">đ</span>
+            {currency.symbol}{formatCurrency(totalBalance)}
           </>
         ) : (
           <span className="text-white/40 text-2xl">••••••••</span>

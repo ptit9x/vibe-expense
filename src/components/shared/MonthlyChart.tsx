@@ -1,5 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 export interface MonthlyData {
   month: string
@@ -13,6 +14,7 @@ interface MonthlyChartProps {
 
 export function MonthlyChart({ data }: MonthlyChartProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   return (
     <div className="bg-white mt-2 px-5 py-4">
@@ -29,7 +31,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
             />
             <YAxis hide />
             <Tooltip
-              formatter={(value) => [new Intl.NumberFormat('vi-VN').format(Number(value)) + ' đ', '']}
+              formatter={(value) => [currency.symbol + formatCurrency(Number(value)), '']}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
             />
             <Bar

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 export interface TransactionItem {
   id: string
@@ -23,6 +24,7 @@ interface RecentTransactionsProps {
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
   const today = new Date()
 
   return (
@@ -75,7 +77,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                     )}
                   >
                     {tx.type === 'income' ? '+' : '-'}
-                    {new Intl.NumberFormat('vi-VN').format(tx.amount)}đ
+                    {currency.symbol}{formatCurrency(tx.amount)}
                   </span>
                 </div>
               )

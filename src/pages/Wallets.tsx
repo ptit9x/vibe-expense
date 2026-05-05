@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useWallets, useCreateWallet, useDeleteWallet, useToggleWalletActive } from '@/hooks/useWallets'
 import { useWalletsStore } from '@/stores/walletsStore'
 import { toast } from 'sonner'
@@ -12,6 +12,7 @@ import {
 import { AddWalletModal } from '@/components/wallets/AddWalletModal'
 import type { Wallet } from '@/types'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 const ICON_OPTIONS = ['💵', '💳', '🏦', '📱', '💎', '🎁', '🧧', '💰', '🏠', '🚗', '✈️', '🎓']
 const COLOR_OPTIONS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
@@ -30,6 +31,13 @@ export default function Wallets() {
   const [editName, setEditName] = useState('')
   const [editIcon, setEditIcon] = useState('💵')
   const [editColor, setEditColor] = useState('#3B82F6')
+  const [confirmState, setConfirmState] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
+    open: false, title: '', description: '', onConfirm: () => {},
+  })
+
+  const showConfirm = useCallback((title: string, description: string, onConfirm: () => void) => {
+    setConfirmState({ open: true, title, description, onConfirm })
+  }, [])
 
   // Group wallets by active status
   const activeWallets = wallets?.filter(w => w.is_active) || []
@@ -54,7 +62,7 @@ export default function Wallets() {
       return
     }
 
-    if (confirm(`Delete wallet "${wallet.name}"? This cannot be undone.`)) {
+    showConfirm('Delete Wallet', `Are you sure you want to delete "${wallet.name}"? This cannot be undone.`, () => {
       deleteWallet.mutate(wallet, {
         onSuccess: (result) => {
           if (result.deleted) {
@@ -65,7 +73,7 @@ export default function Wallets() {
         },
         onError: (err) => toast.error(err.message || t.common.error),
       })
-    }
+    })
   }
 
   const handleToggleActive = (wallet: Wallet) => {
@@ -181,6 +189,18 @@ export default function Wallets() {
           <ColorPicker value={editColor} onChange={setEditColor} options={COLOR_OPTIONS} />
         </BottomSheetFormField>
       </BottomSheet>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmState.open}
+        onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}
+        title={confirmState.title}
+        description={confirmState.description}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={confirmState.onConfirm}
+      />
     </div>
   )
 }

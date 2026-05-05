@@ -34,16 +34,17 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 z-60 bg-black/50" onClick={handleClose}>
       <div
-        className="absolute bottom-20 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8 animate-slide-up"
+        className="absolute bottom-20 left-0 right-0 bg-white rounded-t-3xl animate-slide-up flex flex-col"
+        style={{ maxHeight: '70vh' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}
-        <div className="flex justify-center mb-3">
+        <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between px-5 py-3 shrink-0">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           <button
             onClick={handleClose}
@@ -54,19 +55,23 @@ export function BottomSheet({
           </button>
         </div>
 
-        {/* Content */}
-        {children}
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto px-5 flex-1 overscroll-contain">
+          {children}
+        </div>
 
         {/* Submit Button */}
         {submitLabel && onSubmit && (
-          <Button
-            type="submit"
-            onClick={onSubmit}
-            disabled={submitDisabled || isPending}
-            className="w-full h-12 text-base font-medium mt-4"
-          >
-            {isPending ? "Saving..." : submitLabel}
-          </Button>
+          <div className="px-5 pb-6 pt-3 shrink-0 border-t border-gray-100">
+            <Button
+              type="submit"
+              onClick={onSubmit}
+              disabled={submitDisabled || isPending}
+              className="w-full h-12 text-base font-medium"
+            >
+              {isPending ? "Saving..." : submitLabel}
+            </Button>
+          </div>
         )}
       </div>
     </div>
@@ -97,22 +102,28 @@ interface IconPickerProps {
 
 export function IconPicker({ value, onChange, options }: IconPickerProps) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((icon) => (
-        <button
-          key={icon}
-          type="button"
-          onClick={() => onChange(icon)}
-          className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all",
-            value === icon
-              ? "bg-blue-500 ring-2 ring-blue-300"
-              : "bg-gray-100 hover:bg-gray-200"
-          )}
-        >
-          {icon}
-        </button>
-      ))}
+    <div className="flex gap-3">
+      {/* Selected preview */}
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-blue-50 sticky top-0 self-start">
+        {value}
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {options.map((icon) => (
+          <button
+            key={icon}
+            type="button"
+            onClick={() => onChange(icon)}
+            className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all",
+              value === icon
+                ? "bg-blue-500 text-white shadow-sm"
+                : "bg-gray-100 hover:bg-gray-200"
+            )}
+          >
+            {icon}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -121,23 +132,35 @@ interface ColorPickerProps {
   value: string
   onChange: (color: string) => void
   options: string[]
+  previewIcon?: string
 }
 
-export function ColorPicker({ value, onChange, options }: ColorPickerProps) {
+export function ColorPicker({ value, onChange, options, previewIcon = '📦' }: ColorPickerProps) {
   return (
-    <div className="flex flex-wrap gap-3">
-      {options.map((color) => (
-        <button
-          key={color}
-          type="button"
-          onClick={() => onChange(color)}
-          className={cn(
-            "w-10 h-10 rounded-full transition-all",
-            value === color ? "ring-2 ring-offset-2 ring-gray-400" : ""
-          )}
-          style={{ backgroundColor: color }}
-        />
-      ))}
+    <div className="flex gap-3">
+      {/* Selected preview */}
+      <div
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 sticky top-0 self-start"
+        style={{ backgroundColor: value + '20' }}
+      >
+        {previewIcon}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((color) => (
+          <button
+            key={color}
+            type="button"
+            onClick={() => onChange(color)}
+            className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center text-xs text-white font-bold transition-all",
+              value === color ? "ring-2 ring-offset-1 ring-gray-400 scale-110" : ""
+            )}
+            style={{ backgroundColor: color }}
+          >
+            {value === color ? '✓' : ''}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

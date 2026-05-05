@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 interface BalanceOverviewProps {
   balance: number
@@ -11,6 +12,7 @@ interface BalanceOverviewProps {
 
 export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }: BalanceOverviewProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   return (
     <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
@@ -33,7 +35,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
       <p className="text-3xl font-bold text-white mb-2">
         {showBalance ? (
           <>
-            {new Intl.NumberFormat('vi-VN').format(balance)} <span className="text-lg text-white/60">đ</span>
+            {currency.symbol}{formatCurrency(balance)}
           </>
         ) : (
           <span className="text-white/40">••••••••</span>
@@ -45,7 +47,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
         <p className="text-white font-medium">
           {showBalance ? (
             <>
-              {new Intl.NumberFormat('vi-VN').format(debt)} <span className="text-sm text-white/60">đ</span>
+              {currency.symbol}{formatCurrency(debt)}
             </>
           ) : (
             <span className="text-white/40">••••</span>

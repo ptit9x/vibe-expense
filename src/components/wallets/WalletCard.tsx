@@ -2,6 +2,7 @@ import { Edit2, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import type { Wallet, WalletType } from '@/types'
 import { cn } from '@/lib/utils'
+import { useUIStore } from '@/stores/uiStore'
 
 interface WalletCardProps {
   wallet: Wallet
@@ -13,6 +14,7 @@ interface WalletCardProps {
 
 export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActive }: WalletCardProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
 
   const typeLabels: Record<WalletType, string> = {
     cash: t.wallet.cash,
@@ -24,13 +26,7 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
   const balanceColor = isNegative ? 'text-red-500' : 'text-gray-900'
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm relative overflow-hidden group">
-      {/* Colored accent circle - top right */}
-      <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5"
-        style={{ backgroundColor: wallet.color }}
-      />
-
+    <div className="bg-white rounded-2xl p-4 shadow-sm relative group">
       <div className="flex items-start justify-between">
         {/* Left: Icon + Name + Type */}
         <div className="flex items-center gap-3">
@@ -59,18 +55,17 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
             {showBalance ? (
               <>
                 {isNegative && '-'}
-                {new Intl.NumberFormat('vi-VN').format(Math.abs(wallet.balance || 0))}
-                <span className="text-xs font-normal text-gray-400 ml-0.5">đ</span>
+                {currency.symbol}{formatCurrency(Math.abs(wallet.balance || 0))}
               </>
             ) : (
-              <span className="text-gray-300 text-base">••••••</span>
+              <span className="text-gray-300 text-base">••••••••</span>
             )}
           </p>
         </div>
       </div>
 
-      {/* Actions - visible on hover, always visible on mobile */}
-      <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-50 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Actions - always visible on mobile, hover on desktop */}
+      <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-50">
         <button
           onClick={() => onEdit(wallet)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"

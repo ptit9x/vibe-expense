@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 const COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899']
 
@@ -16,6 +17,7 @@ interface ExpenseAnalysisProps {
 
 export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
   const { t } = useI18n()
+  const { currency, formatCurrency } = useUIStore()
   const total = items.reduce((sum, item) => sum + item.value, 0)
   const sortedItems = [...items].sort((a, b) => b.value - a.value)
 
@@ -44,7 +46,7 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">
-                        {new Intl.NumberFormat('vi-VN').format(item.value)}đ
+                        {currency.symbol}{formatCurrency(item.value)}
                       </span>
                       <span className="text-xs font-semibold text-gray-700">{percent}%</span>
                     </div>

@@ -56,7 +56,7 @@ function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
 
 export default function Dashboard() {
   const { data: user } = useAuth()
-  const { showBalance, toggleBalance, currentMonth } = useUIStore()
+  const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
   const { data: transactions } = useTransactions(currentMonth)
   const { data: wallets } = useWallets()
   const { t } = useI18n()
@@ -96,7 +96,7 @@ export default function Dashboard() {
           <p className="text-2xl font-bold text-gray-900 tracking-tight">
             {showBalance ? (
               <>
-                {new Intl.NumberFormat('vi-VN').format(totalBalance)} <span className="text-base">đ</span>
+                {currency.symbol}{formatCurrency(totalBalance)}
               </>
             ) : (
               <span className="text-gray-400">••••••••</span>

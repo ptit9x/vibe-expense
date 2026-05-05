@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 interface ReportFiltersProps {
@@ -51,12 +52,12 @@ interface StatCardProps {
 }
 
 export function StatCard({ label, value, color = '#3B82F6' }: StatCardProps) {
-  const formatted = new Intl.NumberFormat('vi-VN').format(value)
+  const { currency, formatCurrency } = useUIStore()
   return (
     <div>
       <p className="text-xs text-gray-400 mb-1">{label}</p>
       <p className="text-xl font-bold" style={{ color }}>
-        {formatted} <span className="text-sm text-gray-400">đ</span>
+        {currency.symbol}{formatCurrency(value)}
       </p>
     </div>
   )
@@ -68,6 +69,7 @@ interface MonthlyBarChartProps {
 }
 
 export function MonthlyBarChart({ data, color = '#3B82F6' }: MonthlyBarChartProps) {
+  const { currency, formatCurrency } = useUIStore()
   return (
     <div className="h-48">
       <ResponsiveContainer width="100%" height="100%">
@@ -80,7 +82,7 @@ export function MonthlyBarChart({ data, color = '#3B82F6' }: MonthlyBarChartProp
           />
           <YAxis hide />
           <Tooltip 
-            formatter={(value: any) => [new Intl.NumberFormat('vi-VN').format(Number(value)) + ' đ', '']}
+            formatter={(value: any) => [currency.symbol + formatCurrency(Number(value)), '']}
             contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
@@ -107,6 +109,7 @@ interface CategoryListProps {
 }
 
 export function CategoryList({ items, total }: CategoryListProps) {
+  const { currency, formatCurrency } = useUIStore()
   return (
     <div className="space-y-3">
       {items.map((item, index) => (
@@ -122,7 +125,7 @@ export function CategoryList({ items, total }: CategoryListProps) {
           </div>
           <div className="text-right">
             <p className="text-sm font-bold text-gray-900">
-              {new Intl.NumberFormat('vi-VN').format(item.value)} đ
+              {currency.symbol}{formatCurrency(item.value)}
             </p>
             <p className="text-xs text-gray-400">
               {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
@@ -139,13 +142,14 @@ interface MonthlyListProps {
 }
 
 export function MonthlyList({ data }: MonthlyListProps) {
+  const { currency, formatCurrency } = useUIStore()
   return (
     <div className="space-y-2">
       {data.slice().reverse().map((item, index) => (
         <div key={index} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
           <span className="text-sm text-gray-600">{item.month}</span>
           <span className="text-sm font-medium text-gray-900">
-            {new Intl.NumberFormat('vi-VN').format(item.value)} đ
+            {currency.symbol}{formatCurrency(item.value)}
           </span>
         </div>
       ))}

@@ -1,4 +1,5 @@
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 interface AmountDisplayProps {
   value: string
@@ -7,6 +8,7 @@ interface AmountDisplayProps {
 
 export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
   const { t } = useI18n()
+  const { currency } = useUIStore()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
@@ -27,7 +29,7 @@ export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
           placeholder="0"
           className="text-center text-5xl font-bold text-white placeholder-white/40 bg-transparent focus:outline-none w-full max-w-[280px]"
         />
-        <span className="text-2xl text-white/60 ml-1">đ</span>
+        <span className="text-2xl text-white/60 ml-1">{currency.symbol}</span>
       </div>
     </div>
   )
