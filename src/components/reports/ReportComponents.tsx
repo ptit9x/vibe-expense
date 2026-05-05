@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
@@ -153,6 +155,163 @@ export function MonthlyList({ data }: MonthlyListProps) {
           </span>
         </div>
       ))}
+    </div>
+  )
+}
+interface YearPickerProps {
+  value: number
+  onChange: (year: number) => void
+}
+
+export function YearPicker({ value, onChange }: YearPickerProps) {
+  return (
+    <div className="flex items-center justify-center gap-3 mt-3">
+      <button
+        onClick={() => onChange(value - 1)}
+        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <span className="text-white font-bold text-lg min-w-[60px] text-center">{value}</span>
+      <button
+        onClick={() => onChange(value + 1)}
+        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+    </div>
+  )
+}
+
+// ===== Shared YearlyReport =====
+import { useYearTransactions } from '@/hooks/useTransactions'
+import { useCategories } from '@/hooks/useCategories'
+import { useWallets } from '@/hooks/useWallets'
+
+interface YearlyReportProps {
+  type: 'income' | 'expense'
+  title: string
+  subtitle: string
+  gradientClass: string
+  chartColor: string
+  totalLabelKey: 'totalIncomeYear' | 'totalExpenseYear'
+  categoryLabelKey: 'incomeByCategory' | 'expenseByCategory'
+  monthLabelKey: 'incomeByMonth' | 'expenseByMonth'
+}
+
+export function YearlyReport({
+  type,
+  title,
+  subtitle,
+  gradientClass,
+  chartColor,
+  totalLabelKey,
+  categoryLabelKey,
+  monthLabelKey,
+}: YearlyReportProps) {
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedWallet, setSelectedWallet] = useState('all')
+  const { t } = useI18n()
+  const { data: transactions } = useYearTransactions(selectedYear, type)
+  const { data: categories } = useCategories(type)
+  const { data: wallets } = useWallets()
+
+  // Apply client-side filters for category & wallet
+  const filtered = transactions?.filter(tx => {
+    if (selectedCategory !== 'all' && tx.category_id !== selectedCategory) return false
+    if (selectedWallet !== 'all' && tx.wallet_id !== selectedWallet) return false
+    return true
+  }) || []
+
+  const total = filtered.reduce((sum, tx) => sum + Number(tx.amount), 0)
+  const avgMonthly = total / 12
+
+  // Monthly data
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const month = (i + 1).toString().padStart(2, '0')
+    const monthTotal = filtered
+      .filter(tx => tx.transaction_date?.endsWith(`-${month}`))
+      .reduce((sum, tx) => sum + Number(tx.amount), 0)
+    return { month: `T${i + 1}`, value: monthTotal }
+  })
+
+  // Category breakdown
+  const byCategory = filtered.reduce((acc: { name: string; value: number; color: string; icon: string }[], tx) => {
+    const catName = tx.category?.name || 'Khác'
+    const existing = acc.find(item => item.name === catName)
+    if (existing) {
+      existing.value += Number(tx.amount)
+    } else {
+      acc.push({
+        name: catName,
+        value: Number(tx.amount),
+        color: tx.category?.color || (type === 'income' ? '#10B981' : '#6B7280'),
+        icon: tx.category?.icon || '💰',
+      })
+    }
+    return acc
+  }, []).sort((a, b) => b.value - a.value)
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Header */}
+      <div className={`${gradientClass} px-5 pt-4 pb-6`}>
+        <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
+        <p className="text-white/60 text-sm">{subtitle}</p>
+        <YearPicker value={selectedYear} onChange={setSelectedYear} />
+      </div>
+
+      {/* Stats */}
+      <div className="bg-white px-5 py-4">
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard
+            label={`${t.reports[totalLabelKey]} ${selectedYear}`}
+            value={total}
+            color={chartColor}
+          />
+          <StatCard
+            label={t.reports.avgMonthly}
+            value={avgMonthly}
+            color="#6B7280"
+          />
+        </div>
+      </div>
+
+      {/* Filters */}
+      <ReportFilters>
+        <SelectFilter
+          value={selectedCategory}
+          onChange={setSelectedCategory}
+          placeholder={t.reports.allCategories}
+          options={categories?.map(cat => ({ value: cat.id, label: cat.name })) || []}
+        />
+        <SelectFilter
+          value={selectedWallet}
+          onChange={setSelectedWallet}
+          placeholder={t.reports.allWallets}
+          options={wallets?.map(w => ({ value: w.id, label: w.name })) || []}
+        />
+      </ReportFilters>
+
+      {/* Chart */}
+      <div className="bg-white mt-2 px-5 py-4">
+        <MonthlyBarChart data={monthlyData} color={chartColor} />
+      </div>
+
+      {/* Category breakdown */}
+      {byCategory.length > 0 && (
+        <div className="bg-white mt-2 px-5 py-4">
+          <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[categoryLabelKey]}</p>
+          <CategoryList items={byCategory} total={total} />
+        </div>
+      )}
+
+      {/* Monthly breakdown */}
+      <div className="bg-white mt-2 px-5 py-4">
+        <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
+        <MonthlyList data={monthlyData} />
+      </div>
     </div>
   )
 }

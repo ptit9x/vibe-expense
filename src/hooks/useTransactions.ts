@@ -71,6 +71,40 @@ export function useTransaction(id: string | undefined) {
   })
 }
 
+// Fetch transactions for a whole year, optionally filtered by type
+export function useYearTransactions(year: number, type?: 'income' | 'expense') {
+  return useQuery({
+    queryKey: ['transactions', 'year', year, type],
+    queryFn: async () => {
+      if (!isSupabaseConfigured()) {
+        return getMockTransactions().filter(t => {
+          if (type && t.type !== type) return false
+          return true
+        })
+      }
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      let query = supabase
+        .from('transactions')
+        .select('*, wallet:wallets(id, name, icon, color), category:categories(id, name, icon, color)')
+        .eq('user_id', user.id)
+        .gte('transaction_date', `${year}-01-01`)
+        .lt('transaction_date', `${year + 1}-01-01`)
+        .order('transaction_date', { ascending: false })
+
+      if (type) {
+        query = query.eq('type', type)
+      }
+
+      const { data, error } = await query
+      if (error) throw error
+      return data as Transaction[]
+    },
+  })
+}
+
 // Create transaction
 export function useCreateTransaction() {
   const queryClient = useQueryClient()
