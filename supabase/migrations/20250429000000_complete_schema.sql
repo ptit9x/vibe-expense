@@ -41,23 +41,6 @@ CREATE TABLE IF NOT EXISTS public.categories (
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
--- USER CATEGORIES TABLE (customizations)
--- ============================================
-CREATE TABLE IF NOT EXISTS public.user_categories (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  category_id UUID NOT NULL REFERENCES public.categories(id) ON DELETE CASCADE,
-  custom_name TEXT,
-  custom_icon TEXT,
-  custom_color TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, category_id)
-);
-
-ALTER TABLE public.user_categories ENABLE ROW LEVEL SECURITY;
-
--- ============================================
 -- WALLETS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.wallets (
@@ -159,6 +142,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+ALTER FUNCTION public.handle_new_user() SET search_path = public;
+
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -189,6 +174,27 @@ BEGIN
   RETURN COALESCE(v_initial, 0) + v_income - v_expense;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION public.get_wallet_balance(p_wallet_id UUID) SET search_path = public;
+
+-- Get wallet transactions within date range
+CREATE OR REPLACE FUNCTION public.get_wallet_transactions(
+  p_wallet_id UUID,
+  p_start_date DATE,
+  p_end_date DATE
+)
+RETURNS SETOF public.transactions AS $$
+BEGIN
+  RETURN QUERY
+  SELECT * FROM public.transactions
+  WHERE wallet_id = p_wallet_id
+    AND transaction_date >= p_start_date
+    AND transaction_date <= p_end_date
+  ORDER BY transaction_date DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION public.get_wallet_transactions(p_wallet_id UUID, p_start_date DATE, p_end_date DATE) SET search_path = public;
 
 -- Get monthly report
 CREATE OR REPLACE FUNCTION public.get_monthly_report(p_user_id UUID, p_month TEXT)
@@ -238,6 +244,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+ALTER FUNCTION public.get_monthly_report(p_user_id UUID, p_month TEXT) SET search_path = public;
+
 -- Get category stats
 CREATE OR REPLACE FUNCTION public.get_category_stats(
   p_user_id UUID,
@@ -268,6 +276,8 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION public.get_category_stats(p_user_id UUID, p_start_date DATE, p_end_date DATE) SET search_path = public;
 
 -- Get budget status
 CREATE OR REPLACE FUNCTION public.get_budget_status(
@@ -307,6 +317,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+ALTER FUNCTION public.get_budget_status(p_user_id UUID, p_budget_id UUID) SET search_path = public;
+
 -- Update savings progress
 CREATE OR REPLACE FUNCTION public.update_savings_progress(
   p_goal_id UUID,
@@ -326,6 +338,8 @@ BEGIN
   RETURN v_updated;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION public.update_savings_progress(p_goal_id UUID, p_amount DECIMAL) SET search_path = public;
 
 -- ============================================
 -- RLS POLICIES
@@ -398,17 +412,6 @@ CREATE POLICY "savings_goals_select" ON public.savings_goals FOR SELECT USING (a
 CREATE POLICY "savings_goals_insert" ON public.savings_goals FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "savings_goals_update" ON public.savings_goals FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "savings_goals_delete" ON public.savings_goals FOR DELETE USING (auth.uid() = user_id);
-
--- User Categories: user owns their customizations
-DROP POLICY IF EXISTS "user_categories_select" ON public.user_categories;
-DROP POLICY IF EXISTS "user_categories_insert" ON public.user_categories;
-DROP POLICY IF EXISTS "user_categories_update" ON public.user_categories;
-DROP POLICY IF EXISTS "user_categories_delete" ON public.user_categories;
-
-CREATE POLICY "user_categories_select" ON public.user_categories FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "user_categories_insert" ON public.user_categories FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "user_categories_update" ON public.user_categories FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "user_categories_delete" ON public.user_categories FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================
 -- SEED SYSTEM CATEGORIES
