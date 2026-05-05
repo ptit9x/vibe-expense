@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
-type TransactionType = 'expense' | 'income' | 'lend' | 'borrow' | 'transfer'
+import type { TransactionType } from '@/types'
+
 
 interface AddTransactionState {
   type: TransactionType
@@ -10,7 +11,7 @@ interface AddTransactionState {
   description: string
   date: string
   showTypeDropdown: boolean
-  
+
   // Actions
   setType: (type: TransactionType) => void
   setAmount: (amount: string) => void
@@ -23,7 +24,7 @@ interface AddTransactionState {
   reset: () => void
 }
 
-const initialDate = new Date().toISOString().split('T')[0]
+const getInitialDate = () => new Date().toISOString().split('T')[0]
 
 export const useAddTransactionStore = create<AddTransactionState>((set) => ({
   type: 'expense',
@@ -31,9 +32,9 @@ export const useAddTransactionStore = create<AddTransactionState>((set) => ({
   categoryId: '',
   walletId: '',
   description: '',
-  date: initialDate,
+  date: getInitialDate(),
   showTypeDropdown: false,
-  
+
   setType: (type) => set({ type }),
   setAmount: (amount) => set({ amount }),
   setCategoryId: (categoryId) => set({ categoryId }),
@@ -48,7 +49,7 @@ export const useAddTransactionStore = create<AddTransactionState>((set) => ({
     categoryId: '',
     walletId: '',
     description: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getInitialDate(),
     showTypeDropdown: false,
   }),
 }))

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useI18n } from '@/lib/i18n'
 
 const COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899']
 
@@ -14,6 +15,7 @@ interface ExpenseAnalysisProps {
 }
 
 export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
+  const { t } = useI18n()
   const total = items.reduce((sum, item) => sum + item.value, 0)
   const sortedItems = [...items].sort((a, b) => b.value - a.value)
 
@@ -21,13 +23,13 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
     <Card className="border shadow-sm">
       <CardHeader className="pb-2 px-4 pt-3">
         <CardTitle className="text-sm font-medium text-gray-700">
-          📊 Phân tích chi tiêu
+          📊 {t.dashboard.expenseAnalysis}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-3">
         {sortedItems.length === 0 ? (
           <div className="text-center py-4 text-gray-400 text-sm">
-            Chưa có chi tiêu
+            {t.dashboard.noExpenses}
           </div>
         ) : (
           <div className="space-y-2.5">

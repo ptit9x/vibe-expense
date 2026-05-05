@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout'
 // Auth pages
 import Login from './pages/Login'
 import Register from './pages/Register'
+import VerifyEmail from './pages/VerifyEmail'
 
 // Money Keeper pages
 import Dashboard from './pages/Dashboard'
@@ -19,6 +20,7 @@ import LanguageSettingsPage from './pages/LanguageSettings'
 import CurrencySettingsPage from './pages/CurrencySettings'
 import ExportDataPage from './pages/ExportData'
 import PasswordSettingsPage from './pages/PasswordSettings'
+import CategoriesPage from './pages/Categories'
 import SavingsPage from './pages/Savings'
 
 // Error pages
@@ -34,11 +36,14 @@ function App() {
     <>
       <Router>
         <Routes>
-          {/* Auth Routes */}
+          {/* Auth Routes - Shared mobile-first layout */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Route>
+
+          {/* Standalone route for email verification - no layout wrapper needed */}
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Main App Routes */}
           <Route element={<MainLayout />}>
@@ -55,7 +60,8 @@ function App() {
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export" element={<ExportDataPage />} />
             <Route path="/settings/password" element={<PasswordSettingsPage />} />
-            <Route path="/budgets" element={<BudgetsPage />} />
+            <Route path="/profile" element={<BudgetsPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
           </Route>
 

@@ -48,7 +48,7 @@ export function UserForm({ onSuccess, onCancel }: UserFormProps) {
         },
     });
 
-    async function onSubmit(values: FormValues) {
+    async function onSubmit(_values: FormValues) {
         setIsLoading(true);
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));

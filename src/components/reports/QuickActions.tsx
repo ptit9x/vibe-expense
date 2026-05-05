@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useI18n } from '@/lib/i18n'
 import {
   Receipt,
   PiggyBank,
@@ -9,14 +10,16 @@ interface QuickActionsProps {
 }
 
 const defaultItems = [
-  { icon: Receipt, label: 'Báo cáo chi', href: '/reports/expense', color: '#EF4444' },
-  { icon: PiggyBank, label: 'Báo cáo thu', href: '/reports/income', color: '#10B981' },
+  { icon: Receipt, labelKey: 'reports.expenseReport', href: '/reports/expense', color: '#EF4444' },
+  { icon: PiggyBank, labelKey: 'reports.incomeReport', href: '/reports/income', color: '#10B981' },
 ]
 
 export function QuickActions({ items = defaultItems }: QuickActionsProps) {
+  const { t } = useI18n()
+
   return (
     <div className="px-4 py-4">
-      <p className="text-sm font-medium text-gray-900 mb-3">Báo cáo</p>
+      <p className="text-sm font-medium text-gray-900 mb-3">{t.reports.reports}</p>
       
       <div className="grid grid-cols-2 gap-3">
         {items.map((item, index) => {
@@ -37,7 +40,7 @@ export function QuickActions({ items = defaultItems }: QuickActionsProps) {
                 />
               </div>
               <span className="text-xs text-gray-700 text-center leading-tight">
-                {item.label}
+                {t.reports[item.labelKey.split('.')[1] as keyof typeof t.reports]}
               </span>
             </Link>
           )

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
 export interface WalletItem {
   id: string
@@ -15,9 +16,10 @@ interface WalletSelectorProps {
 }
 
 export function WalletSelector({ wallets, selectedId, onSelect }: WalletSelectorProps) {
+  const { t } = useI18n()
   return (
     <div className="bg-white mt-2 px-5 py-4">
-      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">Ví</p>
+      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">{t.transaction.wallet}</p>
       <div 
         className="flex gap-2 overflow-x-auto pb-2 px-5 scrollbar-hide"
         style={{ WebkitOverflowScrolling: 'touch' }}

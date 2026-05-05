@@ -7,10 +7,12 @@ interface WalletListProps {
   wallets: Wallet[]
   showBalance: boolean
   onDelete: (wallet: Wallet) => void
+  onEdit: (wallet: Wallet) => void
+  onToggleActive: (wallet: Wallet) => void
 }
 
-export function WalletList({ wallets, showBalance, onDelete }: WalletListProps) {
-  // For now, show all wallets without grouping (premium grouping requires auth check)
+export function WalletList({ wallets, showBalance, onDelete, onEdit, onToggleActive }: WalletListProps) {
+  // Group wallets by type for display
   const spendingWallets = wallets.filter(w => w.type === 'cash' || w.type === 'bank')
 
   return (
@@ -20,7 +22,9 @@ export function WalletList({ wallets, showBalance, onDelete }: WalletListProps) 
           key={wallet.id}
           wallet={wallet}
           showBalance={showBalance}
-          onDelete={() => onDelete(wallet)}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onToggleActive={onToggleActive}
         />
       ))}
     </div>

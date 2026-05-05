@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { useWallets } from '@/hooks/useWallets'
+import { useI18n } from '@/lib/i18n'
 import { ReportFilters, SelectFilter, StatCard, MonthlyBarChart, CategoryList, MonthlyList } from '@/components/reports/ReportComponents'
 
 export default function IncomeReport() {
   const [selectedYear] = useState(() => new Date().getFullYear())
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedWallet, setSelectedWallet] = useState('all')
+  const { t } = useI18n()
   
   const { data: transactions } = useTransactions()
   const { data: categories } = useCategories('income')
@@ -62,20 +64,20 @@ export default function IncomeReport() {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
       <div className="bg-gradient-to-b from-green-500 to-green-600 px-5 pt-4 pb-6">
-        <h1 className="text-xl font-semibold text-white mb-1">Báo cáo thu</h1>
-        <p className="text-white/60 text-sm">Theo dõi thu nhập</p>
+        <h1 className="text-xl font-semibold text-white mb-1">{t.reports.incomeReport}</h1>
+        <p className="text-white/60 text-sm">{t.reports.trackIncome}</p>
       </div>
 
       {/* Stats */}
       <div className="bg-white px-5 py-4">
         <div className="grid grid-cols-2 gap-4">
           <StatCard 
-            label={`Tổng thu năm ${selectedYear}`} 
+            label={`${t.reports.totalIncomeYear} ${selectedYear}`} 
             value={totalIncome} 
             color="#10B981" 
           />
           <StatCard 
-            label="Trung bình tháng" 
+            label={t.reports.avgMonthly} 
             value={avgMonthly} 
             color="#6B7280" 
           />
@@ -87,13 +89,13 @@ export default function IncomeReport() {
         <SelectFilter
           value={selectedCategory}
           onChange={setSelectedCategory}
-          placeholder="Tất cả danh mục"
+          placeholder={t.reports.allCategories}
           options={categories?.map(cat => ({ value: cat.id, label: cat.name })) || []}
         />
         <SelectFilter
           value={selectedWallet}
           onChange={setSelectedWallet}
-          placeholder="Tất cả tài khoản"
+          placeholder={t.reports.allWallets}
           options={wallets?.map(w => ({ value: w.id, label: w.name })) || []}
         />
       </ReportFilters>
@@ -106,14 +108,14 @@ export default function IncomeReport() {
       {/* Category breakdown */}
       {byCategory.length > 0 && (
         <div className="bg-white mt-2 px-5 py-4">
-          <p className="text-sm font-medium text-gray-900 mb-3">Thu nhập theo danh mục</p>
+          <p className="text-sm font-medium text-gray-900 mb-3">{t.reports.incomeByCategory}</p>
           <CategoryList items={byCategory} total={totalIncome} />
         </div>
       )}
 
       {/* Monthly breakdown */}
       <div className="bg-white mt-2 px-5 py-4">
-        <p className="text-sm font-medium text-gray-900 mb-3">Thu nhập từng tháng</p>
+        <p className="text-sm font-medium text-gray-900 mb-3">{t.reports.incomeByMonth}</p>
         <MonthlyList data={monthlyData} />
       </div>
     </div>

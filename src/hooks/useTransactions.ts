@@ -13,9 +13,13 @@ export function useTransactions(month?: string) {
         return getMockTransactions(month)
       }
       
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+      
       let query = supabase
         .from('transactions')
         .select('*, wallet:wallets(id, name, icon, color), category:categories(id, name, icon, color)')
+        .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
 
       if (month) {
@@ -39,9 +43,12 @@ export function useCreateTransaction() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('transactions')
-        .insert(input)
+        .insert({ ...input, user_id: user.id })
         .select()
         .single()
       
@@ -66,10 +73,14 @@ export function useUpdateTransaction() {
         return { id, ...input }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('transactions')
         .update(input)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single()
       
@@ -94,10 +105,14 @@ export function useDeleteTransaction() {
         return { id }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { error } = await supabase
         .from('transactions')
         .delete()
         .eq('id', id)
+        .eq('user_id', user.id)
       
       if (error) throw error
       return { id }

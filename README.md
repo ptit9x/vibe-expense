@@ -68,8 +68,8 @@ The schema is in `supabase/migrations/` and auto-deploys via GitHub Actions when
 | Secret Name | How to Get |
 |-------------|------------|
 | `SUPABASE_ACCESS_TOKEN` | Supabase Dashboard → Avatar → Account Settings → Access Tokens → New access token |
-| `POSTGRES_PASSWORD` | Supabase Dashboard → Settings → Database → Connection string (password part) |
-| `PROJECT_REF` | Supabase Dashboard → Settings → General → Project Reference |
+| `POSTGRES_PASSWORD` | Supabase Dashboard → Database → Settings → Connection string (password part) |
+| `PROJECT_REF` | Supabase Dashboard → Project Settings → General → Project Reference |
 
 **Steps:**
 1. Go to your GitHub repo → Settings → Secrets and variables → Actions

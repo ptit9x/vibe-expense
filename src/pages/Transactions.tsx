@@ -1,24 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
 export default function Transactions() {
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7))
-  const [searchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
   const { data: transactions, isLoading } = useTransactions(month)
+  const { t } = useI18n()
 
-  const filteredTransactions = transactions?.filter(t => {
-    const matchesSearch = !searchQuery || 
-      t.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.category?.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = typeFilter === 'all' || t.type === typeFilter
-    return matchesSearch && matchesType
-  })
+  const filteredTransactions = transactions?.filter(txn =>
+    typeFilter === 'all' || txn.type === typeFilter
+  )
 
   const totalIncome = filteredTransactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) || 0
   const totalExpense = filteredTransactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0) || 0
@@ -28,37 +25,34 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Giao dịch</h1>
-          <p className="text-muted-foreground">Quản lý thu chi hàng ngày</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t.transaction.transactionsTitle}</h1>
+          <p className="text-muted-foreground">{t.transaction.manageDaily}</p>
         </div>
         <Button asChild>
           <Link to="/add-transaction">
             <Plus className="mr-2 h-4 w-4" />
-            Thêm giao dịch
+            {t.transaction.add}
           </Link>
         </Button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col gap-4 md:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        
+        <input
+          type="month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[200px]"
+        />
+
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
-          className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+          className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring md:w-[150px]"
         >
-          <option value="all">Tất cả</option>
-          <option value="income">Thu nhập</option>
-          <option value="expense">Chi tiêu</option>
+          <option value="all">{t.transaction.all}</option>
+          <option value="income">{t.transaction.income}</option>
+          <option value="expense">{t.transaction.expense}</option>
         </select>
       </div>
 
@@ -66,7 +60,7 @@ export default function Transactions() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng thu</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.transaction.totalIncome}</CardTitle>
             <span className="text-green-500">📈</span>
           </CardHeader>
           <CardContent>
@@ -77,7 +71,7 @@ export default function Transactions() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng chi</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.transaction.totalExpense}</CardTitle>
             <span className="text-red-500">📉</span>
           </CardHeader>
           <CardContent>
@@ -88,7 +82,7 @@ export default function Transactions() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Còn lại</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.transaction.remainingBalance}</CardTitle>
             <span className="text-blue-500">💰</span>
           </CardHeader>
           <CardContent>
@@ -105,14 +99,14 @@ export default function Transactions() {
       {/* Transaction List */}
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách giao dịch</CardTitle>
+          <CardTitle>{t.transaction.transactionList}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
+            <div className="text-center py-8 text-muted-foreground">{t.common.loading}</div>
           ) : filteredTransactions?.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              Chưa có giao dịch nào trong tháng này
+              {t.transaction.noTransactions}
             </div>
           ) : (
             <div className="space-y-2">
@@ -124,7 +118,7 @@ export default function Transactions() {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-                      style={{ backgroundColor: transaction.category?.color + '20' }}
+                      style={{ backgroundColor: (transaction.category?.color || '#6B7280') + '20' }}
                     >
                       {transaction.category?.icon || '💰'}
                     </div>

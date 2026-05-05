@@ -50,9 +50,12 @@ export function useCreateBudget() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('budgets')
-        .insert(input)
+        .insert({ ...input, user_id: user.id })
         .select()
         .single()
 

@@ -1,61 +1,46 @@
-import { Link, Outlet, useLocation, Navigate } from "react-router-dom"
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { Outlet, Link, useLocation, Navigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+import { useI18n } from "@/lib/i18n"
 
 export default function AuthLayout() {
-    const location = useLocation()
-    const isLogin = location.pathname === "/login" || location.pathname === "/"
+  const location = useLocation()
+  const { data: user, isLoading } = useAuth()
+  const isLogin = location.pathname === "/login"
+  const { t } = useI18n()
 
-    const token = localStorage.getItem('token');
-
-    if (token) {
-        return <Navigate to="/dashboard" replace />;
-    }
-
+  // If loading, show loading state
+  if (isLoading) {
     return (
-        <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <Link
-                to={isLogin ? "/register" : "/login"}
-                className={cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "absolute right-4 top-4 md:right-8 md:top-8"
-                )}
-            >
-                {isLogin ? "Register" : "Login"}
-            </Link>
-            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900" />
-                <div className="relative z-20 flex items-center text-lg font-medium">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="mr-2 h-6 w-6"
-                    >
-                        <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-                    </svg>
-                    Acme Inc
-                </div>
-                <div className="relative z-20 mt-auto">
-                    <blockquote className="space-y-2">
-                        <p className="text-lg">
-                            &ldquo;This library has saved me countless hours of work and
-                            helped me deliver stunning designs to my clients faster than
-                            ever before.&rdquo;
-                        </p>
-                        <footer className="text-sm">Sofia Davis</footer>
-                    </blockquote>
-                </div>
-            </div>
-            <div className="lg:p-8 flex items-center justify-center h-full">
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                    <Outlet />
-                </div>
-            </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-blue-500 to-blue-600 flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full" />
+      </div>
     )
+  }
+
+  // If user is already logged in, redirect to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-500 to-blue-600 flex flex-col">
+      {/* Header */}
+      <div className="px-5 pt-12 pb-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-white">{t.app.appName}</h1>
+          <Link 
+            to={isLogin ? "/register" : "/login"}
+            className="text-white/80 text-sm font-medium hover:text-white"
+          >
+            {isLogin ? t.auth.register : t.auth.login}
+          </Link>
+        </div>
+      </div>
+
+      {/* Form Container */}
+      <div className="flex-1 bg-white rounded-t-3xl px-5 py-6">
+        <Outlet />
+      </div>
+    </div>
+  )
 }

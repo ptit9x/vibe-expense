@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n'
 
 interface BalanceOverviewProps {
   balance: number
@@ -9,10 +10,12 @@ interface BalanceOverviewProps {
 }
 
 export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }: BalanceOverviewProps) {
+  const { t } = useI18n()
+
   return (
     <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-white/60 text-sm">Số dư</p>
+        <p className="text-white/60 text-sm">{t.reports.balance}</p>
         <Button
           variant="ghost"
           size="icon"
@@ -38,7 +41,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
       </p>
       
       <div className="flex items-center gap-2">
-        <p className="text-white/60 text-sm">Nợ xấu</p>
+        <p className="text-white/60 text-sm">{t.reports.debt}</p>
         <p className="text-white font-medium">
           {showBalance ? (
             <>

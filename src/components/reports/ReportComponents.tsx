@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useI18n } from '@/lib/i18n'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 interface ReportFiltersProps {
@@ -20,7 +21,10 @@ interface SelectFilterProps {
   placeholder?: string
 }
 
-export function SelectFilter({ value, onChange, options, placeholder = 'Chọn...' }: SelectFilterProps) {
+export function SelectFilter({ value, onChange, options, placeholder }: SelectFilterProps) {
+  const { t } = useI18n()
+  const defaultPlaceholder = t.common.select as string || 'Chọn...'
+
   return (
     <div className="flex-1 relative">
       <select
@@ -28,7 +32,7 @@ export function SelectFilter({ value, onChange, options, placeholder = 'Chọn..
         onChange={(e) => onChange(e.target.value)}
         className="w-full h-10 pl-3 pr-8 bg-gray-50 rounded-lg text-sm appearance-none"
       >
-        <option value="all">{placeholder}</option>
+        <option value="all">{placeholder || defaultPlaceholder}</option>
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}

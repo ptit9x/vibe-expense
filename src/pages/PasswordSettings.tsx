@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/lib/i18n'
 
 export default function PasswordSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
@@ -11,17 +12,18 @@ export default function PasswordSettings() {
   const [showNew, setShowNew] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const { t } = useI18n()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (newPassword !== confirmPassword) {
-      setMessage('Mật khẩu mới không khớp')
+      setMessage(t.settings.passwordNotMatch)
       return
     }
     
     if (newPassword.length < 6) {
-      setMessage('Mật khẩu phải có ít nhất 6 ký tự')
+      setMessage(t.auth.passwordMinLength)
       return
     }
     
@@ -30,7 +32,7 @@ export default function PasswordSettings() {
     
     setTimeout(() => {
       setIsLoading(false)
-      setMessage('Đổi mật khẩu thành công!')
+      setMessage(t.settings.changePasswordSuccess)
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -40,14 +42,14 @@ export default function PasswordSettings() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
-        <h1 className="text-xl font-semibold text-white">Đổi mật khẩu</h1>
+        <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
       </div>
       
       <div className="bg-white mt-2 px-5 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
-              Mật khẩu hiện tại
+              {t.settings.currentPassword}
             </label>
             <div className="relative">
               <Input
@@ -55,7 +57,7 @@ export default function PasswordSettings() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="h-12 pr-10"
-                placeholder="Nhập mật khẩu hiện tại"
+                placeholder={t.settings.enterCurrentPassword}
               />
               <button
                 type="button"
@@ -69,7 +71,7 @@ export default function PasswordSettings() {
           
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
-              Mật khẩu mới
+              {t.settings.newPassword}
             </label>
             <div className="relative">
               <Input
@@ -77,7 +79,7 @@ export default function PasswordSettings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="h-12 pr-10"
-                placeholder="Nhập mật khẩu mới"
+                placeholder={t.settings.enterNewPassword}
               />
               <button
                 type="button"
@@ -91,19 +93,19 @@ export default function PasswordSettings() {
           
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
-              Xác nhận mật khẩu mới
+              {t.settings.confirmPassword}
             </label>
             <Input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="h-12"
-              placeholder="Nhập lại mật khẩu mới"
+              placeholder={t.settings.enterConfirmPassword}
             />
           </div>
           
           {message && (
-            <p className={`text-sm ${message.includes('thành công') ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-sm ${message.includes('thành công') || message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
               {message}
             </p>
           )}
@@ -113,7 +115,7 @@ export default function PasswordSettings() {
             disabled={isLoading}
             className="w-full h-12 text-base font-medium"
           >
-            {isLoading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
+            {isLoading ? t.settings.processing : t.passwordSettings.changePassword}
           </Button>
         </form>
       </div>

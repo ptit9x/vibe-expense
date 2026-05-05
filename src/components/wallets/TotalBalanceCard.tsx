@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n'
 
 interface TotalBalanceCardProps {
   totalBalance: number
@@ -8,15 +9,18 @@ interface TotalBalanceCardProps {
 }
 
 export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }: TotalBalanceCardProps) {
+  const { t } = useI18n()
+
   return (
     <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-white/60 text-sm">Tổng tài sản</p>
+        <p className="text-white/60 text-sm">{t.wallet.totalBalance}</p>
         <Button
           variant="ghost"
           size="icon"
           className="h-9 w-9 rounded-full bg-white/20 hover:bg-white/30"
           onClick={onToggleBalance}
+          aria-label={showBalance ? 'Hide balance' : 'Show balance'}
         >
           {showBalance ? (
             <Eye className="h-5 w-5 text-white" />

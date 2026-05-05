@@ -5,7 +5,7 @@ export type DateString = string
 
 // ===== Enums =====
 
-export type TransactionType = 'income' | 'expense'
+export type TransactionType = 'income' | 'expense' | 'lend' | 'borrow' | 'transfer'
 export type WalletType = 'cash' | 'bank' | 'e_wallet'
 export type BudgetPeriod = 'monthly' | 'weekly'
 
@@ -27,6 +27,7 @@ export interface Wallet {
   icon: string
   color: string
   initial_balance: number
+  is_active: boolean  // false = deactivated, hidden from selection but kept for history
   created_at: DateString
   updated_at: DateString
   // Computed
@@ -179,6 +180,7 @@ export interface AuthUser {
   id: UUID
   email: string
   full_name: string | null
+  confirmed: boolean  // email confirmed flag
 }
 
 export interface LoginInput {

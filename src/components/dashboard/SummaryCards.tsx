@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 
 interface SummaryCardsProps {
   totalBalance: number
@@ -15,6 +16,7 @@ function formatMoney(amount: number, show: boolean): string {
 }
 
 export function SummaryCards({ totalBalance, income, expense, showBalance }: SummaryCardsProps) {
+  const { t } = useI18n()
   const remaining = income - expense
 
   return (
@@ -27,7 +29,7 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
               <Wallet className="h-4 w-4 text-blue-600" />
             </div>
           </div>
-          <p className="text-[10px] text-blue-600 font-medium mb-0.5">Tổng dư</p>
+          <p className="text-[10px] text-blue-600 font-medium mb-0.5">{t.dashboard.totalBalance.split(' ').pop()}</p>
           <p className="text-sm font-bold text-blue-700 leading-tight">
             {formatMoney(totalBalance, showBalance)}
           </p>
@@ -43,7 +45,7 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
               <ArrowUpRight className="h-4 w-4 text-green-600" />
             </div>
           </div>
-          <p className="text-[10px] text-green-600 font-medium mb-0.5">Thu nhập</p>
+          <p className="text-[10px] text-green-600 font-medium mb-0.5">{t.dashboard.income}</p>
           <p className="text-sm font-bold text-green-700 leading-tight">
             {formatMoney(income, showBalance)}
           </p>
@@ -59,7 +61,7 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
               <ArrowDownRight className="h-4 w-4 text-red-600" />
             </div>
           </div>
-          <p className="text-[10px] text-red-600 font-medium mb-0.5">Chi tiêu</p>
+          <p className="text-[10px] text-red-600 font-medium mb-0.5">{t.dashboard.expense}</p>
           <p className="text-sm font-bold text-red-700 leading-tight">
             {formatMoney(expense, showBalance)}
           </p>
@@ -83,7 +85,7 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
               </svg>
             </div>
           </div>
-          <p className={cn("text-[10px] font-medium mb-0.5", remaining >= 0 ? "text-teal-600" : "text-orange-600")}>Còn lại</p>
+          <p className={cn("text-[10px] font-medium mb-0.5", remaining >= 0 ? "text-teal-600" : "text-orange-600")}>{t.dashboard.remaining}</p>
           <p className={cn("text-sm font-bold leading-tight", remaining >= 0 ? "text-teal-700" : "text-orange-700")}>
             {formatMoney(Math.abs(remaining), showBalance)}
           </p>

@@ -1,5 +1,6 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/lib/i18n'
 import {
   LayoutDashboard,
   Wallet,
@@ -11,16 +12,17 @@ import {
 import { cn } from '@/lib/utils'
 
 const bottomNavItems = [
-  { icon: LayoutDashboard, label: 'Home', href: '/dashboard' },
-  { icon: Wallet, label: 'Account', href: '/wallets' },
-  { icon: Plus, label: 'Add', href: '/add-transaction', isPlus: true },
-  { icon: BarChart3, label: 'Report', href: '/reports' },
-  { icon: Menu, label: 'Khác', href: '/budgets' },
+  { icon: LayoutDashboard, labelKey: 'nav.home', href: '/dashboard' },
+  { icon: Wallet, labelKey: 'nav.account', href: '/wallets' },
+  { icon: Plus, labelKey: 'nav.add', href: '/add-transaction', isPlus: true },
+  { icon: BarChart3, labelKey: 'nav.report', href: '/reports' },
+  { icon: Menu, labelKey: 'nav.profile', href: '/profile' },
 ]
 
 export default function MainLayout() {
   const location = useLocation()
   const { data: user, isLoading } = useAuth()
+  const { t } = useI18n()
 
   if (isLoading) {
     return (
@@ -31,18 +33,23 @@ export default function MainLayout() {
   }
 
   if (!user) {
-    return null
+    return <Navigate to="/login" replace />
+  }
+
+  if (!user.confirmed) {
+    return <Navigate to="/verify-email" replace />
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gray-50/50 dark:bg-zinc-950">
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-20">
-        <Outlet />
-      </main>
+    <div className="flex h-screen flex-col">
+      {/* Content area with sidebar offset on desktop */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+        <main className="flex-1 overflow-y-auto pb-20 max-w-3xl">
+          <Outlet />
+        </main>
+      </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-white dark:bg-zinc-950 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-white lg:hidden">
         <div className="flex h-16 items-center justify-around px-2">
           {bottomNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.href)
@@ -68,7 +75,7 @@ export default function MainLayout() {
                   "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors",
                   isActive
                     ? "text-primary"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+                    : "text-zinc-500 hover:text-zinc-900"
                 )}
               >
                 <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
@@ -76,7 +83,7 @@ export default function MainLayout() {
                   "text-[10px] font-medium",
                   isActive && "font-semibold"
                 )}>
-                  {item.label}
+                  {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
                 </span>
               </Link>
             )
@@ -84,7 +91,6 @@ export default function MainLayout() {
         </div>
       </nav>
 
-      {/* Desktop Sidebar - Hidden on mobile */}
       <DesktopSidebar />
     </div>
   )
@@ -92,20 +98,15 @@ export default function MainLayout() {
 
 function DesktopSidebar() {
   const location = useLocation()
-
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: Wallet, label: 'Account', href: '/wallets' },
-    { icon: BarChart3, label: 'Report', href: '/reports' },
-  ]
+  const { t } = useI18n()
 
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col border-r bg-white dark:bg-zinc-950">
+    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col border-r bg-white z-40">
       <div className="flex h-16 items-center border-b px-6">
         <span className="text-lg font-bold">💰 Money Keeper</span>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-        {navItems.map((item) => {
+        {bottomNavItems.map((item) => {
           const isActive = location.pathname.startsWith(item.href)
           const Icon = item.icon
           return (
@@ -116,11 +117,11 @@ function DesktopSidebar() {
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
               )}
             >
               <Icon className="h-4 w-4" />
-              {item.label}
+              {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
             </Link>
           )
         })}

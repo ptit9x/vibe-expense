@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Button } from '@/components/ui/button'
 import {
   ExpenseAnalysis,
-  MonthlyChart,
   RecentTransactions,
   type ExpenseItem,
-  type MonthlyData,
   type TransactionItem,
 } from '@/components/dashboard'
-import { useDashboardStore } from '@/stores/dashboardStore'
+import { MonthlyChart, type MonthlyData } from '@/components/shared'
+import { useUIStore } from '@/stores/uiStore'
+import { useI18n } from '@/lib/i18n'
+
+const RECENT_TRANSACTIONS_LIMIT = 10
 
 function useMonthlyData(transactions: any[]): MonthlyData[] {
   const months = []
@@ -52,27 +55,32 @@ function useExpenseBreakdown(transactions: any[]): ExpenseItem[] {
 }
 
 export default function Dashboard() {
-  const { showBalance, toggleBalance, currentMonth } = useDashboardStore()
+  const { data: user } = useAuth()
+  const { showBalance, toggleBalance, currentMonth } = useUIStore()
   const { data: transactions } = useTransactions(currentMonth)
   const { data: wallets } = useWallets()
+  const { t } = useI18n()
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
 
-  const recentTransactions: TransactionItem[] = (transactions || []).slice(0, 10) as TransactionItem[]
+  const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
   const monthlyData = useMonthlyData(transactions || [])
   const expenseBreakdown = useExpenseBreakdown(transactions || [])
+
+  const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header - Greeting with User Name */}
       <div className="bg-blue-500 px-4 pt-6 pb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-white text-xl font-medium">Xin chào! Richard 👋</h1>
+          <h1 className="text-white text-xl font-medium">{t.dashboard.greeting} {displayName} 👋</h1>
           <Button
             variant="ghost"
             size="icon"
             className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30"
             onClick={toggleBalance}
+            aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
           >
             {showBalance ? (
               <Eye className="h-5 w-5 text-white" />
@@ -84,7 +92,7 @@ export default function Dashboard() {
 
         {/* Balance Card */}
         <div className="bg-white rounded-xl p-4 shadow-lg">
-          <p className="text-gray-500 text-xs mb-1">Tổng số dư</p>
+          <p className="text-gray-500 text-xs mb-1">{t.dashboard.totalBalance}</p>
           <p className="text-2xl font-bold text-gray-900 tracking-tight">
             {showBalance ? (
               <>
@@ -113,6 +121,7 @@ export default function Dashboard() {
       <Link
         to="/add-transaction"
         className="fixed right-4 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors z-20"
+        aria-label={t.transaction.add}
       >
         <span className="text-white text-2xl font-light">+</span>
       </Link>

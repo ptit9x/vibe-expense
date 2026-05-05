@@ -16,7 +16,7 @@ interface TypeDropdownProps {
 }
 
 export function TypeDropdown({ types, selectedType, onSelect, isOpen, onToggle }: TypeDropdownProps) {
-  const current = types.find(t => t.id === selectedType) || types[0]
+  const current = types.find(item => item.id === selectedType) || types[0]
 
   return (
     <div className="relative">
@@ -33,22 +33,24 @@ export function TypeDropdown({ types, selectedType, onSelect, isOpen, onToggle }
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-20" 
-            onClick={onToggle} 
+          <div
+            className="fixed inset-0 z-20"
+            onClick={onToggle}
           />
           <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-xl border border-gray-100 z-30 overflow-hidden min-w-[170px]">
-            {types.map((t) => (
+            {types.map((typeItem) => (
               <button
-                key={t.id}
+                key={typeItem.id}
                 onClick={() => {
-                  onSelect(t.id)
+                  onSelect(typeItem.id)
                   onToggle()
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
               >
-                <span className="text-lg">{t.icon}</span>
-                <span className={cn("font-medium text-sm", selectedType === t.id ? "text-blue-500" : "text-gray-700")}>{t.label}</span>
+                <span className="text-lg">{typeItem.icon}</span>
+                <span className={cn("font-medium text-sm", selectedType === typeItem.id ? "text-blue-500" : "text-gray-700")}>
+                  {typeItem.label}
+                </span>
               </button>
             ))}
           </div>
