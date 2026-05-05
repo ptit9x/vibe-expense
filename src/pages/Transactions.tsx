@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { X } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
-import { Button } from '@/components/ui/button'
+import { useWallets } from '@/hooks/useWallets'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TransactionRow } from '@/components/shared'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,11 @@ import { useUIStore } from '@/stores/uiStore'
 export default function Transactions() {
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7))
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
-  const { data: transactions, isLoading } = useTransactions(month)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const walletFilter = searchParams.get('wallet_id')
+
+  const { data: transactions, isLoading } = useTransactions(month, walletFilter || undefined)
+  const { data: wallets } = useWallets()
   const { t } = useI18n()
   const { currency, formatCurrency } = useUIStore()
 
@@ -23,97 +27,96 @@ export default function Transactions() {
   const totalIncome = filteredTransactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) || 0
   const totalExpense = filteredTransactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0) || 0
 
+  const filterWallet = wallets?.find(w => w.id === walletFilter)
+
+  const clearWalletFilter = () => {
+    searchParams.delete('wallet_id')
+    setSearchParams(searchParams)
+  }
+
   return (
-    <div className="flex flex-col gap-6 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t.transaction.transactionsTitle}</h1>
-          <p className="text-muted-foreground">{t.transaction.manageDaily}</p>
+      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+        <h1 className="text-xl font-semibold text-white mb-1">{t.transaction.transactionsTitle}</h1>
+        <p className="text-white/60 text-sm">{t.transaction.manageDaily}</p>
+
+        {/* Filters */}
+        <div className="flex items-center gap-2 mt-4">
+          <input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="h-9 px-3 bg-white/20 text-white text-sm rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/30 [color-scheme:dark]"
+          />
+          <div className="flex gap-1">
+            {(['all', 'income', 'expense'] as const).map(val => (
+              <button
+                key={val}
+                onClick={() => setTypeFilter(val)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+                  typeFilter === val
+                    ? 'bg-white text-blue-500'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                )}
+              >
+                {val === 'all' ? t.transaction.all : val === 'income' ? t.transaction.income : t.transaction.expense}
+              </button>
+            ))}
+          </div>
         </div>
-        <Button asChild>
-          <Link to="/add-transaction">
-            <Plus className="mr-2 h-4 w-4" />
-            {t.transaction.add}
-          </Link>
-        </Button>
+
+        {/* Wallet filter badge */}
+        {walletFilter && filterWallet && (
+          <div className="flex items-center gap-2 mt-3">
+            <span className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full">
+              <span>{filterWallet.icon}</span>
+              <span>{filterWallet.name}</span>
+              <button onClick={clearWalletFilter} className="ml-1 hover:bg-white/20 rounded-full p-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4 md:flex-row">
-        <input
-          type="month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[200px]"
-        />
+      <div className="px-4 -mt-3 space-y-3">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-2">
+          <Card className="bg-green-50 border-0 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3">
+              <CardTitle className="text-xs font-medium text-green-600">{t.transaction.totalIncome}</CardTitle>
+              <span className="text-green-500 text-sm">📈</span>
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-lg font-bold text-green-700">
+                {currency.symbol}{formatCurrency(totalIncome)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-red-50 border-0 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3">
+              <CardTitle className="text-xs font-medium text-red-600">{t.transaction.totalExpense}</CardTitle>
+              <span className="text-red-500 text-sm">📉</span>
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-lg font-bold text-red-700">
+                {currency.symbol}{formatCurrency(totalExpense)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
-          className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring md:w-[150px]"
-        >
-          <option value="all">{t.transaction.all}</option>
-          <option value="income">{t.transaction.income}</option>
-          <option value="expense">{t.transaction.expense}</option>
-        </select>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t.transaction.totalIncome}</CardTitle>
-            <span className="text-green-500">📈</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {currency.symbol}{formatCurrency(totalIncome)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t.transaction.totalExpense}</CardTitle>
-            <span className="text-red-500">📉</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {currency.symbol}{formatCurrency(totalExpense)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t.transaction.remainingBalance}</CardTitle>
-            <span className="text-blue-500">💰</span>
-          </CardHeader>
-          <CardContent>
-            <div className={cn(
-              "text-2xl font-bold",
-              totalIncome - totalExpense >= 0 ? "text-blue-600" : "text-red-600"
-            )}>
-              {currency.symbol}{formatCurrency(totalIncome - totalExpense)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Transaction List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.transaction.transactionList}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">{t.common.loading}</div>
-          ) : filteredTransactions?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {t.transaction.noTransactions}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredTransactions?.map((tx) => (
+        {/* Transaction List */}
+        <Card className="border shadow-sm">
+          <CardContent className="p-0 divide-y divide-gray-100">
+            {isLoading ? (
+              <div className="text-center py-8 text-gray-400 text-sm">{t.common.loading}</div>
+            ) : filteredTransactions?.length === 0 ? (
+              <div className="text-center py-8 text-gray-400 text-sm">{t.transaction.noTransactions}</div>
+            ) : (
+              filteredTransactions?.map((tx) => (
                 <TransactionRow
                   key={tx.id}
                   id={tx.id}
@@ -123,12 +126,13 @@ export default function Transactions() {
                   transactionDate={tx.transaction_date}
                   category={tx.category}
                   walletName={tx.wallet?.name}
+                  variant="compact"
                 />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

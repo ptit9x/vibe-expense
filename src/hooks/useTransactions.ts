@@ -5,9 +5,9 @@ import type {
 } from '@/types'
 
 // Fetch all transactions for current user
-export function useTransactions(month?: string) {
+export function useTransactions(month?: string, walletId?: string) {
   return useQuery({
-    queryKey: ['transactions', month],
+    queryKey: ['transactions', month, walletId],
     queryFn: async () => {
       if (!isSupabaseConfigured()) {
         return getMockTransactions(month)
@@ -29,6 +29,10 @@ export function useTransactions(month?: string) {
         query = query
           .gte('transaction_date', `${month}-01`)
           .lt('transaction_date', `${nextMonth}-01`)
+      }
+
+      if (walletId) {
+        query = query.eq('wallet_id', walletId)
       }
 
       const { data, error } = await query
