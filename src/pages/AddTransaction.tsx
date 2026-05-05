@@ -39,18 +39,17 @@ export default function AddTransaction() {
   const { data: wallets } = useWallets()
   const { data: dbCategories, isLoading: isCategoriesLoading } = useCategories(type === 'income' ? 'income' : 'expense')
 
-  const tObj = t as unknown as Record<string, unknown>
-  const transactionTypes = getTransactionTypes(tObj)
+  const transactionTypes = getTransactionTypes(t)
 
   // Transform DB categories to display format
   // Remove emoji prefix from name (e.g., "🍔 Ăn uống" -> "Ăn uống")
   const resolveCategoryName = (cat: Category) => {
-    return cat.name?.replace(/^[\p{Emoji}\p{Extended_Pictographic}]+\s*/u, '') || cat.name
+    return cat.name?.replace(/^(\p{Emoji_Presentation}\p{Extended_Pictographic}*\s*)+/u, '') || cat.name
   }
 
   const categories = (dbCategories || []).map((cat) => ({
     id: cat.id,
-    name: resolveCategoryName(cat as Category & { i18n_key?: string }),
+    name: resolveCategoryName(cat),
     icon: cat.icon || '📦',
     type: cat.type as 'income' | 'expense',
     color: cat.color || '#6B7280',

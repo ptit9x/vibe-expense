@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react'
-import { TotalBalanceCard } from './TotalBalanceCard'
 import { WalletCard } from './WalletCard'
 import type { Wallet } from '@/types'
+import { cn } from '@/lib/utils'
 
 interface WalletListProps {
   wallets: Wallet[]
@@ -12,11 +12,10 @@ interface WalletListProps {
 }
 
 export function WalletList({ wallets, showBalance, onDelete, onEdit, onToggleActive }: WalletListProps) {
-  // Group wallets by type for display
-  const spendingWallets = wallets.filter(w => w.type === 'cash' || w.type === 'bank')
+  const spendingWallets = wallets.filter(w => w.type === 'cash' || w.type === 'bank' || w.type === 'e_wallet')
 
   return (
-    <div className="px-4 space-y-4 pb-6">
+    <div className="px-4 space-y-3 pb-6">
       {spendingWallets.map((wallet) => (
         <WalletCard
           key={wallet.id}
@@ -36,12 +35,19 @@ export function AddWalletFAB({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed right-4 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors z-20"
+      className="fixed right-5 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 active:scale-95 transition-all z-20"
     >
       <Plus className="h-6 w-6 text-white" />
     </button>
   )
 }
 
-export { TotalBalanceCard }
-export { WalletCard }
+// Section header component
+export function WalletSectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className={cn("px-4 py-3", subtitle ? "pb-2" : "")}>
+      <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+      {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+    </div>
+  )
+}

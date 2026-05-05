@@ -7,8 +7,9 @@ import {
   TotalBalanceCard,
   WalletList,
   AddWalletFAB,
-  AddWalletModal,
+  WalletSectionHeader,
 } from '@/components/wallets'
+import { AddWalletModal } from '@/components/wallets/AddWalletModal'
 import type { Wallet } from '@/types'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
 
@@ -16,7 +17,7 @@ const ICON_OPTIONS = ['💵', '💳', '🏦', '📱', '💎', '🎁', '🧧', '�
 const COLOR_OPTIONS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 
 export default function Wallets() {
-  const { data: wallets, isLoading } = useWallets()
+  const { data: wallets, isLoading } = useWallets(true) // includeInactive to show all wallets
   const createWallet = useCreateWallet()
   const deleteWallet = useDeleteWallet()
   const deactivateWallet = useToggleWalletActive()
@@ -30,7 +31,10 @@ export default function Wallets() {
   const [editIcon, setEditIcon] = useState('💵')
   const [editColor, setEditColor] = useState('#3B82F6')
 
-  const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
+  // Group wallets by active status
+  const activeWallets = wallets?.filter(w => w.is_active) || []
+  const inactiveWallets = wallets?.filter(w => !w.is_active) || []
+  const totalBalance = activeWallets.reduce((sum, w) => sum + (w.balance || 0), 0)
 
   const handleAddWallet = async (data: {
     name: string
@@ -41,20 +45,12 @@ export default function Wallets() {
   }) => {
     await createWallet.mutateAsync(data)
     toggleForm()
+    toast.success(t.common.success)
   }
 
   const handleDeleteWallet = (wallet: Wallet) => {
     if (wallet.type === 'cash' && wallet.name === 'Cash') {
-      toast.error('Cannot delete default Cash wallet')
-      return
-    }
-
-    // Check if wallet has transactions (would need to check via API in real app)
-    // For now, show confirmation with info
-    const hasTransactions = false // TODO: Check via API
-
-    if (hasTransactions) {
-      toast.error('This wallet has transactions. Please deactivate instead.')
+      toast.error(t.wallet.cannotDeleteDefault)
       return
     }
 
@@ -62,30 +58,26 @@ export default function Wallets() {
       deleteWallet.mutate(wallet, {
         onSuccess: (result) => {
           if (result.deleted) {
-            toast.success('Wallet deleted successfully')
+            toast.success(t.wallet.deleteSuccess)
           } else {
-            toast.success('Wallet deactivated (has existing transactions)')
+            toast.success('Wallet deactivated')
           }
         },
-        onError: (err) => toast.error(err.message || 'Failed to delete wallet'),
+        onError: (err) => toast.error(err.message || t.common.error),
       })
     }
   }
 
   const handleToggleActive = (wallet: Wallet) => {
     if (wallet.is_active) {
-      // Deactivate
-      if (confirm(`Deactivate "${wallet.name}"? It will be hidden from transaction forms.`)) {
-        deactivateWallet.mutate(wallet, {
-          onSuccess: () => toast.success(`"${wallet.name}" has been deactivated`),
-          onError: () => toast.error('Failed to deactivate wallet'),
-        })
-      }
-    } else {
-      // Activate
       deactivateWallet.mutate(wallet, {
-        onSuccess: () => toast.success(`"${wallet.name}" is now active`),
-        onError: () => toast.error('Failed to activate wallet'),
+        onSuccess: () => toast.success(`"${wallet.name}" hidden`),
+        onError: () => toast.error(t.common.error),
+      })
+    } else {
+      deactivateWallet.mutate(wallet, {
+        onSuccess: () => toast.success(`"${wallet.name}" shown`),
+        onError: () => toast.error(t.common.error),
       })
     }
   }
@@ -100,9 +92,8 @@ export default function Wallets() {
 
   const handleSaveEdit = () => {
     if (!editingWallet || !editName.trim()) return
-
-    // TODO: Call useUpdateWallet when hook is ready
-    toast.info('Edit wallet feature coming soon')
+    // TODO: call useUpdateWallet when hook is ready
+    toast.info('Edit wallet coming soon')
     setEditModalOpen(false)
   }
 
@@ -115,26 +106,41 @@ export default function Wallets() {
         onToggleBalance={toggleBalance}
       />
 
-      {/* Section Header */}
-      <div className="px-5 py-4">
-        <h2 className="text-lg font-semibold text-gray-900">{t.wallet.spendingAccounts}</h2>
-      </div>
+      {/* Active Wallets Section */}
+      <WalletSectionHeader
+        title={t.wallet.spendingAccounts}
+        subtitle={activeWallets.length > 0 ? `${activeWallets.length} account${activeWallets.length > 1 ? 's' : ''}` : undefined}
+      />
 
       {/* Wallet List */}
       {isLoading ? (
         <div className="text-center py-8 text-gray-400">{t.common.loading}</div>
-      ) : wallets?.length === 0 ? (
-        <div className="text-center py-8 text-gray-400">
-          {t.wallet.noWallets}
+      ) : activeWallets.length === 0 ? (
+        <div className="text-center py-8 px-4">
+          <p className="text-gray-400 text-sm">{t.wallet.noWallets}</p>
         </div>
       ) : (
         <WalletList
-          wallets={wallets || []}
+          wallets={activeWallets}
           showBalance={showBalance}
           onDelete={handleDeleteWallet}
           onEdit={handleEditWallet}
           onToggleActive={handleToggleActive}
         />
+      )}
+
+      {/* Inactive Wallets Section */}
+      {inactiveWallets.length > 0 && (
+        <>
+          <WalletSectionHeader title="Hidden Accounts" subtitle={`${inactiveWallets.length} account${inactiveWallets.length > 1 ? 's' : ''}`} />
+          <WalletList
+            wallets={inactiveWallets}
+            showBalance={showBalance}
+            onDelete={handleDeleteWallet}
+            onEdit={handleEditWallet}
+            onToggleActive={handleToggleActive}
+          />
+        </>
       )}
 
       {/* FAB */}

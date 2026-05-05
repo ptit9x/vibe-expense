@@ -1,23 +1,26 @@
 // Category and transaction type helpers with i18n support
 
 import { CATEGORIES, TRANSACTION_TYPES } from '@/constants/categories'
+import { translations } from '@/lib/i18n/translations'
 
 export { CATEGORIES, TRANSACTION_TYPES }
 
+type Translations = typeof translations.vi
+
 // Resolve a nested translation key like 'categories.food'
-function resolveTranslation(t: Record<string, unknown>, key: string): string {
+function resolveTranslation(t: Translations, key: string): string {
   const parts = key.split('.')
   if (parts.length === 2) {
-    const section = t[parts[0]]
+    const section = t[parts[0] as keyof Translations]
     if (section && typeof section === 'object') {
       return (section as Record<string, string>)[parts[1]] || key
     }
   }
-  return t[key] as string || key
+  return key
 }
 
 // Get category name with i18n resolution
-export function getCategoryName(t: Record<string, unknown>, category: { nameKey: string }): string {
+export function getCategoryName(t: Translations, category: { nameKey: string }): string {
   return resolveTranslation(t, category.nameKey)
 }
 
@@ -30,10 +33,7 @@ export interface DisplayCategory {
   color: string
 }
 
-export function getCategoriesForType(
-  type: string,
-  t: Record<string, unknown>
-): DisplayCategory[] {
+export function getCategoriesForType(type: string, t: Translations): DisplayCategory[] {
   const cats = type === 'income' ? CATEGORIES.income : CATEGORIES.expense
   return cats.map(cat => ({
     id: cat.id,
@@ -50,7 +50,7 @@ export interface DisplayTransactionType {
   icon: string
 }
 
-export function getTransactionTypes(t: Record<string, unknown>): DisplayTransactionType[] {
+export function getTransactionTypes(t: Translations): DisplayTransactionType[] {
   return TRANSACTION_TYPES.map(type => ({
     id: type.id,
     label: resolveTranslation(t, type.labelKey),

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { translations, type Language, type TranslationKey } from './translations'
+import { translations } from './translations'
+import type { Language, TranslationKey } from './translations'
 
 type I18nProviderProps = {
   children: React.ReactNode

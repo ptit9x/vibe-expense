@@ -32,7 +32,7 @@ export function BottomSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/50" onClick={handleClose}>
+    <div className="fixed inset-0 z-60 bg-black/50" onClick={handleClose}>
       <div
         className="absolute bottom-20 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8 animate-slide-up"
         onClick={(e) => e.stopPropagation()}

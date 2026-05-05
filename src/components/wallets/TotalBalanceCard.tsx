@@ -12,30 +12,31 @@ export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }:
   const { t } = useI18n()
 
   return (
-    <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+    <div className="bg-linear-to-r from-blue-500 to-blue-600 px-5 pt-4 pb-6">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-white/60 text-sm">{t.wallet.totalBalance}</p>
+        <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{t.wallet.totalBalance}</p>
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 rounded-full bg-white/20 hover:bg-white/30"
+          className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 shrink-0"
           onClick={onToggleBalance}
           aria-label={showBalance ? 'Hide balance' : 'Show balance'}
         >
           {showBalance ? (
-            <Eye className="h-5 w-5 text-white" />
+            <EyeOff className="h-4 w-4 text-white" />
           ) : (
-            <EyeOff className="h-5 w-5 text-white" />
+            <Eye className="h-4 w-4 text-white" />
           )}
         </Button>
       </div>
-      <p className="text-3xl font-bold text-white">
+      <p className="text-3xl font-bold text-white tracking-tight">
         {showBalance ? (
           <>
-            {new Intl.NumberFormat('vi-VN').format(totalBalance)} <span className="text-lg text-white/60">đ</span>
+            {new Intl.NumberFormat('vi-VN').format(totalBalance)}
+            <span className="text-lg text-white/60 ml-1">đ</span>
           </>
         ) : (
-          <span className="text-white/40">••••••••</span>
+          <span className="text-white/40 text-2xl">••••••••</span>
         )}
       </p>
     </div>

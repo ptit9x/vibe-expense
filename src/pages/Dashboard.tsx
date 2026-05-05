@@ -4,8 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Button } from '@/components/ui/button'
-import {
-  ExpenseAnalysis,
+import { ExpenseAnalysis,
   RecentTransactions,
   type ExpenseItem,
   type TransactionItem,
@@ -13,10 +12,11 @@ import {
 import { MonthlyChart, type MonthlyData } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n } from '@/lib/i18n'
+import type { Transaction } from '@/types'
 
 const RECENT_TRANSACTIONS_LIMIT = 10
 
-function useMonthlyData(transactions: any[]): MonthlyData[] {
+function useMonthlyData(transactions: Transaction[]): MonthlyData[] {
   const months = []
   for (let i = 5; i >= 0; i--) {
     const d = new Date()
@@ -36,7 +36,7 @@ function useMonthlyData(transactions: any[]): MonthlyData[] {
   return months
 }
 
-function useExpenseBreakdown(transactions: any[]): ExpenseItem[] {
+function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
   const expenses = transactions?.filter(t => t.type === 'expense') || []
   const breakdown: Record<string, ExpenseItem> = {}
 

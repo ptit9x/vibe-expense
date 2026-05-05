@@ -32,7 +32,7 @@ export function useAuth() {
 
       // Fallback to mock auth from localStorage
       const token = localStorage.getItem('token')
-      if (token) {
+      if (token === 'mock-jwt-token') {
         return {
           id: 'dev-user',
           email: 'dev@example.com',
