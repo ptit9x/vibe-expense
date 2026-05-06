@@ -3,16 +3,17 @@ import { useCategories } from '@/hooks/useCategories'
 import { useTransactionFormStore } from '@/stores/transactionFormStore'
 import { getTransactionTypes } from '@/lib/categories'
 import { useI18n } from '@/lib/i18n'
-import type { Category } from '@/types'
 import {
   AmountDisplay,
   CategorySelector,
   WalletSelector,
+  TransferWalletSelector,
   TypeDropdown,
   SaveButton,
   DateField,
   DescriptionField,
 } from '.'
+import PageHeader from '../PageHeader'
 
 interface TransactionFormProps {
   onSave: () => void
@@ -27,6 +28,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     amount,
     categoryId,
     walletId,
+    toWalletId,
     description,
     date,
     showTypeDropdown,
@@ -35,6 +37,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     setAmount,
     setCategoryId,
     setWalletId,
+    setToWalletId,
     setDescription,
     setDate,
     toggleTypeDropdown,
@@ -47,23 +50,20 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
 
   const transactionTypes = getTransactionTypes(t)
 
-  const resolveCategoryName = (cat: Category) => {
-    return cat.name?.replace(/^(\p{Emoji_Presentation}\p{Extended_Pictographic}*\s*)+/u, '') || cat.name
-  }
-
   const categories = (dbCategories || []).map((cat) => ({
     id: cat.id,
-    name: resolveCategoryName(cat),
+    name: cat.name,
     icon: cat.icon || '📦',
     type: cat.type as 'income' | 'expense',
     color: cat.color || '#6B7280',
     parentId: cat.parent_id || undefined,
   }))
 
+  const isTransfer = type === 'transfer'
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <div className="w-10" />
           <TypeDropdown
@@ -76,22 +76,36 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
           <div className="w-10" />
         </div>
         <AmountDisplay value={amount} onChange={setAmount} />
-      </div>
+      </PageHeader>
 
       {/* Form fields */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-        <CategorySelector
-          categories={categories}
-          selectedId={categoryId}
-          onSelect={setCategoryId}
-          isLoading={isCategoriesLoading}
-        />
+        {/* Category selector - hidden for transfer */}
+        {!isTransfer && (
+          <CategorySelector
+            categories={categories}
+            selectedId={categoryId}
+            onSelect={setCategoryId}
+            isLoading={isCategoriesLoading}
+          />
+        )}
 
-        <WalletSelector
-          wallets={wallets || []}
-          selectedId={walletId}
-          onSelect={setWalletId}
-        />
+        {/* Wallet selectors */}
+        {isTransfer ? (
+          <TransferWalletSelector
+            wallets={wallets || []}
+            fromWalletId={walletId}
+            toWalletId={toWalletId}
+            onFromSelect={setWalletId}
+            onToSelect={setToWalletId}
+          />
+        ) : (
+          <WalletSelector
+            wallets={wallets || []}
+            selectedId={walletId}
+            onSelect={setWalletId}
+          />
+        )}
 
         <DateField value={date} onChange={setDate} label={t.transaction.date} />
 

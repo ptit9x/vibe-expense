@@ -8,6 +8,7 @@ interface TransactionFormState {
   amount: string
   categoryId: string
   walletId: string
+  toWalletId: string
   description: string
   date: string
   showTypeDropdown: boolean
@@ -18,6 +19,7 @@ interface TransactionFormState {
   setAmount: (amount: string) => void
   setCategoryId: (categoryId: string) => void
   setWalletId: (walletId: string) => void
+  setToWalletId: (toWalletId: string) => void
   setDescription: (description: string) => void
   setDate: (date: string) => void
   setShowTypeDropdown: (show: boolean) => void
@@ -28,6 +30,7 @@ interface TransactionFormState {
     amount: number
     categoryId?: string
     walletId?: string
+    toWalletId?: string
     description?: string
     date: string
   }) => void
@@ -43,6 +46,7 @@ const initialState = {
   amount: '',
   categoryId: '',
   walletId: '',
+  toWalletId: '',
   description: '',
   date: getInitialDate(),
   showTypeDropdown: false,
@@ -56,6 +60,7 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
   setAmount: (amount) => set({ amount }),
   setCategoryId: (categoryId) => set({ categoryId }),
   setWalletId: (walletId) => set({ walletId }),
+  setToWalletId: (toWalletId) => set({ toWalletId }),
   setDescription: (description) => set({ description }),
   setDate: (date) => set({ date }),
   setShowTypeDropdown: (show) => set({ showTypeDropdown: show }),
@@ -67,6 +72,7 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
     amount: String(data.amount),
     categoryId: data.categoryId || '',
     walletId: data.walletId || '',
+    toWalletId: data.toWalletId || '',
     description: data.description || '',
     date: data.date,
     showTypeDropdown: false,

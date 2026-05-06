@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'

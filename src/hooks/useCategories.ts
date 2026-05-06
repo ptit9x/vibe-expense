@@ -23,7 +23,7 @@ export function useCategories(type?: TransactionType) {
 
       return filteredCategories.map(c => ({
         ...c,
-        i18n_key: (c as any).i18n_key || extractI18nKey(c.name),
+        i18n_key: (c as Record<string, unknown>).i18n_key || extractI18nKey(c.name),
       })) as (Category & { i18n_key?: string })[]
     },
     staleTime: 1000 * 60 * 60 * 24,
@@ -211,6 +211,7 @@ function extractI18nKey(name: string): string {
   const nameLower = name.toLowerCase()
 
   for (const type of ['expense', 'income'] as const) {
+    // eslint-disable-next-line security/detect-object-injection
     for (const cat of CATEGORIES[type]) {
       const catNameLower = cat.nameKey.replace('categories.', '').replace(/([A-Z])/g, ' $1').toLowerCase().trim()
       if (nameLower.includes(catNameLower)) {

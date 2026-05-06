@@ -4,13 +4,14 @@ import type {
   Transaction, CreateTransactionInput, UpdateTransactionInput, UUID 
 } from '@/types'
 
-// Fetch all transactions for current user
-export function useTransactions(month?: string, walletId?: string) {
+// Fetch all transactions for current user, optionally filtered by month
+// When month is null, fetches last 12 months by default
+export function useTransactions(month?: string | null, walletId?: string) {
   return useQuery({
-    queryKey: ['transactions', month, walletId],
+    queryKey: ['transactions', month ?? 'all', walletId],
     queryFn: async () => {
       if (!isSupabaseConfigured()) {
-        return getMockTransactions(month)
+        return getMockTransactions(month ?? undefined)
       }
       
       const { data: { user } } = await supabase.auth.getUser()
@@ -18,7 +19,7 @@ export function useTransactions(month?: string, walletId?: string) {
       
       let query = supabase
         .from('transactions')
-        .select('*, wallet:wallets(id, name, icon, color), category:categories(id, name, icon, color)')
+        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
         .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
 
@@ -29,6 +30,15 @@ export function useTransactions(month?: string, walletId?: string) {
         query = query
           .gte('transaction_date', `${month}-01`)
           .lt('transaction_date', `${nextMonth}-01`)
+      } else {
+        // No month filter: fetch last 12 months
+        const now = new Date()
+        const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1)
+        const startDate = twelveMonthsAgo.toISOString().slice(0, 10)
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().slice(0, 10)
+        query = query
+          .gte('transaction_date', startDate)
+          .lt('transaction_date', endDate)
       }
 
       if (walletId) {
@@ -59,7 +69,7 @@ export function useTransaction(id: string | undefined) {
 
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, wallet:wallets(id, name, icon, color), category:categories(id, name, icon, color)')
+        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
         .eq('id', id)
         .eq('user_id', user.id)
         .single()
@@ -68,6 +78,40 @@ export function useTransaction(id: string | undefined) {
       return data as Transaction
     },
     enabled: !!id,
+  })
+}
+
+// Fetch transactions for a whole year, optionally filtered by type
+export function useYearTransactions(year: number, type?: 'income' | 'expense') {
+  return useQuery({
+    queryKey: ['transactions', 'year', year, type],
+    queryFn: async () => {
+      if (!isSupabaseConfigured()) {
+        return getMockTransactions().filter(t => {
+          if (type && t.type !== type) return false
+          return true
+        })
+      }
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      let query = supabase
+        .from('transactions')
+        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
+        .eq('user_id', user.id)
+        .gte('transaction_date', `${year}-01-01`)
+        .lt('transaction_date', `${year + 1}-01-01`)
+        .order('transaction_date', { ascending: false })
+
+      if (type) {
+        query = query.eq('type', type)
+      }
+
+      const { data, error } = await query
+      if (error) throw error
+      return data as Transaction[]
+    },
   })
 }
 

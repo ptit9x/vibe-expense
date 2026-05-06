@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
+import PageHeader from '@/components/PageHeader'
 
 // Predefined icons and colors for category picker
 const ICON_OPTIONS = [
@@ -84,7 +85,7 @@ export default function Categories() {
   const [formColor, setFormColor] = useState('#95A5A6')
   const [formParentId, setFormParentId] = useState<string | undefined>(undefined)
   const [confirmState, setConfirmState] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
-    open: false, title: '', description: '', onConfirm: () => {},
+    open: false, title: '', description: '', onConfirm: () => { },
   })
 
   const showConfirm = useCallback((title: string, description: string, onConfirm: () => void) => {
@@ -191,7 +192,7 @@ export default function Categories() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => navigate('/profile')}
@@ -206,26 +207,24 @@ export default function Categories() {
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('expense')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'expense'
-                ? 'bg-white text-blue-500'
-                : 'bg-white/20 text-white hover:bg-white/30'
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'expense'
+              ? 'bg-white text-blue-500'
+              : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
           >
             {t.transaction.expense}
           </button>
           <button
             onClick={() => setActiveTab('income')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'income'
-                ? 'bg-white text-blue-500'
-                : 'bg-white/20 text-white hover:bg-white/30'
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'income'
+              ? 'bg-white text-blue-500'
+              : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
           >
             {t.transaction.income}
           </button>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Add Button */}
       <div className="px-5 py-4">

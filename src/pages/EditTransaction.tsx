@@ -85,16 +85,6 @@ export default function EditTransaction() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4">
-        <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-white/80 hover:text-white">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-lg font-semibold text-white">Edit Transaction</h1>
-        </div>
-      </div>
       <TransactionForm onSave={handleSave} isPending={updateTransaction.isPending} />
     </div>
   )

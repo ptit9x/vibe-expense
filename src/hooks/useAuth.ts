@@ -24,13 +24,14 @@ export function useAuth() {
             full_name: user.user_metadata?.full_name || null,
             confirmed: emailConfirmed,
           }
-        } catch (e) {
+        } catch {
           console.warn('Supabase auth failed, using mock auth')
         }
       }
 
       // Fallback to mock auth from localStorage
       const token = localStorage.getItem('token')
+      // eslint-disable-next-line security/detect-possible-timing-attacks
       if (token === 'mock-jwt-token') {
         return {
           id: 'dev-user',

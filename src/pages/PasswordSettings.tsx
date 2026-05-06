@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
+import PageHeader from '@/components/PageHeader'
 
 export default function PasswordSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
@@ -16,20 +17,20 @@ export default function PasswordSettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (newPassword !== confirmPassword) {
       setMessage(t.settings.passwordNotMatch)
       return
     }
-    
+
     if (newPassword.length < 6) {
       setMessage(t.auth.passwordMinLength)
       return
     }
-    
+
     setIsLoading(true)
     setMessage('')
-    
+
     setTimeout(() => {
       setIsLoading(false)
       setMessage(t.settings.changePasswordSuccess)
@@ -41,10 +42,10 @@ export default function PasswordSettings() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
-      </div>
-      
+      </PageHeader>
+
       <div className="bg-white mt-2 px-5 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -68,7 +69,7 @@ export default function PasswordSettings() {
               </button>
             </div>
           </div>
-          
+
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.newPassword}
@@ -90,7 +91,7 @@ export default function PasswordSettings() {
               </button>
             </div>
           </div>
-          
+
           <div>
             <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.confirmPassword}
@@ -103,13 +104,13 @@ export default function PasswordSettings() {
               placeholder={t.settings.enterConfirmPassword}
             />
           </div>
-          
+
           {message && (
             <p className={`text-sm ${message.includes('thành công') || message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
               {message}
             </p>
           )}
-          
+
           <Button
             type="submit"
             disabled={isLoading}

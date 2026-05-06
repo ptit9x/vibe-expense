@@ -1,6 +1,7 @@
 export { AmountDisplay } from './AmountDisplay'
 export { CategorySelector, type CategoryItem } from './CategorySelector'
 export { WalletSelector, type WalletItem } from './WalletSelector'
+export { TransferWalletSelector } from './TransferWalletSelector'
 export { TypeDropdown, type TransactionTypeItem } from './TypeDropdown'
 export { SaveButton } from './SaveButton'
 export { DateField } from './DateField'

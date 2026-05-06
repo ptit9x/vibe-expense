@@ -4,6 +4,7 @@ import { useI18n } from '@/lib/i18n'
 import { useTransactions } from '@/hooks/useTransactions'
 import { toast } from 'sonner'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
+import PageHeader from '@/components/PageHeader'
 
 type ExportFormat = 'csv' | 'xlsx'
 
@@ -32,7 +33,7 @@ export default function ExportData() {
             description,
             transaction_date,
             created_at,
-            wallet:wallets(id, name),
+            wallet:wallets!transactions_wallet_id_fkey(id, name),
             category:categories(id, name, icon)
           `)
           .eq('user_id', user.id)
@@ -57,15 +58,36 @@ export default function ExportData() {
     }
   }
 
-  const exportToCSV = (transactions: any[]) => {
+  interface ExportTransaction {
+    transaction_date?: string
+    type?: string
+    category?: { name?: string } | { name?: string }[] | null
+    wallet?: { name?: string } | { name?: string }[] | null
+    amount?: number
+    description?: string
+  }
+
+  const getCategoryName = (cat: ExportTransaction['category']): string => {
+    if (!cat) return ''
+    if (Array.isArray(cat)) return cat[0]?.name || ''
+    return cat.name || ''
+  }
+
+  const getWalletName = (wallet: ExportTransaction['wallet']): string => {
+    if (!wallet) return ''
+    if (Array.isArray(wallet)) return wallet[0]?.name || ''
+    return wallet.name || ''
+  }
+
+  const exportToCSV = (transactions: ExportTransaction[]) => {
     const headers = ['Date', 'Type', 'Category', 'Wallet', 'Amount', 'Description']
 
     const rows = transactions.map(t => [
       t.transaction_date || '',
       t.type || '',
-      t.category?.name || '',
-      t.wallet?.name || '',
-      t.amount || 0,
+      getCategoryName(t.category),
+      getWalletName(t.wallet),
+      String(t.amount || 0),
       (t.description || '').replace(/"/g, '""'), // Escape quotes
     ])
 
@@ -78,7 +100,7 @@ export default function ExportData() {
     toast.success('Exported to CSV successfully')
   }
 
-  const exportToXLSX = (transactions: any[]) => {
+  const exportToXLSX = (transactions: ExportTransaction[]) => {
     // Simple XLSX generation (works with Excel/Google Sheets)
     // Uses CSV with .xlsx extension for compatibility
     const headers = ['Date', 'Type', 'Category', 'Wallet', 'Amount', 'Description']
@@ -86,9 +108,9 @@ export default function ExportData() {
     const rows = transactions.map(t => [
       t.transaction_date || '',
       t.type === 'income' ? 'Income' : 'Expense',
-      t.category?.name || '',
-      t.wallet?.name || '',
-      t.amount || 0,
+      getCategoryName(t.category),
+      getWalletName(t.wallet),
+      String(t.amount || 0),
       t.description || '',
     ])
 
@@ -136,9 +158,9 @@ export default function ExportData() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.exportData}</h1>
-      </div>
+      </PageHeader>
 
       <div className="bg-white mt-2 px-5 py-4">
         <p className="text-sm text-gray-500 mb-4">

@@ -11,14 +11,6 @@ export type BudgetPeriod = 'monthly' | 'weekly'
 
 // ===== Database Entities =====
 
-export interface User {
-  id: UUID
-  email: string
-  full_name: string | null
-  created_at: DateString
-  updated_at: DateString
-}
-
 export interface Wallet {
   id: UUID
   user_id: UUID
@@ -50,6 +42,7 @@ export interface Transaction {
   id: UUID
   user_id: UUID
   wallet_id: UUID | null
+  to_wallet_id: UUID | null  // Transfer destination wallet
   category_id: UUID | null
   type: TransactionType
   amount: number
@@ -59,6 +52,7 @@ export interface Transaction {
   updated_at: DateString
   // Relations
   wallet?: Wallet
+  to_wallet?: Wallet
   category?: Category
 }
 
@@ -92,6 +86,7 @@ export interface SavingsGoal {
 
 export interface CreateTransactionInput {
   wallet_id?: UUID
+  to_wallet_id?: UUID
   category_id?: UUID
   type: TransactionType
   amount: number

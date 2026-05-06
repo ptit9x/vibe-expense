@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
+import PageHeader from '@/components/PageHeader'
 
 const FEATURES = [
   { icon: Lock, labelKey: 'settings.password', href: '/settings/password', color: '#6366F1' },
@@ -34,7 +35,7 @@ export default function Budgets() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">{t.settings.settings}</h1>
           <button
@@ -54,7 +55,7 @@ export default function Budgets() {
             <p className="text-white/60 text-sm">{displayEmail}</p>
           </div>
         </div>
-      </div>
+      </PageHeader>
 
       <div className="px-4 py-3">
         <div className="bg-white rounded-xl p-4 flex items-center justify-between">

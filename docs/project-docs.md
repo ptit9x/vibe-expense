@@ -312,7 +312,7 @@ All pages are connected to Supabase backend via TanStack Query hooks:
 | Page | Hooks | Status |
 |------|-------|--------|
 | Dashboard | useTransactions, useWallets | ✅ Full API |
-| Transactions | useTransactions | ✅ Full API |
+| Transactions | useTransactions | ✅ Full API (grouped by month, 12-month default) |
 | AddTransaction | useCategories, useCreateTransaction | ✅ Full API |
 | Wallets | useWallets, useCreateWallet, useDeleteWallet | ✅ Full API |
 | Categories | useCategories, useCreateCategory, useUpdateCategoryOverride, useDeleteCategoryOverride | ✅ Full API |
@@ -336,6 +336,13 @@ const { data, error } = await supabase
 ```
 
 ## Changelog
+
+### v1.5.0 (2026-05-06)
+- **Transactions page**: Redesigned to group transactions by month in separate Cards, showing monthly income/expense totals in each CardHeader. Defaults to 12 most recent months when no month filter is selected.
+- **useTransactions hook**: Added support for `null` month filter (fetches last 12 months by default).
+- **Transaction types**: Extended `type_check` constraint to include `transfer`, `lend`, `borrow` types. Added named FK constraint `transactions_to_wallet_id_fkey` for `to_wallet_id` column.
+- **PGRST201 fix**: All queries now use explicit FK constraint names for wallet joins (`wallets!transactions_wallet_id_fkey` and `wallets!transactions_to_wallet_id_fkey`). ExportData page query also fixed with explicit constraint name.
+- **TypeScript**: Fixed `verbatimModuleSyntax` error by using `import type` for `Transaction` type.
 
 ### v1.4.0 (2026-05-05)
 - **Toast position**: Changed from `bottom` to `top-center`

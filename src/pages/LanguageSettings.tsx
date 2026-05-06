@@ -1,3 +1,4 @@
+import PageHeader from '@/components/PageHeader'
 import { useI18n } from '@/lib/i18n'
 
 const LANGUAGES = [
@@ -10,9 +11,9 @@ export default function LanguageSettings() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 pt-4 pb-6">
+      <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.language}</h1>
-      </div>
+      </PageHeader>
 
       <div className="bg-white mt-2 px-5 py-4">
         <p className="text-sm font-medium text-gray-500 mb-3">{t.settings.language}</p>

@@ -6,6 +6,7 @@ import {
 } from '@/components/reports'
 import { MonthlyChart } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
+import type { Transaction } from '@/types'
 
 export default function Reports() {
   const { showBalance, toggleBalance, currentMonth } = useUIStore()
@@ -23,17 +24,17 @@ export default function Reports() {
       const monthKey = d.toISOString().slice(0, 7)
       const monthLabel = `T${d.getMonth() + 1}`
 
-      const monthTransactions = (transactions ?? []).filter((txn: any) => 
+      const monthTransactions = (transactions ?? []).filter((txn: Transaction) =>
         txn.transaction_date?.startsWith(monthKey)
       ) || []
 
       const income = monthTransactions
-        .filter((txn: any) => txn.type === 'income')
-        .reduce((sum: number, txn: any) => sum + Number(txn.amount), 0)
-      
+        .filter((txn: Transaction) => txn.type === 'income')
+        .reduce((sum: number, txn: Transaction) => sum + Number(txn.amount), 0)
+
       const expense = monthTransactions
-        .filter((txn: any) => txn.type === 'expense')
-        .reduce((sum: number, txn: any) => sum + Number(txn.amount), 0)
+        .filter((txn: Transaction) => txn.type === 'expense')
+        .reduce((sum: number, txn: Transaction) => sum + Number(txn.amount), 0)
 
       months.push({ month: monthLabel, income, expense })
     }

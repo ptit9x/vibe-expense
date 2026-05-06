@@ -9,7 +9,7 @@ export default function AddTransaction() {
   const navigate = useNavigate()
   const createTransaction = useCreateTransaction()
   const { t } = useI18n()
-  const { type, amount, walletId, categoryId, description, date, reset } = useTransactionFormStore()
+  const { type, amount, walletId, toWalletId, categoryId, description, date, reset } = useTransactionFormStore()
 
   const handleSave = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -20,6 +20,17 @@ export default function AddTransaction() {
       toast.error(t.transaction.selectWallet)
       return
     }
+
+    // Transfer-specific validation
+    if (type === 'transfer' && !toWalletId) {
+      toast.error(t.transaction.selectToWallet || 'Please select destination wallet')
+      return
+    }
+    if (type === 'transfer' && walletId === toWalletId) {
+      toast.error(t.transaction.sameWallet || 'Source and destination wallets must be different')
+      return
+    }
+
     const amountValue = parseFloat(amount)
     if (Number.isFinite(amountValue) && !Number.isInteger(amountValue * 100)) {
       toast.error(t.transaction.invalidDecimals)
@@ -27,11 +38,12 @@ export default function AddTransaction() {
     }
 
     createTransaction.mutate({
-      type: type === 'lend' || type === 'borrow' ? 'expense' : type as 'income' | 'expense',
+      type: type === 'lend' || type === 'borrow' ? 'expense' : type as 'income' | 'expense' | 'transfer',
       amount: parseFloat(amount),
       description: description || undefined,
       wallet_id: walletId,
-      category_id: categoryId || undefined,
+      to_wallet_id: type === 'transfer' ? toWalletId : undefined,
+      category_id: type !== 'transfer' ? (categoryId || undefined) : undefined,
       transaction_date: date,
     }, {
       onSuccess: () => {
@@ -47,16 +59,6 @@ export default function AddTransaction() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-b from-blue-500 to-blue-600 px-5 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-white/80 hover:text-white">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-lg font-semibold text-white">{t.transaction.add}</h1>
-        </div>
-      </div>
       <TransactionForm onSave={handleSave} isPending={createTransaction.isPending} />
     </div>
   )
