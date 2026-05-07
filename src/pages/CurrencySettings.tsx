@@ -34,7 +34,7 @@ export default function CurrencySettings() {
       </PageHeader>
 
       <div className="bg-white mt-2 px-5 py-4">
-        <p className="text-sm font-medium text-gray-500 mb-3">Select your preferred currency</p>
+        <p className="text-sm font-medium text-gray-500 mb-3">{t.profile.selectCurrency}</p>
         <div className="space-y-3">
           {CURRENCIES.map((curr) => (
             <button

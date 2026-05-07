@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '@/lib/i18n'
@@ -57,7 +58,7 @@ export function StatCard({ label, value, color = '#3B82F6' }: StatCardProps) {
   const { currency, formatCurrency } = useUIStore()
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-1">{label}</p>
+      <p className="text-sm text-gray-400 mb-1">{label}</p>
       <p className="text-xl font-bold" style={{ color }}>
         {currency.symbol}{formatCurrency(value)}
       </p>
@@ -123,13 +124,13 @@ export function CategoryList({ items, total }: CategoryListProps) {
             >
               {item.icon}
             </div>
-            <span className="text-sm font-medium text-gray-700">{item.name}</span>
+            <span className="text-base font-medium text-gray-700">{item.name}</span>
           </div>
           <div className="text-right">
             <p className="text-sm font-bold text-gray-900">
               {currency.symbol}{formatCurrency(item.value)}
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm text-gray-400">
               {total > 0 ? ((item.value / total) * 100).toFixed(1) : 0}%
             </p>
           </div>
@@ -141,20 +142,30 @@ export function CategoryList({ items, total }: CategoryListProps) {
 
 interface MonthlyListProps {
   data: { month: string; value: number }[]
+  year: number
+  type: 'income' | 'expense'
 }
 
-export function MonthlyList({ data }: MonthlyListProps) {
+export function MonthlyList({ data, year, type }: MonthlyListProps) {
   const { currency, formatCurrency } = useUIStore()
   return (
     <div className="space-y-2">
-      {data.slice().reverse().map((item, index) => (
-        <div key={index} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-          <span className="text-sm text-gray-600">{item.month}</span>
-          <span className="text-sm font-medium text-gray-900">
-            {currency.symbol}{formatCurrency(item.value)}
-          </span>
-        </div>
-      ))}
+      {data.slice().reverse().map((item, index) => {
+        const monthNum = (item.month.match(/\d+/)?.[0] || '').padStart(2, '0')
+        const monthParam = `${year}-${monthNum}`
+        return (
+          <Link
+            key={index}
+            to={`/transactions?month=${monthParam}&type=${type}`}
+            className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
+          >
+            <span className="text-sm text-gray-600">{item.month}</span>
+            <span className="text-sm font-medium text-gray-900">
+              {currency.symbol}{formatCurrency(item.value)}
+            </span>
+          </Link>
+        )
+      })}
     </div>
   )
 }
@@ -168,14 +179,14 @@ export function YearPicker({ value, onChange }: YearPickerProps) {
     <div className="flex items-center justify-center gap-3 mt-3">
       <button
         onClick={() => onChange(value - 1)}
-        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+        className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <span className="text-white font-bold text-lg min-w-[60px] text-center">{value}</span>
       <button
         onClick={() => onChange(value + 1)}
-        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+        className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
@@ -231,7 +242,7 @@ export function YearlyReport({
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const month = (i + 1).toString().padStart(2, '0')
     const monthTotal = filtered
-      .filter(tx => tx.transaction_date?.endsWith(`-${month}`))
+      .filter(tx => tx.transaction_date?.substring(5, 7) === month)
       .reduce((sum, tx) => sum + Number(tx.amount), 0)
     return { month: `T${i + 1}`, value: monthTotal }
   })
@@ -313,7 +324,7 @@ export function YearlyReport({
       <div className="bg-white mt-2 px-5 py-4">
         {/* eslint-disable-next-line security/detect-object-injection */}
         <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
-        <MonthlyList data={monthlyData} />
+        <MonthlyList data={monthlyData} year={selectedYear} type={type} />
       </div>
     </div>
   )

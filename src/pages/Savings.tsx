@@ -40,7 +40,7 @@ export default function Savings() {
       },
       {
         onSuccess: () => {
-          toast.success('Goal created successfully')
+          toast.success(t.savingsPage.goalCreated)
           setShowForm(false)
           setGoalName('')
           setTargetAmount('')
@@ -146,7 +146,7 @@ export default function Savings() {
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAddGoal} disabled={createGoal.isPending}>
-                {createGoal.isPending ? 'Processing...' : t.common.save}
+                {createGoal.isPending ? t.savingsPage.processing : t.common.save}
               </Button>
               <Button variant="outline" onClick={() => setShowForm(false)}>{t.common.cancel}</Button>
             </div>

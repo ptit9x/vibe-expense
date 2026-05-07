@@ -1,7 +1,7 @@
 # Money Keeper Clone - Database Schema
 
-**Version:** 2.0.0  
-**Last Updated:** 2026-05-05
+**Version:** 2.2.0  
+**Last Updated:** 2026-05-07
 
 ---
 
@@ -227,8 +227,9 @@ CREATE TABLE public.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   wallet_id UUID REFERENCES public.wallets(id) ON DELETE SET NULL,
+  to_wallet_id UUID REFERENCES public.wallets(id) ON DELETE SET NULL,
   category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
-  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense', 'transfer', 'lend', 'borrow')),
   amount DECIMAL(15,2) NOT NULL CHECK (amount > 0),
   description TEXT,
   transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -241,14 +242,24 @@ CREATE TABLE public.transactions (
 |-------|------|---------|-------------|-------------|
 | `id` | UUID | `gen_random_uuid()` | PRIMARY KEY | Unique transaction identifier |
 | `user_id` | UUID | - | NOT NULL, REFERENCES auth.users(id) ON DELETE CASCADE | Owner user ID |
-| `wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Target wallet |
+| `wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Source wallet |
+| `to_wallet_id` | UUID | NULL | REFERENCES wallets(id) ON DELETE SET NULL | Destination wallet (for transfers) |
 | `category_id` | UUID | NULL | REFERENCES categories(id) ON DELETE SET NULL | Transaction category |
-| `type` | TEXT | - | NOT NULL, CHECK (income, expense) | Income or expense |
-| `amount` | DECIMAL(15,2) | - | NOT NULL, CHECK (amount > 0) | Transaction amount in VND |
+| `type` | TEXT | - | NOT NULL, CHECK (income, expense, transfer, lend, borrow) | Transaction type |
+| `amount` | DECIMAL(15,2) | - | NOT NULL, CHECK (amount > 0) | Transaction amount |
 | `description` | TEXT | NULL | - | Transaction note/memo |
 | `transaction_date` | DATE | `CURRENT_DATE` | NOT NULL | Date of transaction |
 | `created_at` | TIMESTAMPTZ | `now()` | - | Transaction creation timestamp |
 | `updated_at` | TIMESTAMPTZ | `now()` | - | Last transaction update timestamp |
+
+### Transaction Types
+| Value | Description |
+|-------|-------------|
+| `expense` | Money going out |
+| `income` | Money coming in |
+| `transfer` | Moving money between wallets |
+| `lend` | Money lent to someone |
+| `borrow` | Money borrowed from someone |
 
 ### Row Level Security
 ```sql
@@ -262,6 +273,7 @@ CREATE POLICY "transactions_delete" ON public.transactions FOR DELETE USING (aut
 ```sql
 CREATE INDEX idx_transactions_user_date ON public.transactions(user_id, transaction_date DESC);
 CREATE INDEX idx_transactions_wallet ON public.transactions(wallet_id);
+CREATE INDEX idx_transactions_to_wallet ON public.transactions(to_wallet_id);
 CREATE INDEX idx_transactions_category ON public.transactions(category_id);
 ```
 
@@ -464,6 +476,12 @@ Wallets use `is_active` boolean flag instead of hard delete. This preserves tran
 ---
 
 ## Changelog
+
+### v2.2.0 (2026-05-07)
+- **Clarified:** `currency` column is in `profiles` table, NOT in `wallets` table
+- **Fixed:** Removed `currency` from `Wallet` TypeScript interface and `useWallets` select query
+- **Updated:** `supabase-schema.sql` synced with actual DB schema (proper RLS, triggers, indexes, expanded transaction types, `to_wallet_id`, `is_active`, `i18n_key`)
+- **Added:** `handle_wallet_user_id` trigger in schema reference
 
 ### v2.0.0 (2026-05-05)
 - **Removed:** `user_categories` table (unused)

@@ -41,13 +41,13 @@ function PieSector(props: SectorProps) {
       {/* Center label - only show on active sector */}
       {isActive && (
         <>
-          <text x={cx} y={cy - 8} textAnchor="middle" fill="#374151" fontSize={12} fontWeight={600}>
+          <text x={cx} y={cy - 8} textAnchor="middle" fill="#374151" fontSize={14} fontWeight={600}>
             {name}
           </text>
-          <text x={cx} y={cy + 10} textAnchor="middle" fill="#6B7280" fontSize={11}>
+          <text x={cx} y={cy + 10} textAnchor="middle" fill="#6B7280" fontSize={13}>
             {currency.symbol}{formatCurrency(value)}
           </text>
-          <text x={cx} y={cy + 26} textAnchor="middle" fill="#9CA3AF" fontSize={10}>
+          <text x={cx} y={cy + 26} textAnchor="middle" fill="#9CA3AF" fontSize={12}>
             ({(percent * 100).toFixed(0)}%)
           </text>
         </>
@@ -141,11 +141,11 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                 return (
                   <div key={item.name} className="flex items-center gap-1.5">
                     <div
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      className="w-3 h-3 rounded-full shrink-0"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="text-xs text-gray-600 truncate">{item.icon} {item.name}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{percent}%</span>
+                    <span className="text-sm text-gray-600 truncate">{item.icon} {item.name}</span>
+                    <span className="text-sm text-gray-400 ml-auto">{percent}%</span>
                   </div>
                 )
               })}

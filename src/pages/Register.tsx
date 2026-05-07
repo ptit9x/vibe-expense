@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { useRegister } from "@/hooks/useAuth"
@@ -33,8 +33,10 @@ export default function Register() {
 
     try {
       await register.mutateAsync({ email, password, full_name: fullName })
-      toast.success(t.auth.registerSuccess)
-      navigate("/dashboard")
+      toast.success(`${t.auth.registerSuccess} ${t.verifyEmail.instruction}`, {
+        duration: 6000,
+      })
+      navigate("/login")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t.auth.somethingWrong)
     } finally {
@@ -53,7 +55,7 @@ export default function Register() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
             {t.auth.fullName}
           </label>
           <input
@@ -66,7 +68,7 @@ export default function Register() {
         </div>
 
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
             {t.auth.email}
           </label>
           <input
@@ -79,7 +81,7 @@ export default function Register() {
         </div>
 
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
             {t.auth.password}
           </label>
           <div className="relative">
@@ -111,15 +113,6 @@ export default function Register() {
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
-        {t.auth.alreadyHaveAccount}{" "}
-        <Link
-          to="/login"
-          className="text-blue-500 font-medium hover:text-blue-600"
-        >
-          {t.auth.login}
-        </Link>
-      </div>
     </>
   )
 }

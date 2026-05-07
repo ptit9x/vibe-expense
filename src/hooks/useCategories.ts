@@ -13,7 +13,7 @@ export function useCategories(type?: TransactionType) {
 
       const { data: allCategories, error } = await supabase
         .from('categories')
-        .select('*')
+        .select('id, user_id, parent_id, name, type, icon, color, is_system, created_at')
 
       if (error) throw error
 
@@ -63,6 +63,7 @@ export function useUpdateCategoryOverride() {
             .from('categories')
             .update({ name: customName, icon: customIcon, color: customColor })
             .eq('id', existing.id)
+            .eq('user_id', user.id)
           if (error) throw error
         } else {
           // Get original type
@@ -86,11 +87,15 @@ export function useUpdateCategoryOverride() {
           if (error) throw error
         }
       } else {
-        // User category: update directly
+        // User category: update with user_id check for safety
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
         const { error } = await supabase
           .from('categories')
           .update({ name: customName, icon: customIcon, color: customColor })
           .eq('id', categoryId)
+          .eq('user_id', user.id)
 
         if (error) throw error
       }
@@ -125,11 +130,15 @@ export function useDeleteCategoryOverride() {
 
         if (error) throw error
       } else {
-        // User category: delete directly
+        // User category: delete with user_id check for safety
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
         const { error } = await supabase
           .from('categories')
           .delete()
           .eq('id', categoryId)
+          .eq('user_id', user.id)
 
         if (error) throw error
       }

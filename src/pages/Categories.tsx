@@ -164,10 +164,10 @@ export default function Categories() {
     if (modalMode === 'add') {
       createCategory.mutate(data, {
         onSuccess: () => {
-          toast.success('Category created')
+          toast.success(t.categoryManager.categoryCreated)
           closeModal()
         },
-        onError: () => toast.error('Failed to create category'),
+        onError: () => toast.error(t.categoryManager.failedToCreate),
       })
     } else if (modalMode === 'edit' && editingCategory) {
       updateOverride.mutate(
@@ -180,10 +180,10 @@ export default function Categories() {
         },
         {
           onSuccess: () => {
-            toast.success('Category updated')
+            toast.success(t.categoryManager.categoryUpdated)
             closeModal()
           },
-          onError: () => toast.error('Failed to update category'),
+          onError: () => toast.error(t.categoryManager.failedToUpdate),
         }
       )
     }
@@ -233,7 +233,7 @@ export default function Categories() {
           className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-medium hover:border-blue-400 hover:text-blue-500 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Add Category
+          {t.categoryManager.addCategory}
         </button>
       </div>
 
@@ -242,7 +242,7 @@ export default function Categories() {
         {userCategories.length > 0 && (
           <div>
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-              My Categories ({userCategories.length})
+              {t.categoryManager.myCategories} ({userCategories.length})
             </h2>
             <div className="space-y-2">
               {userCategories.map(cat => {
@@ -253,22 +253,23 @@ export default function Categories() {
                     category={cat}
                     subcategories={children}
                     resolveName={getCategoryDisplayName}
+                    t={t}
                     onEdit={() => openEditModal(cat)}
                     onDelete={() => {
-                      showConfirm('Delete Category', `Are you sure you want to delete "${getCategoryDisplayName(cat.name)}"? This cannot be undone.`, () => {
+                      showConfirm(t.categoryManager.deleteCategory, `${t.categoryManager.deleteCategoryConfirm} "${getCategoryDisplayName(cat.name)}"? ${t.categoryManager.thisCannotBeUndone}`, () => {
                         deleteOverride.mutate({ categoryId: cat.id, isSystem: false }, {
-                          onSuccess: () => toast.success('Category deleted'),
-                          onError: () => toast.error('Failed to delete category'),
+                          onSuccess: () => toast.success(t.categoryManager.categoryDeleted),
+                          onError: () => toast.error(t.categoryManager.failedToDelete),
                         })
                       })
                     }}
                     onAddSub={() => openAddSubModal(cat.id)}
                     onEditSub={openEditModal}
                     onDeleteSub={(subId) => {
-                      showConfirm('Delete Subcategory', 'Are you sure you want to delete this subcategory?', () => {
+                      showConfirm(t.categoryManager.deleteSubcategory, t.categoryManager.deleteSubcategoryConfirm, () => {
                         deleteOverride.mutate({ categoryId: subId, isSystem: false }, {
-                          onSuccess: () => toast.success('Subcategory deleted'),
-                          onError: () => toast.error('Failed to delete subcategory'),
+                          onSuccess: () => toast.success(t.categoryManager.subcategoryDeleted),
+                          onError: () => toast.error(t.categoryManager.failedToDeleteSub),
                         })
                       })
                     }}
@@ -282,7 +283,7 @@ export default function Categories() {
         {/* System Categories Section */}
         <div>
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-            System Categories ({systemCategories.length})
+            {t.categoryManager.systemCategories} ({systemCategories.length})
           </h2>
           {isLoading ? (
             <div className="space-y-2">
@@ -300,6 +301,7 @@ export default function Categories() {
                     category={cat}
                     subcategories={children}
                     resolveName={getCategoryDisplayName}
+                    t={t}
                     isSystem
                   />
                 )
@@ -313,36 +315,36 @@ export default function Categories() {
       <BottomSheet
         isOpen={showModal}
         onClose={closeModal}
-        title={modalMode === 'add' ? t.categories.addCategory : 'Edit Category'}
+        title={modalMode === 'add' ? t.categories.addCategory : t.categoryManager.editCategory}
         isPending={createCategory.isPending || updateOverride.isPending}
         onSubmit={handleSubmit}
         submitDisabled={!formName.trim()}
-        submitLabel={modalMode === 'add' ? t.categories.addCategory : 'Save Changes'}
+        submitLabel={modalMode === 'add' ? t.categories.addCategory : t.categoryManager.saveChanges}
       >
-        <BottomSheetFormField label="Name">
+        <BottomSheetFormField label={t.categoryManager.name}>
           <Input
-            placeholder="Category name"
+            placeholder={t.categoryManager.categoryName}
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
             className="h-12 text-base"
           />
         </BottomSheetFormField>
 
-        <BottomSheetFormField label="Icon">
+        <BottomSheetFormField label={t.categoryManager.icon}>
           <IconPicker value={formIcon} onChange={setFormIcon} options={ICON_OPTIONS} />
         </BottomSheetFormField>
 
-        <BottomSheetFormField label="Color">
+        <BottomSheetFormField label={t.categoryManager.color}>
           <ColorPicker value={formColor} onChange={setFormColor} options={COLOR_OPTIONS} previewIcon={formIcon} />
         </BottomSheetFormField>
 
-        <BottomSheetFormField label="Parent Category">
+        <BottomSheetFormField label={t.categoryManager.parentCategory}>
           <select
             value={formParentId || ''}
             onChange={(e) => setFormParentId(e.target.value || undefined)}
             className="w-full h-12 px-3 bg-gray-50 rounded-lg text-base appearance-none"
           >
-            <option value="">None (Top-level)</option>
+            <option value="">{t.categoryManager.noneTopLevel}</option>
             {parentCategories.map(p => (
               <option key={p.id} value={p.id}>
                 {p.icon} {getCategoryDisplayName(p.name)}
@@ -358,8 +360,8 @@ export default function Categories() {
         onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}
         title={confirmState.title}
         description={confirmState.description}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmLabel={t.categoryManager.confirmDelete}
+        cancelLabel={t.common.cancel}
         variant="destructive"
         onConfirm={confirmState.onConfirm}
       />
@@ -378,6 +380,7 @@ interface CategoryCardProps {
   onAddSub?: () => void
   onEditSub?: (sub: Category) => void
   onDeleteSub?: (subId: string) => void
+  t: any
 }
 
 function CategoryCard({
@@ -390,6 +393,7 @@ function CategoryCard({
   onAddSub,
   onEditSub,
   onDeleteSub,
+  t,
 }: CategoryCardProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = subcategories.length > 0
@@ -410,7 +414,7 @@ function CategoryCard({
           </div>
           <span className="font-medium text-gray-900 truncate">{resolveName(category.name)}</span>
           {hasChildren && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full shrink-0">
+            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full shrink-0">
               {subcategories.length}
             </span>
           )}
@@ -418,23 +422,23 @@ function CategoryCard({
 
         <div className="flex items-center gap-1 shrink-0">
           {!isSystem && onAddSub && (
-            <button onClick={onAddSub} className="p-2 text-gray-400 hover:text-green-500 rounded-lg" title="Add subcategory">
+            <button onClick={onAddSub} className="p-2.5 text-gray-400 hover:text-green-500 rounded-lg" title={t.categoryManager.addSubcategory}>
               <Plus className="h-4 w-4" />
             </button>
           )}
           {!isSystem && onEdit && (
-            <button onClick={onEdit} className="p-2 text-gray-400 hover:text-blue-500 rounded-lg">
+            <button onClick={onEdit} className="p-2.5 text-gray-400 hover:text-blue-500 rounded-lg">
               <Pencil className="h-4 w-4" />
             </button>
           )}
           {!isSystem && onDelete && (
-            <button onClick={onDelete} className="p-2 text-gray-400 hover:text-red-500 rounded-lg">
+            <button onClick={onDelete} className="p-2.5 text-gray-400 hover:text-red-500 rounded-lg">
               <Trash2 className="h-4 w-4" />
             </button>
           )}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2.5 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <ChevronDown
               className={cn(
@@ -456,14 +460,14 @@ function CategoryCard({
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="text-base">{sub.icon}</span>
-                <span className="text-sm text-gray-700 truncate">{resolveName(sub.name)}</span>
+                <span className="text-base text-gray-700 truncate">{resolveName(sub.name)}</span>
               </div>
               {!isSystem && (
                 <div className="flex items-center gap-0.5 shrink-0">
                   {onEditSub && (
                     <button
                       onClick={() => onEditSub(sub)}
-                      className="p-1.5 text-gray-300 hover:text-blue-500 rounded-lg"
+                      className="p-2.5 text-gray-300 hover:text-blue-500 rounded-lg"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -471,7 +475,7 @@ function CategoryCard({
                   {onDeleteSub && (
                     <button
                       onClick={() => onDeleteSub(sub.id)}
-                      className="p-1.5 text-gray-300 hover:text-red-500 rounded-lg"
+                      className="p-2.5 text-gray-300 hover:text-red-500 rounded-lg"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -488,7 +492,7 @@ function CategoryCard({
               className="w-full flex items-center gap-2.5 py-3 px-4 pl-8 text-gray-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              <span className="text-sm">Add subcategory</span>
+              <span className="text-sm">{t.categoryManager.addSubcategory}</span>
             </button>
           )}
         </div>

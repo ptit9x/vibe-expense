@@ -6,6 +6,8 @@ import MainLayout from './layouts/MainLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import VerifyEmail from './pages/VerifyEmail'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 // Money Keeper pages
 import Dashboard from './pages/Dashboard'
@@ -16,7 +18,7 @@ import WalletsPage from './pages/Wallets'
 import ReportsPage from './pages/Reports'
 import ExpenseReportPage from './pages/ExpenseReport'
 import IncomeReportPage from './pages/IncomeReport'
-import BudgetsPage from './pages/Budgets'
+import ProfilePage from './pages/Profile'
 import LanguageSettingsPage from './pages/LanguageSettings'
 import CurrencySettingsPage from './pages/CurrencySettings'
 import ExportDataPage from './pages/ExportData'
@@ -30,17 +32,22 @@ import ServerError from './pages/ServerError'
 import Forbidden from './pages/Forbidden'
 
 import { Toaster } from '@/components/ui/sonner'
+import { useAuthListener } from '@/hooks/useAuth'
 import './App.css'
+import ErrorBoundary from './components/ErrorBoundary'
 
-function App() {
+function AppContent() {
+  useAuthListener()
+
   return (
     <>
-      <Router>
-        <Routes>
+      <Routes>
           {/* Auth Routes - Shared mobile-first layout */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
           {/* Standalone route for email verification - no layout wrapper needed */}
@@ -61,7 +68,7 @@ function App() {
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export" element={<ExportDataPage />} />
             <Route path="/settings/password" element={<PasswordSettingsPage />} />
-            <Route path="/profile" element={<BudgetsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
           </Route>
@@ -71,9 +78,18 @@ function App() {
           <Route path="/500" element={<ServerError />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Router>
       <Toaster />
     </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
+    </Router>
   )
 }
 

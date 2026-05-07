@@ -16,17 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug Secret Visibility
-        run: |
-          if [ -z "${{ secrets.PROJECT_REF }}" ]; then
-            echo "SECRET IS EMPTY"
-            exit 1
-          else
-            echo "Secret length is: ${#VALUE}"
-          fi
-        env:
-          VALUE: ${{ secrets.PROJECT_REF }}
-
       - uses: supabase/setup-cli@v1
         with:
           supabase-version: latest

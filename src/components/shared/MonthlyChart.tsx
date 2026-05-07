@@ -54,12 +54,12 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
 
       <div className="flex items-center justify-center gap-6 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-green-500" />
-          <span className="text-xs text-gray-500">{t.dashboard.income}</span>
+          <div className="w-3.5 h-3.5 rounded-sm bg-green-500" />
+          <span className="text-sm text-gray-500">{t.dashboard.income}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-red-500" />
-          <span className="text-xs text-gray-500">{t.dashboard.expense}</span>
+          <div className="w-3.5 h-3.5 rounded-sm bg-red-500" />
+          <span className="text-sm text-gray-500">{t.dashboard.expense}</span>
         </div>
       </div>
     </div>

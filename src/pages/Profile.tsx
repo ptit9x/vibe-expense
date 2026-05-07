@@ -14,7 +14,7 @@ const FEATURES = [
   { icon: Download, labelKey: 'settings.export', href: '/settings/export', color: '#EF4444' },
 ]
 
-export default function Budgets() {
+export default function Profile() {
   const navigate = useNavigate()
   const { data: user } = useAuth()
   const logout = useLogout()
@@ -56,24 +56,6 @@ export default function Budgets() {
           </div>
         </div>
       </PageHeader>
-
-      <div className="px-4 py-3">
-        <div className="bg-white rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-              <span className="text-lg">🪙</span>
-            </div>
-            <div>
-              <p className="text-gray-900 font-medium">30 {t.profile.coins}</p>
-              <p className="text-gray-400 text-sm">{t.profile.accumulated}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 text-sm">{t.profile.referralCode}</span>
-            <span className="text-gray-900 font-mono font-medium">2785880</span>
-          </div>
-        </div>
-      </div>
 
       <div className="px-4 py-3">
         <p className="text-sm font-medium text-gray-500 mb-3 px-1">{t.settings.settings}</p>

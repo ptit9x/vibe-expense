@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { useLogin } from "@/hooks/useAuth"
@@ -52,7 +52,7 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
             {t.auth.email}
           </label>
           <input
@@ -65,7 +65,7 @@ export default function Login() {
         </div>
 
         <div>
-          <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+          <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
             {t.auth.password}
           </label>
           <div className="relative">
@@ -88,7 +88,7 @@ export default function Login() {
         </div>
 
         <div className="text-right">
-          <button type="button" className="text-sm text-blue-500 hover:text-blue-600">
+          <button type="button" onClick={() => navigate('/forgot-password')} className="text-sm text-blue-500 hover:text-blue-600">
             {t.auth.forgotPassword}
           </button>
         </div>
@@ -103,15 +103,6 @@ export default function Login() {
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
-        {t.auth.dontHaveAccount}{" "}
-        <Link
-          to="/register"
-          className="text-blue-500 font-medium hover:text-blue-600"
-        >
-          {t.auth.registerNow}
-        </Link>
-      </div>
     </>
   )
 }

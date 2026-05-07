@@ -67,7 +67,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
         <div className="flex items-center gap-2.5">
           <span className="text-lg">{selected?.icon || '📦'}</span>
           <span className={cn("text-sm font-medium", selected ? "text-gray-900" : "text-gray-400")}>
-            {selected ? selected.name : 'Select category'}
+            {selected ? selected.name : t.categoryManager.selectCategory}
           </span>
         </div>
         <ChevronDown className={cn(
@@ -85,7 +85,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
               ))}
             </div>
           ) : parents.length === 0 ? (
-            <div className="px-4 py-6 text-center text-sm text-gray-400 italic">No categories</div>
+            <div className="px-4 py-6 text-center text-sm text-gray-400 italic">{t.categoryManager.noCategories}</div>
           ) : (
             parents.map(parent => {
               const subs = getSubs(parent.id)

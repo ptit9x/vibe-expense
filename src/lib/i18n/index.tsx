@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { translations } from './translations'
 import type { Language, TranslationKey } from './translations'
 
+export type { Language }
+
 type I18nProviderProps = {
   children: React.ReactNode
   defaultLanguage?: Language

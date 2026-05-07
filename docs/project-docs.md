@@ -22,17 +22,31 @@ Personal finance management app (Money Keeper Clone) with Vietnamese UI.
 ### Zustand Stores
 
 ```typescript
-// addTransactionStore - form state for add transaction
-interface AddTransactionStore {
+// transactionFormStore - shared form state for add/edit transaction
+interface TransactionFormState {
+  mode: 'add' | 'edit'
+  transactionId: string | null
   type: 'income' | 'expense' | 'lend' | 'borrow' | 'transfer'
   amount: string
   categoryId: string
   walletId: string
+  toWalletId: string          // for transfer type
   description: string
   date: string
   showTypeDropdown: boolean
   // actions
-  setType, setAmount, setCategoryId, setWalletId, setDescription, toggleTypeDropdown, reset
+  setMode, setType, setAmount, setCategoryId, setWalletId, setToWalletId,
+  setDescription, setDate, setShowTypeDropdown, toggleTypeDropdown,
+  loadTransaction(data), reset()
+}
+// Note: useAddTransactionStore is a backward-compatible alias
+
+// uiStore - global UI state (currency, dashboard, reports)
+interface UIStore {
+  currency: Currency
+  dashboard: { showBalance: boolean, currentMonth: string }
+  reports: { showBalance: boolean, currentMonth: string }
+  setCurrency, setDashboard, setReports
 }
 
 // walletsStore - wallets UI state
@@ -40,18 +54,6 @@ interface WalletsStore {
   showForm: boolean      // show add wallet modal
   showBalance: boolean    // show/hide balance
   toggleForm, toggleBalance
-}
-
-// dashboardStore - dashboard UI state
-interface DashboardStore {
-  showBalance: boolean
-  currentMonth: string
-}
-
-// reportsStore - reports UI state
-interface ReportsStore {
-  showBalance: boolean
-  currentMonth: string
 }
 ```
 
@@ -63,6 +65,14 @@ interface ReportsStore {
 | `BottomSheetFormField` | `components/ui/bottom-sheet.tsx` | Label + children wrapper |
 | `IconPicker` | `components/ui/bottom-sheet.tsx` | Grid of icon buttons |
 | `ColorPicker` | `components/ui/bottom-sheet.tsx` | Grid of color buttons |
+| `ConfirmDialog` | `components/ui/confirm-dialog.tsx` | Custom confirm modal (replaces native `confirm()`) |
+| `PageHeader` | `components/PageHeader.tsx` | Reusable gradient page header |
+| `TransactionRow` | `components/shared/TransactionRow.tsx` | Shared transaction list item (dashboard + transactions page) |
+| `MonthlyChart` | `components/shared/MonthlyChart.tsx` | Recharts bar chart for monthly overview |
+| `TransactionForm` | `components/add-transaction/TransactionForm.tsx` | Shared form for add/edit transaction |
+| `TransferWalletSelector` | `components/add-transaction/TransferWalletSelector.tsx` | Destination wallet for transfers |
+| `DateField` | `components/add-transaction/DateField.tsx` | Date picker field |
+| `DescriptionField` | `components/add-transaction/DescriptionField.tsx` | Description input field |
 | `Button` | `components/ui/button.tsx` | shadcn/ui button |
 | `Input` | `components/ui/input.tsx` | shadcn/ui input |
 
@@ -97,23 +107,47 @@ src/
 ├── pages/                      # Route pages (compositions only)
 ├── components/
 │   ├── dashboard/              # Dashboard feature
-│   ├── add-transaction/       # AddTransaction feature
+│   ├── add-transaction/       # Add/Edit Transaction feature
+│   │   ├── TransactionForm.tsx    # Shared form component
+│   │   ├── TransferWalletSelector.tsx
+│   │   ├── CategorySelector.tsx
+│   │   ├── WalletSelector.tsx
+│   │   ├── AmountDisplay.tsx
+│   │   ├── TypeDropdown.tsx
+│   │   ├── DateField.tsx
+│   │   ├── DescriptionField.tsx
+│   │   └── SaveButton.tsx
 │   ├── wallets/               # Wallets feature
 │   ├── reports/               # Reports feature
+│   ├── shared/                # Cross-feature shared components
+│   │   ├── TransactionRow.tsx     # Shared transaction list item
+│   │   └── MonthlyChart.tsx
 │   ├── ui/                    # shadcn/ui + custom components
 │   │   ├── bottom-sheet.tsx   # Shared BottomSheet modal
+│   │   ├── confirm-dialog.tsx # Custom confirm dialog
 │   │   ├── button.tsx
 │   │   ├── input.tsx
 │   │   └── ...
+│   ├── PageHeader.tsx         # Reusable gradient header
 │   └── ErrorBoundary.tsx
-└── layouts/
-    ├── AuthLayout.tsx
-    └── MainLayout.tsx
+├── layouts/
+│   ├── AuthLayout.tsx         # Centered card layout (responsive)
+│   └── MainLayout.tsx         # Sidebar (desktop) + bottom nav (mobile)
+└── stores/
+    ├── transactionFormStore.ts  # Add/edit transaction form state
+    ├── uiStore.ts              # Global UI state (currency, dashboard, reports)
+    └── walletsStore.ts         # Wallets UI state
 ```
 
 **Principle:** Pages compose components, don't contain logic
 
 ## Authentication Flow
+
+### Login/Register Layout
+
+**Responsive centered card design:**
+- **Mobile**: White card on gradient background, logo + app name above card, footer links below
+- **Desktop**: Same centered card with `max-w-md`, `shadow-2xl`, larger padding/rounding
 
 ### Registration Flow (with DB triggers)
 
@@ -126,9 +160,9 @@ profiles INSERT trigger → handle_profile_created()
       ↓
 wallets INSERT trigger → on_profile_created creates default Cash wallet
       ↓
-User logs in for first time → seedUserCategories() called
+User sees toast: "Registration successful! Please check email to verify"
       ↓
-user_categories entries created for all system categories
+Redirected to /login (not dashboard, until email confirmed)
 ```
 
 ### Email Confirmation Flow
@@ -221,7 +255,7 @@ const MOCK_USERS = {
 | `/verify-email` | VerifyEmail | Email confirmation pending page |
 | `/dashboard` | Dashboard | Main dashboard with balance, charts, recent transactions |
 | `/add-transaction` | AddTransaction | Add new transaction form |
-| `/edit-transaction/:id` | AddTransaction | Edit existing transaction |
+| `/edit-transaction/:id` | EditTransaction | Edit existing transaction (shared TransactionForm) |
 | `/wallets` | Wallets | Wallet management |
 | `/transactions` | Transactions | Full transaction list with filters |
 | `/reports` | Reports | Balance overview + monthly chart |
@@ -276,11 +310,14 @@ createTransaction.mutate(data, {
 
 ## Form Validation
 
-### AddTransaction
+### AddTransaction / EditTransaction
 
+- Shared form via `TransactionForm` component + `transactionFormStore`
 - Amount: Must be positive number, max 2 decimal places
 - Wallet: Required
 - Category: Optional
+- Transfer type: Requires `toWalletId` (destination wallet)
+- Edit mode: Pre-loads existing transaction data via `loadTransaction()`
 
 ### Login/Register
 
@@ -336,6 +373,25 @@ const { data, error } = await supabase
 ```
 
 ## Changelog
+
+### v1.6.0 (2026-05-07)
+- **Auth layout redesign**: Centered card on gradient background (responsive for mobile + desktop). Logo and app name above card, footer links below.
+- **Register**: Toast now includes email verification instruction, redirects to `/login` instead of `/dashboard`.
+- **Desktop sidebar**: Added logout button at the bottom with red hover effect.
+- **Desktop sidebar**: Removed old header toggle link from auth layout.
+
+### v1.5.1 (2026-05-06)
+- **Edit Transaction page**: New route `/edit-transaction/:id` reusing shared `TransactionForm` component.
+- **TransactionForm**: Extracted shared form component for add/edit with `transactionFormStore` (renamed from `addTransactionStore`, alias preserved).
+- **TransactionRow**: Shared component for dashboard recent transactions and transactions list page.
+- **CategorySelector**: Redesigned as dropdown with parent/sub hierarchy (2-level).
+- **WalletSelector**: Redesigned as dropdown with balance display.
+- **TransferWalletSelector**: New component for transfer destination wallet.
+- **DateField / DescriptionField**: Extracted from inline code into reusable components.
+- **PageHeader**: New reusable gradient page header component.
+- **ConfirmDialog**: Custom modal replacing all native `confirm()` calls.
+- **Transaction types**: Added `transfer`, `lend`, `borrow` support.
+- **Migrations**: `add_to_wallet_id`, `fix_to_wallet_fk`, `expand_transaction_types`.
 
 ### v1.5.0 (2026-05-06)
 - **Transactions page**: Redesigned to group transactions by month in separate Cards, showing monthly income/expense totals in each CardHeader. Defaults to 12 most recent months when no month filter is selected.

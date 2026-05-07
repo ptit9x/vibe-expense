@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useWallets, useCreateWallet, useDeleteWallet, useToggleWalletActive } from '@/hooks/useWallets'
 import { useWalletsStore } from '@/stores/walletsStore'
+import { useUIStore } from '@/stores/uiStore'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
 import {
@@ -22,7 +23,8 @@ export default function Wallets() {
   const createWallet = useCreateWallet()
   const deleteWallet = useDeleteWallet()
   const deactivateWallet = useToggleWalletActive()
-  const { showForm, showBalance, toggleForm, toggleBalance } = useWalletsStore()
+  const { showForm, toggleForm } = useWalletsStore()
+  const { showBalance, toggleBalance } = useUIStore()
   const { t } = useI18n()
 
   // Edit wallet state
@@ -62,13 +64,13 @@ export default function Wallets() {
       return
     }
 
-    showConfirm('Delete Wallet', `Are you sure you want to delete "${wallet.name}"? This cannot be undone.`, () => {
+    showConfirm(t.settings.deleteWallet, `${t.settings.deleteWalletConfirm} "${wallet.name}"? ${t.settings.thisCannotBeUndone}.`, () => {
       deleteWallet.mutate(wallet, {
         onSuccess: (result) => {
           if (result.deleted) {
             toast.success(t.wallet.deleteSuccess)
           } else {
-            toast.success('Wallet deactivated')
+            toast.success(t.settings.walletDeactivated)
           }
         },
         onError: (err) => toast.error(err.message || t.common.error),
@@ -79,12 +81,12 @@ export default function Wallets() {
   const handleToggleActive = (wallet: Wallet) => {
     if (wallet.is_active) {
       deactivateWallet.mutate(wallet, {
-        onSuccess: () => toast.success(`"${wallet.name}" hidden`),
+        onSuccess: () => toast.success(`"${wallet.name}" ${t.settings.walletDeactivated.toLowerCase()}`),
         onError: () => toast.error(t.common.error),
       })
     } else {
       deactivateWallet.mutate(wallet, {
-        onSuccess: () => toast.success(`"${wallet.name}" shown`),
+        onSuccess: () => toast.success(`"${wallet.name}" ${t.common.success.toLowerCase()}`),
         onError: () => toast.error(t.common.error),
       })
     }
@@ -101,7 +103,7 @@ export default function Wallets() {
   const handleSaveEdit = () => {
     if (!editingWallet || !editName.trim()) return
     // TODO: call useUpdateWallet when hook is ready
-    toast.info('Edit wallet coming soon')
+    toast.info(t.savingsPage.editWalletComingSoon)
     setEditModalOpen(false)
   }
 
@@ -117,7 +119,7 @@ export default function Wallets() {
       {/* Active Wallets Section */}
       <WalletSectionHeader
         title={t.wallet.spendingAccounts}
-        subtitle={activeWallets.length > 0 ? `${activeWallets.length} account${activeWallets.length > 1 ? 's' : ''}` : undefined}
+        subtitle={activeWallets.length > 0 ? `${activeWallets.length} ${activeWallets.length > 1 ? t.savingsPage.accounts : t.savingsPage.account}` : undefined}
       />
 
       {/* Wallet List */}
@@ -140,7 +142,7 @@ export default function Wallets() {
       {/* Inactive Wallets Section */}
       {inactiveWallets.length > 0 && (
         <>
-          <WalletSectionHeader title="Hidden Accounts" subtitle={`${inactiveWallets.length} account${inactiveWallets.length > 1 ? 's' : ''}`} />
+          <WalletSectionHeader title={t.settings.hiddenAccounts} subtitle={`${inactiveWallets.length} ${inactiveWallets.length > 1 ? t.savingsPage.accounts : t.savingsPage.account}`} />
           <WalletList
             wallets={inactiveWallets}
             showBalance={showBalance}
@@ -166,26 +168,26 @@ export default function Wallets() {
       <BottomSheet
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        title="Edit Wallet"
+        title={t.settings.editWallet}
         isPending={false}
         onSubmit={handleSaveEdit}
         submitDisabled={!editName.trim()}
-        submitLabel="Save Changes"
+        submitLabel={t.settings.saveChanges}
       >
-        <BottomSheetFormField label="Name">
+        <BottomSheetFormField label={t.settings.walletName}>
           <Input
-            placeholder="Wallet name"
+            placeholder={t.settings.walletName}
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
             className="h-12 text-base"
           />
         </BottomSheetFormField>
 
-        <BottomSheetFormField label="Icon">
+        <BottomSheetFormField label={t.categoryManager.icon}>
           <IconPicker value={editIcon} onChange={setEditIcon} options={ICON_OPTIONS} />
         </BottomSheetFormField>
 
-        <BottomSheetFormField label="Color">
+        <BottomSheetFormField label={t.categoryManager.color}>
           <ColorPicker value={editColor} onChange={setEditColor} options={COLOR_OPTIONS} />
         </BottomSheetFormField>
       </BottomSheet>
@@ -196,8 +198,8 @@ export default function Wallets() {
         onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}
         title={confirmState.title}
         description={confirmState.description}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmLabel={t.categoryManager.confirmDelete}
+        cancelLabel={t.common.cancel}
         variant="destructive"
         onConfirm={confirmState.onConfirm}
       />

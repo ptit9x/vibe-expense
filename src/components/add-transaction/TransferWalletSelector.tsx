@@ -27,6 +27,7 @@ function WalletDropdown({
   label: string
   placeholder: string
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const selected = wallets.find(w => w.id === selectedId)
@@ -70,7 +71,7 @@ function WalletDropdown({
       {open && (
         <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-gray-400 text-center">No other wallets</div>
+            <div className="px-4 py-3 text-sm text-gray-400 text-center">{t.walletCard.noOtherWallets}</div>
           ) : (
             filtered.map((wallet) => {
               const isSelected = selectedId === wallet.id

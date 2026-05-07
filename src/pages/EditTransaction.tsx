@@ -11,7 +11,7 @@ export default function EditTransaction() {
   const navigate = useNavigate()
   const updateTransaction = useUpdateTransaction()
   const { t } = useI18n()
-  const { type, amount, walletId, categoryId, description, date, loadTransaction, reset } = useTransactionFormStore()
+  const { type, amount, walletId, toWalletId, categoryId, description, date, loadTransaction, reset } = useTransactionFormStore()
 
   const { data: transaction, isLoading, error } = useTransaction(id)
 
@@ -24,6 +24,7 @@ export default function EditTransaction() {
         amount: transaction.amount,
         categoryId: transaction.category_id || undefined,
         walletId: transaction.wallet_id || undefined,
+        toWalletId: transaction.to_wallet_id || undefined,
         description: transaction.description || undefined,
         date: transaction.transaction_date,
       })
@@ -48,12 +49,13 @@ export default function EditTransaction() {
       amount: parseFloat(amount),
       description: description || undefined,
       wallet_id: walletId,
+      to_wallet_id: type === 'transfer' ? toWalletId || undefined : undefined,
       category_id: categoryId || undefined,
       transaction_date: date,
     }, {
       onSuccess: () => {
         reset()
-        toast.success('Transaction updated')
+        toast.success(t.settings.transactionUpdated)
         navigate(-1)
       },
       onError: (error) => {
@@ -74,9 +76,9 @@ export default function EditTransaction() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500 mb-2">Transaction not found</p>
+          <p className="text-gray-500 mb-2">{t.settings.transactionNotFound}</p>
           <button onClick={() => navigate(-1)} className="text-blue-500 font-medium">
-            Go back
+            {t.settings.goBack}
           </button>
         </div>
       </div>

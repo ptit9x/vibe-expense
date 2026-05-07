@@ -1,29 +1,34 @@
-/* eslint-disable security/detect-object-injection */
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Button } from '@/components/ui/button'
-import { ExpenseAnalysis,
+import {
+  ExpenseAnalysis,
   RecentTransactions,
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
 import { MonthlyChart, type MonthlyData } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type Language } from '@/lib/i18n'
 import type { Transaction } from '@/types'
 
 const RECENT_TRANSACTIONS_LIMIT = 10
 
-function useMonthlyData(transactions: Transaction[]): MonthlyData[] {
+const LOCALE_MAP: Record<Language, string> = {
+  vi: 'vi-VN',
+  en: 'en-US',
+}
+
+function computeMonthlyData(transactions: Transaction[], language: Language): MonthlyData[] {
   const months = []
   for (let i = 5; i >= 0; i--) {
     const d = new Date()
     d.setMonth(d.getMonth() - i)
     const monthKey = d.toISOString().slice(0, 7)
-    const monthLabel = `T${d.getMonth() + 1}`
+    const monthLabel = new Intl.DateTimeFormat(LOCALE_MAP[language], { month: 'short' }).format(d)
 
     const monthTransactions = transactions?.filter(t =>
       t.transaction_date?.startsWith(monthKey)
@@ -37,7 +42,7 @@ function useMonthlyData(transactions: Transaction[]): MonthlyData[] {
   return months
 }
 
-function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
+function computeExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
   const expenses = transactions?.filter(t => t.type === 'expense') || []
   const breakdown: Record<string, ExpenseItem> = {}
 
@@ -46,10 +51,10 @@ function useExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
     const catColor = t.category?.color || '#6B7280'
     const catIcon = t.category?.icon || '💰'
 
-    if (!breakdown[catName]) {
+    if (!breakdown[catName]) { // eslint-disable-line security/detect-object-injection
       breakdown[catName] = { name: catName, value: 0, color: catColor, icon: catIcon }
     }
-    breakdown[catName].value += Number(t.amount)
+    breakdown[catName].value += Number(t.amount) // eslint-disable-line security/detect-object-injection
   })
 
   return Object.values(breakdown)
@@ -60,13 +65,13 @@ export default function Dashboard() {
   const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
   const { data: transactions } = useTransactions(currentMonth)
   const { data: wallets } = useWallets()
-  const { t } = useI18n()
+  const { t, language } = useI18n()
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
 
   const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  const monthlyData = useMonthlyData(transactions || [])
-  const expenseBreakdown = useExpenseBreakdown(transactions || [])
+  const monthlyData = computeMonthlyData(transactions || [], language)
+  const expenseBreakdown = computeExpenseBreakdown(transactions || [])
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 

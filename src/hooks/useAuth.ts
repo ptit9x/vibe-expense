@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { useEffect, useRef } from 'react'
+import { supabase, isSupabaseConfigured, isMockAuthAllowed } from '@/lib/supabase'
 import type { AuthUser, LoginInput, RegisterInput } from '@/types'
 
-const MOCK_USERS = {
+// Mock users only loaded in development — tree-shaken from production builds
+const getMockUsers = (): Record<string, { id: string; email: string; password: string; full_name: string }> => ({
   'dev@example.com': { id: 'dev-user', email: 'dev@example.com', password: 'password', full_name: 'Dev User' },
-} as const
+})
 
 export function useAuth() {
   return useQuery({
@@ -29,7 +31,9 @@ export function useAuth() {
         }
       }
 
-      // Fallback to mock auth from localStorage
+      // Fallback to mock auth from localStorage (dev only)
+      if (!isMockAuthAllowed()) return null
+
       const token = localStorage.getItem('token')
       // eslint-disable-next-line security/detect-possible-timing-attacks
       if (token === 'mock-jwt-token') {
@@ -44,6 +48,28 @@ export function useAuth() {
     },
     staleTime: 1000 * 60 * 5,
   })
+}
+
+// Listen to Supabase auth state changes for realtime session sync
+export function useAuthListener() {
+  const queryClient = useQueryClient()
+  const subscriptionRef = useRef<ReturnType<typeof supabase.auth.onAuthStateChange>['data'] | null>(null)
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        queryClient.invalidateQueries({ queryKey: ['auth'] })
+      }
+    })
+
+    subscriptionRef.current = { subscription }
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [queryClient])
 }
 
 export function useLogin() {
@@ -71,8 +97,12 @@ export function useLogin() {
         }
       }
 
-      // Mock login for development
-      const mockUser = MOCK_USERS[email as keyof typeof MOCK_USERS]
+      // Mock login for development only
+      if (!isMockAuthAllowed()) {
+        throw new Error('Authentication service unavailable')
+      }
+
+      const mockUser = getMockUsers()[email as string]
       if (mockUser && mockUser.password === password) {
         localStorage.setItem('token', 'mock-jwt-token')
         return {
@@ -118,7 +148,11 @@ export function useRegister() {
         }
       }
 
-      // Mock register for development
+      // Mock register for development only
+      if (!isMockAuthAllowed()) {
+        throw new Error('Authentication service unavailable')
+      }
+
       const mockUser: AuthUser = {
         id: crypto.randomUUID(),
         email,

@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShieldAlert } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 const Forbidden = () => {
+    const { t } = useI18n();
+
     return (
         <div className="flex h-screen w-full flex-col items-center justify-center bg-background px-4">
             <div className="flex flex-col items-center space-y-6 text-center">
@@ -11,13 +14,13 @@ const Forbidden = () => {
                 </div>
                 <div className="space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">403</h1>
-                    <h2 className="text-2xl font-semibold tracking-tight">Access Denied</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight">{t.errors.accessDenied}</h2>
                 </div>
                 <p className="max-w-[600px] text-muted-foreground">
-                    You don't have permission to access this resource. Please contact the administrator if you believe this is an error.
+                    {t.errors.accessDeniedDesc}
                 </p>
                 <Button asChild size="lg" className="mt-4">
-                    <Link to="/">Return to Dashboard</Link>
+                    <Link to="/">{t.errors.returnToDashboard}</Link>
                 </Button>
             </div>
         </div>

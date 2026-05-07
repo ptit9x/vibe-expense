@@ -12,32 +12,34 @@ import PageHeader from '@/components/PageHeader'
 import type { Transaction } from '@/types'
 
 export default function Transactions() {
-  const [month, setMonth] = useState<string | null>(null)
-  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [searchParams, setSearchParams] = useSearchParams()
+  const [month, setMonth] = useState<string | null>(() => searchParams.get('month'))
+  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>(() => {
+    const p = searchParams.get('type')
+    return (p === 'income' || p === 'expense') ? p : 'all'
+  })
   const walletFilter = searchParams.get('wallet_id')
 
   const { data: transactions, isLoading } = useTransactions(month, walletFilter || undefined)
   const { data: wallets } = useWallets()
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const { currency, formatCurrency } = useUIStore()
 
-  const filteredTransactions = transactions?.filter(txn =>
-    typeFilter === 'all' || txn.type === typeFilter
-  )
+  const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
 
   const filterWallet = wallets?.find(w => w.id === walletFilter)
 
   // Group transactions by month (keys already in DESC order from query)
   const grouped = useMemo(() => {
-    if (!filteredTransactions) return []
+    if (!transactions) return []
+    const filtered = typeFilter === 'all' ? transactions : transactions.filter(txn => txn.type === typeFilter)
     const groups: Record<string, Transaction[]> = {}
-    for (const txn of filteredTransactions) {
+    for (const txn of filtered) {
       const m = txn.transaction_date.slice(0, 7)
       ;(groups[m] ??= []).push(txn)
     }
     return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]))
-  }, [filteredTransactions])
+  }, [transactions, typeFilter])
 
   const clearWalletFilter = () => {
     searchParams.delete('wallet_id')
@@ -59,18 +61,18 @@ export default function Transactions() {
             className="h-9 px-3 bg-white/20 text-white text-sm rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/30 [color-scheme:dark]"
           />
           <div className="flex gap-1">
-            {(['all', 'income', 'expense'] as const).map(val => (
+            {(['income', 'expense'] as const).map(val => (
               <button
                 key={val}
-                onClick={() => setTypeFilter(val)}
+                onClick={() => setTypeFilter(typeFilter === val ? 'all' : val)}
                 className={cn(
-                  'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+                  'px-4 py-2.5 rounded-full text-sm font-medium transition-colors',
                   typeFilter === val
                     ? 'bg-white text-blue-500'
                     : 'bg-white/20 text-white hover:bg-white/30'
                 )}
               >
-                {val === 'all' ? t.transaction.all : val === 'income' ? t.transaction.income : t.transaction.expense}
+                {val === 'income' ? t.transaction.income : t.transaction.expense}
               </button>
             ))}
           </div>
@@ -82,14 +84,14 @@ export default function Transactions() {
             <span className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full">
               <span>{filterWallet.icon}</span>
               <span>{filterWallet.name}</span>
-              <button onClick={clearWalletFilter} className="ml-1 hover:bg-white/20 rounded-full p-0.5">
+              <button onClick={clearWalletFilter} className="ml-1 hover:bg-white/20 rounded-full p-2">
                 <X className="h-3 w-3" />
               </button>
             </span>
           </div>
         )}
         {!month && (
-          <p className="text-white/60 text-xs mt-2">Hiển thị 12 tháng gần nhất</p>
+          <p className="text-white/60 text-sm mt-2">{t.transaction.showingLast12Months}</p>
         )}
       </PageHeader>
 
@@ -113,7 +115,7 @@ export default function Transactions() {
               const monthIncome = txns.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
               const monthExpense = txns.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
               const [year, mon] = monthKey.split('-')
-              const monthLabel = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })
+              const monthLabel = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString(localeMap[language] || 'vi-VN', { month: 'long', year: 'numeric' })
 
               return (
                 <Card key={monthKey} className="border shadow-sm overflow-hidden px-4 pt-3">
@@ -122,7 +124,7 @@ export default function Transactions() {
                       <CardTitle className="text-sm font-medium text-gray-700 capitalize">
                         {monthLabel}
                       </CardTitle>
-                      <div className="flex gap-4 text-xs">
+                      <div className="flex gap-4 text-sm">
                         <span className="text-green-600">
                           +{currency.symbol}{formatCurrency(monthIncome)}
                         </span>
@@ -137,7 +139,7 @@ export default function Transactions() {
                       <TransactionRow
                         key={t.id}
                         id={t.id}
-                        type={t.type as 'income' | 'expense'}
+                        type={t.type}
                         amount={t.amount}
                         description={t.description}
                         transactionDate={t.transaction_date}

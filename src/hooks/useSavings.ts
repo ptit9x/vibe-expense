@@ -10,9 +10,13 @@ export function useSavings() {
         return getMockSavings()
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('savings_goals')
-        .select('*')
+        .select('id, user_id, name, target_amount, current_amount, deadline, icon, color, created_at, updated_at')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -80,10 +84,14 @@ export function useUpdateSavingsGoal() {
         return { id, ...input }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('savings_goals')
         .update({ ...input, updated_at: new Date().toISOString() })
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single()
 
@@ -105,10 +113,14 @@ export function useDeleteSavingsGoal() {
         return { id }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { error } = await supabase
         .from('savings_goals')
         .delete()
         .eq('id', id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id }

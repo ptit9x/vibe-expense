@@ -10,9 +10,13 @@ export function useBudgets() {
         return getMockBudgets()
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('budgets')
         .select('*, categories(*)')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -77,10 +81,14 @@ export function useUpdateBudget() {
         return { id, ...input }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('budgets')
         .update(input)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single()
 
@@ -103,10 +111,14 @@ export function useDeleteBudget() {
         return { id }
       }
 
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { error } = await supabase
         .from('budgets')
         .delete()
         .eq('id', id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id }

@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import PageHeader from '@/components/PageHeader'
 
 export default function PasswordSettings() {
@@ -31,13 +32,21 @@ export default function PasswordSettings() {
     setIsLoading(true)
     setMessage('')
 
-    setTimeout(() => {
+    try {
+      if (isSupabaseConfigured()) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword })
+        if (error) throw error
+      }
+
       setIsLoading(false)
       setMessage(t.settings.changePasswordSuccess)
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-    }, 1000)
+    } catch (err) {
+      setIsLoading(false)
+      setMessage(err instanceof Error ? err.message : 'Password change failed')
+    }
   }
 
   return (
@@ -49,7 +58,7 @@ export default function PasswordSettings() {
       <div className="bg-white mt-2 px-5 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.currentPassword}
             </label>
             <div className="relative">
@@ -71,7 +80,7 @@ export default function PasswordSettings() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.newPassword}
             </label>
             <div className="relative">
@@ -93,7 +102,7 @@ export default function PasswordSettings() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+            <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
               {t.settings.confirmPassword}
             </label>
             <Input

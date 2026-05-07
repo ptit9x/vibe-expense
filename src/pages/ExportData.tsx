@@ -51,7 +51,7 @@ export default function ExportData() {
         exportToCSV([])
       }
     } catch (error) {
-      toast.error('Failed to export data')
+      toast.error(t.settings.exportFailed)
       console.error(error)
     } finally {
       setExporting(null)
@@ -97,40 +97,36 @@ export default function ExportData() {
     ].join('\n')
 
     downloadFile(csvContent, 'vibe-expense-export.csv', 'text/csv')
-    toast.success('Exported to CSV successfully')
+    toast.success(t.settings.exportSuccess)
   }
 
   const exportToXLSX = (transactions: ExportTransaction[]) => {
-    // Simple XLSX generation (works with Excel/Google Sheets)
-    // Uses CSV with .xlsx extension for compatibility
+    // Generate proper HTML table that Excel can open natively
     const headers = ['Date', 'Type', 'Category', 'Wallet', 'Amount', 'Description']
 
     const rows = transactions.map(t => [
       t.transaction_date || '',
-      t.type === 'income' ? 'Income' : 'Expense',
+      t.type === 'income' ? 'Income' : t.type === 'transfer' ? 'Transfer' : 'Expense',
       getCategoryName(t.category),
       getWalletName(t.wallet),
       String(t.amount || 0),
       t.description || '',
     ])
 
-    // Generate XML-based Excel file (simple spreadsheet)
-    const xml = generateSimpleXML(headers, rows)
-    downloadFile(xml, 'vibe-expense-export.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    toast.success('Exported to Excel successfully')
+    const html = generateExcelHTML(headers, rows)
+    downloadFile(html, 'vibe-expense-export.xls', 'application/vnd.ms-excel')
+    toast.success(t.settings.exportSuccess)
   }
 
-  const generateSimpleXML = (headers: string[], rows: string[][]) => {
-    const headerRow = headers.map(h => `<cell><data>${escapeXML(h)}</data></cell>`).join('')
+  const generateExcelHTML = (headers: string[], rows: string[][]) => {
+    const headerCells = headers.map(h => `<th style="font-weight:bold;background:#f0f0f0;padding:4px 8px">${escapeXML(h)}</th>`).join('')
     const dataRows = rows.map(row =>
-      `<row>${row.map(cell => `<cell><data>${escapeXML(String(cell))}</data></cell>`).join('')}</row>`
+      `<tr>${row.map(cell => `<td style="padding:4px 8px">${escapeXML(String(cell))}</td>`).join('')}</tr>`
     ).join('')
 
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<worksheet>
-<table>${headerRow}${dataRows}</table>
-</worksheet>`
+    return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Transactions</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+<body><table>${headerCells}${dataRows}</table></body></html>`
   }
 
   const escapeXML = (str: string) => {
@@ -170,8 +166,8 @@ export default function ExportData() {
         {/* Export Summary */}
         <div className="bg-gray-50 rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Available records:</span>
-            <span className="font-medium text-gray-900">{transactionCount} transactions</span>
+            <span className="text-gray-500">{t.settings.availableRecords}</span>
+            <span className="font-medium text-gray-900">{transactionCount} {t.settings.transactions}</span>
           </div>
         </div>
 
@@ -193,7 +189,7 @@ export default function ExportData() {
             )}
             <div className="text-left flex-1">
               <p className="text-gray-900 font-medium">{t.settings.exportExcel}</p>
-              <p className="text-gray-400 text-xs">{t.settings.suitableForSheets}</p>
+              <p className="text-gray-400 text-sm">{t.settings.suitableForSheets}</p>
             </div>
             {exporting === 'xlsx' && <Check className="h-5 w-5 text-blue-500" />}
           </button>
@@ -215,7 +211,7 @@ export default function ExportData() {
             )}
             <div className="text-left flex-1">
               <p className="text-gray-900 font-medium">{t.settings.exportCSV}</p>
-              <p className="text-gray-400 text-xs">{t.settings.basicFormat}</p>
+              <p className="text-gray-400 text-sm">{t.settings.basicFormat}</p>
             </div>
             {exporting === 'csv' && <Check className="h-5 w-5 text-blue-500" />}
           </button>

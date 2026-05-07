@@ -1,53 +1,79 @@
-import { Component, type ReactNode } from 'react'
+import { Component, type ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
+import { translations } from '@/lib/i18n/translations';
+import type { Language } from '@/lib/i18n/translations';
 
-interface Props {
-  children: ReactNode
-  fallback?: ReactNode
+interface ErrorBoundaryProps {
+  children: ReactNode;
 }
 
-interface State {
-  hasError: boolean
-  error: Error | null
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = { hasError: false, error: null }
+function getLang(): Language {
+  return (localStorage.getItem('vibe-expense-language') as Language) || 'vi';
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error('[ErrorBoundary] Caught render error:', error);
+    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
   }
+
+  handleReload = () => {
+    this.setState({ hasError: false, error: null });
+  };
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback
-      }
+      const t = translations[getLang()];
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full text-center shadow-lg">
-            <span className="text-4xl mb-4 block">⚠️</span>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Đã xảy ra lỗi</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              Xin lỗi, đã có lỗi không mong muốn xảy ra. Vui lòng tải lại trang.
+        <div className="flex h-screen w-full flex-col items-center justify-center bg-background px-4">
+          <div className="flex flex-col items-center space-y-6 text-center">
+            <div className="flex bg-destructive/10 p-6 rounded-full">
+              <AlertTriangle className="h-16 w-16 text-destructive" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{t.errors.oops}</h1>
+              <h2 className="text-2xl font-semibold tracking-tight">{t.errors.somethingWentWrong}</h2>
+            </div>
+            <p className="max-w-[600px] text-muted-foreground">
+              {t.errors.errorDescription}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Tải lại trang
-            </button>
+            <div className="flex gap-4 mt-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={this.handleReload}
+              >
+                {t.errors.tryAgain}
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => window.location.reload()}
+              >
+                {t.errors.reloadPage}
+              </Button>
+            </div>
           </div>
         </div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
+
+export default ErrorBoundary;

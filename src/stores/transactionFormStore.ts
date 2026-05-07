@@ -77,7 +77,10 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
     date: data.date,
     showTypeDropdown: false,
   }),
-  reset: () => set(initialState),
+  reset: () => set({
+    ...initialState,
+    date: getInitialDate(),
+  }),
 }))
 
 // Backward-compatible alias

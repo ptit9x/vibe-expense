@@ -46,12 +46,12 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
               <div className="flex items-center gap-2">
                 <p className="font-semibold text-gray-900 text-base truncate">{wallet.name}</p>
                 {!wallet.is_active && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium shrink-0">
-                    Inactive
+                  <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium shrink-0">
+                    {t.walletCard.inactive}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">{typeLabels[wallet.type]}</p>
+              <p className="text-sm text-gray-400 mt-0.5">{typeLabels[wallet.type]}</p>
             </div>
           </div>
 
@@ -81,16 +81,16 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
       >
         <button
           onClick={() => onEdit(wallet)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
         >
           <Edit2 className="h-3.5 w-3.5" />
-          <span>Edit</span>
+          <span>{t.walletCard.edit}</span>
         </button>
 
         <button
           onClick={() => onToggleActive(wallet)}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors",
+            "flex items-center gap-1.5 px-4 py-2.5 text-sm rounded-lg transition-colors",
             wallet.is_active
               ? "text-gray-500 hover:text-orange-500 hover:bg-orange-50"
               : "text-gray-500 hover:text-green-500 hover:bg-green-50"
@@ -99,22 +99,22 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
           {wallet.is_active ? (
             <>
               <ToggleRight className="h-3.5 w-3.5" />
-              <span>Hide</span>
+              <span>{t.walletCard.hide}</span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-3.5 w-3.5" />
-              <span>Show</span>
+              <span>{t.walletCard.show}</span>
             </>
           )}
         </button>
 
         <button
           onClick={() => onDelete(wallet)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-auto"
+          className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-auto"
         >
           <Trash2 className="h-3.5 w-3.5" />
-          <span>Delete</span>
+          <span>{t.walletCard.delete}</span>
         </button>
       </div>
     </div>

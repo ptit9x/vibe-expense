@@ -86,7 +86,7 @@ interface BottomSheetFormFieldProps {
 export function BottomSheetFormField({ label, children }: BottomSheetFormFieldProps) {
   return (
     <div className="mb-4">
-      <label className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+      <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
         {label}
       </label>
       {children}
@@ -114,7 +114,7 @@ export function IconPicker({ value, onChange, options }: IconPickerProps) {
             type="button"
             onClick={() => onChange(icon)}
             className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all",
+              "w-11 h-11 rounded-lg flex items-center justify-center text-base transition-all",
               value === icon
                 ? "bg-blue-500 text-white shadow-sm"
                 : "bg-gray-100 hover:bg-gray-200"
@@ -152,7 +152,7 @@ export function ColorPicker({ value, onChange, options, previewIcon = '📦' }: 
             type="button"
             onClick={() => onChange(color)}
             className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center text-xs text-white font-bold transition-all",
+              "w-11 h-11 rounded-lg flex items-center justify-center text-xs text-white font-bold transition-all",
               value === color ? "ring-2 ring-offset-1 ring-gray-400 scale-110" : ""
             )}
             style={{ backgroundColor: color }}

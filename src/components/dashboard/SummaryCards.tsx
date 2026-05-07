@@ -22,52 +22,52 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
   const remaining = income - expense
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {/* Total Balance */}
       <Card className="bg-blue-50 border-0 shadow-sm">
-        <CardContent className="p-2 text-center">
+        <CardContent className="p-3 text-center">
           <div className="flex justify-center mb-1">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
               <Wallet className="h-4 w-4 text-blue-600" />
             </div>
           </div>
-          <p className="text-[10px] text-blue-600 font-medium mb-0.5">{t.dashboard.totalBalance.split(' ').pop()}</p>
-          <p className="text-sm font-bold text-blue-700 leading-tight">
+          <p className="text-xs text-blue-600 font-medium mb-0.5">{t.dashboard.totalBalance.split(' ').pop()}</p>
+          <p className="text-base font-bold text-blue-700 leading-snug">
             {formatMoney(totalBalance, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-blue-400">{currency.symbol}</p>
+          <p className="text-xs text-blue-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
       {/* Income */}
       <Card className="bg-green-50 border-0 shadow-sm">
-        <CardContent className="p-2 text-center">
+        <CardContent className="p-3 text-center">
           <div className="flex justify-center mb-1">
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
               <ArrowUpRight className="h-4 w-4 text-green-600" />
             </div>
           </div>
-          <p className="text-[10px] text-green-600 font-medium mb-0.5">{t.dashboard.income}</p>
-          <p className="text-sm font-bold text-green-700 leading-tight">
+          <p className="text-xs text-green-600 font-medium mb-0.5">{t.dashboard.income}</p>
+          <p className="text-base font-bold text-green-700 leading-snug">
             {formatMoney(income, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-green-400">{currency.symbol}</p>
+          <p className="text-xs text-green-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
       {/* Expense */}
       <Card className="bg-red-50 border-0 shadow-sm">
-        <CardContent className="p-2 text-center">
+        <CardContent className="p-3 text-center">
           <div className="flex justify-center mb-1">
             <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
               <ArrowDownRight className="h-4 w-4 text-red-600" />
             </div>
           </div>
-          <p className="text-[10px] text-red-600 font-medium mb-0.5">{t.dashboard.expense}</p>
-          <p className="text-sm font-bold text-red-700 leading-tight">
+          <p className="text-xs text-red-600 font-medium mb-0.5">{t.dashboard.expense}</p>
+          <p className="text-base font-bold text-red-700 leading-snug">
             {formatMoney(expense, showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className="text-[9px] text-red-400">{currency.symbol}</p>
+          <p className="text-xs text-red-400">{currency.symbol}</p>
         </CardContent>
       </Card>
 
@@ -76,7 +76,7 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
         "border-0 shadow-sm",
         remaining >= 0 ? "bg-teal-50" : "bg-orange-50"
       )}>
-        <CardContent className="p-2 text-center">
+        <CardContent className="p-3 text-center">
           <div className="flex justify-center mb-1">
             <div className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center",
@@ -87,11 +87,11 @@ export function SummaryCards({ totalBalance, income, expense, showBalance }: Sum
               </svg>
             </div>
           </div>
-          <p className={cn("text-[10px] font-medium mb-0.5", remaining >= 0 ? "text-teal-600" : "text-orange-600")}>{t.dashboard.remaining}</p>
-          <p className={cn("text-sm font-bold leading-tight", remaining >= 0 ? "text-teal-700" : "text-orange-700")}>
+          <p className={cn("text-xs font-medium mb-0.5", remaining >= 0 ? "text-teal-600" : "text-orange-600")}>{t.dashboard.remaining}</p>
+          <p className={cn("text-base font-bold leading-snug", remaining >= 0 ? "text-teal-700" : "text-orange-700")}>
             {formatMoney(Math.abs(remaining), showBalance, currency.symbol, formatCurrency)}
           </p>
-          <p className={cn("text-[9px]", remaining >= 0 ? "text-teal-400" : "text-orange-400")}>{currency.symbol}</p>
+          <p className={cn("text-xs", remaining >= 0 ? "text-teal-400" : "text-orange-400")}>{currency.symbol}</p>
         </CardContent>
       </Card>
     </div>

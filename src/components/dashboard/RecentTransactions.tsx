@@ -33,7 +33,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
         <CardTitle className="text-sm font-medium text-gray-700">
           📜 {t.transaction.recentTransactions}
         </CardTitle>
-        <Button variant="ghost" size="sm" asChild className="text-xs text-blue-500 h-7">
+        <Button variant="ghost" size="sm" asChild className="text-xs text-blue-500 h-9">
           <Link to="/transactions">{t.transaction.seeAll}</Link>
         </Button>
       </CardHeader>

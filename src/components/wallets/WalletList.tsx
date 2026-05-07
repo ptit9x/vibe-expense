@@ -47,7 +47,7 @@ export function WalletSectionHeader({ title, subtitle }: { title: string; subtit
   return (
     <div className={cn("px-4 py-3", subtitle ? "pb-2" : "")}>
       <h2 className="text-base font-semibold text-gray-900">{title}</h2>
-      {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-gray-400 mt-0.5">{subtitle}</p>}
     </div>
   )
 }

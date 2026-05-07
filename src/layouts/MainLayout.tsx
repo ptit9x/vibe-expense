@@ -1,5 +1,5 @@
-import { Outlet, Link, useLocation, Navigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
+import { useAuth, useLogout } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
 import {
   LayoutDashboard,
@@ -7,6 +7,7 @@ import {
   Plus,
   BarChart3,
   Menu,
+  LogOut,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -50,7 +51,7 @@ export default function MainLayout() {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-white lg:hidden">
-        <div className="flex h-16 items-center justify-around px-2">
+        <div className="flex h-[72px] items-center justify-around px-4">
           {bottomNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.href)
             const Icon = item.icon
@@ -80,7 +81,7 @@ export default function MainLayout() {
               >
                 <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
                 <span className={cn(
-                  "text-[10px] font-medium",
+                  "text-xs font-medium",
                   isActive && "font-semibold"
                 )}>
                   {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
@@ -99,6 +100,14 @@ export default function MainLayout() {
 function DesktopSidebar() {
   const location = useLocation()
   const { t } = useI18n()
+  const logout = useLogout()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout.mutate(undefined, {
+      onSuccess: () => navigate('/login', { replace: true }),
+    })
+  }
 
   return (
     <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col border-r bg-white z-40">
@@ -126,6 +135,16 @@ function DesktopSidebar() {
           )
         })}
       </nav>
+      <div className="border-t p-4">
+        <button
+          onClick={handleLogout}
+          disabled={logout.isPending}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          {t.auth.logout}
+        </button>
+      </div>
     </aside>
   )
 }
