@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
+import { useClickOutside } from '@/hooks/useClickOutside'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
@@ -29,15 +30,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
   const parents = categories.filter(c => !c.parentId)
   const getSubs = (parentId: string) => categories.filter(c => c.parentId === parentId)
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    if (open) document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
+  useClickOutside(ref, open, () => setOpen(false))
 
   const toggleExpand = (id: string) => {
     setExpandedIds(prev => {

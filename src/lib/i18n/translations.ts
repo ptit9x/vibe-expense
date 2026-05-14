@@ -133,6 +133,13 @@ export const translations = {
       lend: 'Cho vay',
       borrow: 'Đi vay',
       transfer: 'Chuyển khoản',
+      lender: 'Người vay',
+      borrower: 'Người cho vay',
+      lenderPlaceholder: 'Nhập tên người bạn cho vay',
+      borrowerPlaceholder: 'Nhập tên người cho bạn vay',
+      totalLent: 'Tổng đã cho vay',
+      totalBorrowed: 'Tổng đã đi vay',
+      contactPerson: 'Người liên hệ',
       // Dropdown labels (slightly different)
       expenseDropdown: 'Chi tiền',
       incomeDropdown: 'Thu tiền',
@@ -191,6 +198,25 @@ export const translations = {
       expenseByMonth: 'Chi tiêu từng tháng',
       incomeByCategory: 'Thu nhập theo danh mục',
       incomeByMonth: 'Thu nhập từng tháng',
+      debtReport: 'Báo cáo vay nợ',
+    },
+    // Debt Tracker
+    debtTracker: {
+      title: 'Theo dõi vay nợ',
+      reportTitle: 'Báo cáo vay nợ',
+      reportSubtitle: 'Tổng hợp cho vay và đi vay theo năm',
+      totalLent: 'Tổng cho vay',
+      totalBorrowed: 'Tổng đi vay',
+      netPosition: 'Vị thế nợ ròng',
+      youOwe: 'Bạn đang nợ:',
+      owedToYou: 'Người khác nợ bạn:',
+      youOweShort: 'Nợ',
+      owedToYouShort: 'Phải thu',
+      lendList: 'Danh sách cho vay',
+      borrowList: 'Danh sách đi vay',
+      byContact: 'Theo người liên hệ',
+      monthlyDebt: 'Vay nợ từng tháng',
+      unknown: 'Không rõ',
     },
     // Categories
     categories: {
@@ -207,11 +233,14 @@ export const translations = {
       health: 'Sức khỏe',
       other: 'Chi tiêu khác',
       lend: 'Cho vay',
+      repayDebt: 'Trả nợ',
       children: 'Con cái',
       // Income categories
       salary: 'Lương',
       gift: 'Quà tặng',
       investment: 'Đầu tư',
+      borrow: 'Đi vay',
+      collectDebt: 'Thu nợ',
       // Subcategories
       dailyExpense: 'Đi chợ/Siêu thị',
       diningOut: 'Ăn tiệm',
@@ -264,6 +293,10 @@ export const translations = {
       bankInterest: 'Tiền lãi ngân hàng',
       debtCollection: 'Thu nợ',
       otherIncome: 'Thu nhập vãng lai',
+      lending: 'Cho vay',
+      repaying: 'Trả nợ',
+      borrowing: 'Đi vay',
+      collecting: 'Thu nợ',
     },
     // Savings
     savings: {
@@ -328,6 +361,8 @@ export const translations = {
       availableRecords: 'Số bản ghi:',
       transactions: 'giao dịch',
       exportSuccess: 'Xuất dữ liệu thành công',
+      feedback: 'Góp ý',
+      notifications: 'Thông báo',
       exportFailed: 'Xuất dữ liệu thất bại',
     },
     // Wallet card
@@ -551,6 +586,13 @@ export const translations = {
       lend: 'Lend',
       borrow: 'Borrow',
       transfer: 'Transfer',
+      lender: 'Borrower',
+      borrower: 'Lender',
+      lenderPlaceholder: 'Enter name of person you lent to',
+      borrowerPlaceholder: 'Enter name of person you borrowed from',
+      totalLent: 'Total Lent',
+      totalBorrowed: 'Total Borrowed',
+      contactPerson: 'Contact Person',
       // Dropdown labels
       expenseDropdown: 'Expense',
       incomeDropdown: 'Income',
@@ -609,6 +651,25 @@ export const translations = {
       expenseByMonth: 'Monthly Expenses',
       incomeByCategory: 'Income by Category',
       incomeByMonth: 'Monthly Income',
+      debtReport: 'Debt Report',
+    },
+    // Debt Tracker
+    debtTracker: {
+      title: 'Debt Tracker',
+      reportTitle: 'Debt Report',
+      reportSubtitle: 'Lending and borrowing summary by year',
+      totalLent: 'Total Lent',
+      totalBorrowed: 'Total Borrowed',
+      netPosition: 'Net Debt Position',
+      youOwe: 'You owe:',
+      owedToYou: 'Owed to you:',
+      youOweShort: 'Owe',
+      owedToYouShort: 'Owed',
+      lendList: 'Lending List',
+      borrowList: 'Borrowing List',
+      byContact: 'By Contact',
+      monthlyDebt: 'Monthly Debt',
+      unknown: 'Unknown',
     },
     // Categories
     categories: {
@@ -625,11 +686,14 @@ export const translations = {
       health: 'Health',
       other: 'Other Expenses',
       lend: 'Lend',
+      repayDebt: 'Repay Debt',
       children: 'Children',
       // Income categories
       salary: 'Salary',
       gift: 'Gift',
       investment: 'Investment',
+      borrow: 'Borrow',
+      collectDebt: 'Collect Debt',
       // Subcategories
       dailyExpense: 'Grocery/Market',
       diningOut: 'Dining Out',
@@ -682,6 +746,10 @@ export const translations = {
       bankInterest: 'Bank Interest',
       debtCollection: 'Debt Collection',
       otherIncome: 'Miscellaneous Income',
+      lending: 'Lending',
+      repaying: 'Repaying Debt',
+      borrowing: 'Borrowing',
+      collecting: 'Collecting Debt',
     },
     // Savings
     savings: {
@@ -746,6 +814,8 @@ export const translations = {
       availableRecords: 'Available records:',
       transactions: 'transactions',
       exportSuccess: 'Exported successfully',
+      feedback: 'Feedback',
+      notifications: 'Notifications',
       exportFailed: 'Failed to export data',
     },
     // Wallet card

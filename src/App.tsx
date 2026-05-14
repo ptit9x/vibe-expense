@@ -18,6 +18,7 @@ import WalletsPage from './pages/Wallets'
 import ReportsPage from './pages/Reports'
 import ExpenseReportPage from './pages/ExpenseReport'
 import IncomeReportPage from './pages/IncomeReport'
+import DebtReportPage from './pages/DebtReport'
 import ProfilePage from './pages/Profile'
 import LanguageSettingsPage from './pages/LanguageSettings'
 import CurrencySettingsPage from './pages/CurrencySettings'
@@ -25,6 +26,7 @@ import ExportDataPage from './pages/ExportData'
 import PasswordSettingsPage from './pages/PasswordSettings'
 import CategoriesPage from './pages/Categories'
 import SavingsPage from './pages/Savings'
+import NotificationSettingsPage from './pages/NotificationSettings'
 
 // Error pages
 import NotFound from './pages/NotFound'
@@ -64,6 +66,7 @@ function AppContent() {
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/reports/expense" element={<ExpenseReportPage />} />
             <Route path="/reports/income" element={<IncomeReportPage />} />
+            <Route path="/reports/debt" element={<DebtReportPage />} />
             <Route path="/settings/language" element={<LanguageSettingsPage />} />
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export" element={<ExportDataPage />} />
@@ -71,6 +74,7 @@ function AppContent() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
+            <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
           </Route>
 
           {/* Error Pages */}

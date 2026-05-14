@@ -36,14 +36,9 @@ export default function ResetPassword() {
       }
 
       // 3. Check if Supabase already established a recovery session
-      if (isSupabaseConfigured()) {
-        const { data: { session } } = await supabase.auth.getSession()
-        // If there's an active session, check auth events for PASSWORD_RECOVERY
-        if (session) {
-          setIsRecoverySession(true)
-          return
-        }
-      }
+      // NOTE: We do NOT set isRecoverySession just because a session exists.
+      // Only the PASSWORD_RECOVERY auth event or recovery tokens in URL
+      // indicate a legitimate password reset flow.
     }
 
     checkRecovery()

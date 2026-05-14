@@ -54,9 +54,16 @@ export const CATEGORIES = {
     {
       id: '8',
       nameKey: 'categories.lend',
-      icon: '💵',
+      icon: '🤝',
       color: '#E74C3C',
       subcategoryKeys: ['categories.lending'],
+    },
+    {
+      id: '10',
+      nameKey: 'categories.repayDebt',
+      icon: '💳',
+      color: '#C0392B',
+      subcategoryKeys: ['categories.repaying'],
     },
     {
       id: '9',
@@ -87,6 +94,20 @@ export const CATEGORIES = {
       icon: '📈',
       color: '#3498DB',
       subcategoryKeys: ['categories.stocks', 'categories.savings', 'categories.realEstate'],
+    },
+    {
+      id: '104',
+      nameKey: 'categories.borrow',
+      icon: '📋',
+      color: '#8E44AD',
+      subcategoryKeys: ['categories.borrowing'],
+    },
+    {
+      id: '105',
+      nameKey: 'categories.collectDebt',
+      icon: '💵',
+      color: '#27AE60',
+      subcategoryKeys: ['categories.collecting'],
     },
   ],
 } as const

@@ -16,6 +16,7 @@ interface TransactionRowProps {
     color?: string | null
   } | null
   walletName?: string | null
+  toWalletName?: string | null
   /** Layout variant: compact for dashboard, default for full list */
   variant?: 'default' | 'compact'
 }
@@ -50,6 +51,7 @@ export function TransactionRow({
   transactionDate,
   category,
   walletName,
+  toWalletName,
   variant = 'default',
 }: TransactionRowProps) {
   const { currency, formatCurrency } = useUIStore()
@@ -85,12 +87,18 @@ export function TransactionRow({
         </div>
         <div className="min-w-0 flex-1">
           <p className={cn('font-medium truncate', isCompact ? 'text-sm text-gray-800' : '')}>
-            {description || category?.name}
+            {description || (type === 'transfer' && walletName && toWalletName
+              ? `${walletName} → ${toWalletName}`
+              : category?.name)}
           </p>
           <p className={cn('text-muted-foreground', isCompact ? 'text-sm text-gray-400' : 'text-sm')}>
             {isCompact
               ? dateLabel
-              : `${category?.name || ''}${walletName ? ' • ' + walletName : ''}`
+              : type === 'transfer'
+                ? walletName && toWalletName
+                  ? `${walletName} → ${toWalletName}`
+                  : walletName || ''
+                : `${category?.name || ''}${walletName ? ' • ' + walletName : ''}`
             }
           </p>
         </div>

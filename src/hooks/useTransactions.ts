@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { 
   Transaction, CreateTransactionInput, UpdateTransactionInput, UUID 
 } from '@/types'
+
+const TRANSACTION_SELECT = '*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)'
 
 // Fetch all transactions for current user, optionally filtered by month
 // When month is null, fetches last 12 months by default
@@ -14,12 +16,11 @@ export function useTransactions(month?: string | null, walletId?: string) {
         return getMockTransactions(month ?? undefined)
       }
       
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
       
       let query = supabase
         .from('transactions')
-        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
+        .select(TRANSACTION_SELECT)
         .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
 
@@ -64,12 +65,11 @@ export function useTransaction(id: string | undefined) {
         return mocks.find(t => t.id === id) || null
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
+        .select(TRANSACTION_SELECT)
         .eq('id', id)
         .eq('user_id', user.id)
         .single()
@@ -93,12 +93,11 @@ export function useYearTransactions(year: number, type?: 'income' | 'expense') {
         })
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       let query = supabase
         .from('transactions')
-        .select('*, wallet:wallets!transactions_wallet_id_fkey(id, name, icon, color), to_wallet:wallets!transactions_to_wallet_id_fkey(id, name, icon, color), category:categories(id, name, icon, color)')
+        .select(TRANSACTION_SELECT)
         .eq('user_id', user.id)
         .gte('transaction_date', `${year}-01-01`)
         .lt('transaction_date', `${year + 1}-01-01`)
@@ -125,8 +124,7 @@ export function useCreateTransaction() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('transactions')
@@ -155,8 +153,7 @@ export function useUpdateTransaction() {
         return { id, ...input }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('transactions')
@@ -187,8 +184,7 @@ export function useDeleteTransaction() {
         return { id }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { error } = await supabase
         .from('transactions')
@@ -221,6 +217,7 @@ function getMockTransactions(month?: string) {
       type: 'expense' as const,
       amount: 150000,
       description: 'Cơm trưa công ty',
+      contact_person: null,
       transaction_date: `${currentMonth}-15`,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
@@ -235,6 +232,7 @@ function getMockTransactions(month?: string) {
       type: 'expense' as const,
       amount: 45000,
       description: 'Grab đi làm',
+      contact_person: null,
       transaction_date: `${currentMonth}-14`,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
@@ -249,6 +247,7 @@ function getMockTransactions(month?: string) {
       type: 'income' as const,
       amount: 25000000,
       description: 'Lương tháng',
+      contact_person: null,
       transaction_date: `${currentMonth}-10`,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
@@ -263,11 +262,42 @@ function getMockTransactions(month?: string) {
       type: 'expense' as const,
       amount: 599000,
       description: 'Áo phông mới',
+      contact_person: null,
       transaction_date: `${currentMonth}-12`,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
       wallet: { id: 'w1', name: 'Ví tiền mặt', icon: '💰', color: '#3B82F6' },
       category: { id: 'c3', name: '🛒 Mua sắm', icon: '🛒', color: '#8B5CF6' },
+    },
+    {
+      id: '5',
+      user_id: 'user1',
+      wallet_id: 'w1',
+      category_id: 'c1',
+      type: 'lend' as const,
+      amount: 2000000,
+      description: 'Cho bạn A mượn',
+      contact_person: 'Nguyễn Văn A',
+      transaction_date: `${currentMonth}-08`,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      wallet: { id: 'w1', name: 'Ví tiền mặt', icon: '💰', color: '#3B82F6' },
+      category: { id: 'c1', name: '🍔 Ăn uống', icon: '🍔', color: '#EF4444' },
+    },
+    {
+      id: '6',
+      user_id: 'user1',
+      wallet_id: 'w2',
+      category_id: 'c9',
+      type: 'borrow' as const,
+      amount: 5000000,
+      description: 'Mượn anh B',
+      contact_person: 'Trần Văn B',
+      transaction_date: `${currentMonth}-05`,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      wallet: { id: 'w2', name: 'Thẻ MB Bank', icon: '🏦', color: '#10B981' },
+      category: { id: 'c9', name: '💵 Lương', icon: '💵', color: '#10B981' },
     },
   ] as Transaction[]
 }

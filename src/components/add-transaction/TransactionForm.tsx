@@ -12,6 +12,7 @@ import {
   SaveButton,
   DateField,
   DescriptionField,
+  ContactPersonField,
 } from '.'
 import PageHeader from '../PageHeader'
 
@@ -30,6 +31,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     walletId,
     toWalletId,
     description,
+    contactPerson,
     date,
     showTypeDropdown,
     mode,
@@ -39,14 +41,18 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     setWalletId,
     setToWalletId,
     setDescription,
+    setContactPerson,
     setDate,
     toggleTypeDropdown,
   } = useTransactionFormStore()
 
   const { data: wallets } = useWallets()
-  const { data: dbCategories, isLoading: isCategoriesLoading } = useCategories(
-    type === 'income' ? 'income' : 'expense'
-  )
+  const categoryType = type === 'lend' ? 'expense'
+    : type === 'borrow' ? 'income'
+    : type === 'income' ? 'income'
+    : 'expense'
+
+  const { data: dbCategories, isLoading: isCategoriesLoading } = useCategories(categoryType)
 
   const transactionTypes = getTransactionTypes(t)
 
@@ -57,9 +63,21 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     type: cat.type as 'income' | 'expense',
     color: cat.color || '#6B7280',
     parentId: cat.parent_id || undefined,
+    slug: cat.slug || undefined,
   }))
 
   const isTransfer = type === 'transfer'
+  const isLendBorrow = type === 'lend' || type === 'borrow'
+  const showCategory = !isTransfer && !isLendBorrow
+
+  // When lend/borrow: only show the matching category by slug
+  const visibleCategories = isLendBorrow
+    ? categories.filter(c => {
+        if (type === 'lend') return c.slug === 'lend'
+        if (type === 'borrow') return c.slug === 'borrow'
+        return true
+      })
+    : categories
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -81,12 +99,21 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
       {/* Form fields */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
         {/* Category selector - hidden for transfer */}
-        {!isTransfer && (
+        {showCategory && (
           <CategorySelector
-            categories={categories}
+            categories={visibleCategories}
             selectedId={categoryId}
             onSelect={setCategoryId}
             isLoading={isCategoriesLoading}
+          />
+        )}
+
+        {/* Contact person - only for lend/borrow */}
+        {isLendBorrow && (
+          <ContactPersonField
+            value={contactPerson}
+            onChange={setContactPerson}
+            type={type as 'lend' | 'borrow'}
           />
         )}
 
@@ -104,6 +131,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
             wallets={wallets || []}
             selectedId={walletId}
             onSelect={setWalletId}
+            className="bg-white mt-2 px-5 py-4"
           />
         )}
 

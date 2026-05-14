@@ -3,12 +3,14 @@ import { ChevronLeft, ChevronDown, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCategories, useDeleteCategoryOverride, useUpdateCategoryOverride, useCreateCategory } from '@/hooks/useCategories'
 import { useI18n } from '@/lib/i18n'
+import type { TranslationKey } from '@/lib/i18n/translations'
 import type { Category } from '@/types'
 import { toast } from 'sonner'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 import PageHeader from '@/components/PageHeader'
+import { PullToRefreshWrapper } from '@/components/shared'
 
 // Predefined icons and colors for category picker
 const ICON_OPTIONS = [
@@ -92,7 +94,7 @@ export default function Categories() {
     setConfirmState({ open: true, title, description, onConfirm })
   }, [])
 
-  const { data: categories, isLoading } = useCategories()
+  const { data: categories, isLoading, refetch: refetchCategories } = useCategories()
   const deleteOverride = useDeleteCategoryOverride()
   const updateOverride = useUpdateCategoryOverride()
   const createCategory = useCreateCategory()
@@ -190,7 +192,7 @@ export default function Categories() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchCategories() }}>
       {/* Header */}
       <PageHeader>
         <div className="flex items-center gap-3 mb-4">
@@ -365,7 +367,7 @@ export default function Categories() {
         variant="destructive"
         onConfirm={confirmState.onConfirm}
       />
-    </div>
+    </PullToRefreshWrapper>
   )
 }
 
@@ -380,7 +382,7 @@ interface CategoryCardProps {
   onAddSub?: () => void
   onEditSub?: (sub: Category) => void
   onDeleteSub?: (subId: string) => void
-  t: any
+  t: TranslationKey
 }
 
 function CategoryCard({

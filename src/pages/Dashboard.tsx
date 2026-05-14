@@ -10,9 +10,10 @@ import {
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
-import { MonthlyChart, type MonthlyData } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n, type Language } from '@/lib/i18n'
+import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import type { Transaction } from '@/types'
 
 const RECENT_TRANSACTIONS_LIMIT = 10
@@ -20,26 +21,6 @@ const RECENT_TRANSACTIONS_LIMIT = 10
 const LOCALE_MAP: Record<Language, string> = {
   vi: 'vi-VN',
   en: 'en-US',
-}
-
-function computeMonthlyData(transactions: Transaction[], language: Language): MonthlyData[] {
-  const months = []
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date()
-    d.setMonth(d.getMonth() - i)
-    const monthKey = d.toISOString().slice(0, 7)
-    const monthLabel = new Intl.DateTimeFormat(LOCALE_MAP[language], { month: 'short' }).format(d)
-
-    const monthTransactions = transactions?.filter(t =>
-      t.transaction_date?.startsWith(monthKey)
-    ) || []
-
-    const income = monthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-    const expense = monthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
-
-    months.push({ month: monthLabel, income, expense })
-  }
-  return months
 }
 
 function computeExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
@@ -63,20 +44,36 @@ function computeExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
 export default function Dashboard() {
   const { data: user } = useAuth()
   const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
-  const { data: transactions } = useTransactions(currentMonth)
-  const { data: wallets } = useWallets()
+  const { data: transactions, error: txError, refetch: refetchTransactions } = useTransactions(currentMonth)
+  const { data: wallets, error: walletError, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
+
+  if (txError || walletError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-red-500 mb-2">{txError?.message || walletError?.message || t.common.error}</p>
+          <Button onClick={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}>
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
 
   const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  const monthlyData = computeMonthlyData(transactions || [], language)
+  const monthlyData = computeMonthlyData(transactions || [], 6, LOCALE_MAP[language])
   const expenseBreakdown = computeExpenseBreakdown(transactions || [])
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper
+      className="min-h-screen bg-gray-50 pb-20"
+      onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
+    >
       {/* Header - Greeting with User Name */}
       <div className="bg-blue-500 px-4 pt-6 pb-8">
         <div className="flex items-center justify-between mb-4">
@@ -113,13 +110,8 @@ export default function Dashboard() {
 
       {/* Content */}
       <div className="px-4 -mt-4 space-y-4">
-        {/* Expense Analysis */}
         <ExpenseAnalysis items={expenseBreakdown} />
-
-        {/* Monthly Chart */}
         <MonthlyChart data={monthlyData} />
-
-        {/* Recent Transactions */}
         <RecentTransactions transactions={recentTransactions} />
       </div>
 
@@ -131,6 +123,6 @@ export default function Dashboard() {
       >
         <span className="text-white text-2xl font-light">+</span>
       </Link>
-    </div>
+    </PullToRefreshWrapper>
   )
 }

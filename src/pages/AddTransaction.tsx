@@ -9,7 +9,7 @@ export default function AddTransaction() {
   const navigate = useNavigate()
   const createTransaction = useCreateTransaction()
   const { t } = useI18n()
-  const { type, amount, walletId, toWalletId, categoryId, description, date, reset } = useTransactionFormStore()
+  const { type, amount, walletId, toWalletId, categoryId, description, contactPerson, date, reset } = useTransactionFormStore()
 
   const handleSave = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -38,9 +38,10 @@ export default function AddTransaction() {
     }
 
     createTransaction.mutate({
-      type: type === 'lend' || type === 'borrow' ? 'expense' : type as 'income' | 'expense' | 'transfer',
+      type: type as 'income' | 'expense' | 'lend' | 'borrow' | 'transfer',
       amount: parseFloat(amount),
       description: description || undefined,
+      contact_person: contactPerson || undefined,
       wallet_id: walletId,
       to_wallet_id: type === 'transfer' ? toWalletId : undefined,
       category_id: type !== 'transfer' ? (categoryId || undefined) : undefined,

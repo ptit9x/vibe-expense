@@ -11,7 +11,7 @@ export default function EditTransaction() {
   const navigate = useNavigate()
   const updateTransaction = useUpdateTransaction()
   const { t } = useI18n()
-  const { type, amount, walletId, toWalletId, categoryId, description, date, loadTransaction, reset } = useTransactionFormStore()
+  const { type, amount, walletId, toWalletId, categoryId, description, contactPerson, date, loadTransaction, reset } = useTransactionFormStore()
 
   const { data: transaction, isLoading, error } = useTransaction(id)
 
@@ -26,6 +26,7 @@ export default function EditTransaction() {
         walletId: transaction.wallet_id || undefined,
         toWalletId: transaction.to_wallet_id || undefined,
         description: transaction.description || undefined,
+        contactPerson: (transaction as unknown as Record<string, unknown>).contact_person as string || undefined,
         date: transaction.transaction_date,
       })
     }
@@ -45,9 +46,10 @@ export default function EditTransaction() {
 
     updateTransaction.mutate({
       id,
-      type: type === 'lend' || type === 'borrow' ? 'expense' : type as 'income' | 'expense',
+      type: type as 'income' | 'expense' | 'lend' | 'borrow' | 'transfer',
       amount: parseFloat(amount),
       description: description || undefined,
+      contact_person: contactPerson || undefined,
       wallet_id: walletId,
       to_wallet_id: type === 'transfer' ? toWalletId || undefined : undefined,
       category_id: categoryId || undefined,

@@ -7,10 +7,11 @@ import { toast } from 'sonner'
 import { useSavings, useCreateSavingsGoal } from '@/hooks/useSavings'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
+import { PullToRefreshWrapper } from '@/components/shared'
 import type { SavingsGoal } from '@/types'
 
 export default function Savings() {
-  const { data: goals, isLoading } = useSavings()
+  const { data: goals, isLoading, refetch: refetchGoals } = useSavings()
   const createGoal = useCreateSavingsGoal()
   const [showForm, setShowForm] = useState(false)
   const [goalName, setGoalName] = useState('')
@@ -54,7 +55,7 @@ export default function Savings() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 lg:p-8">
+    <PullToRefreshWrapper className="flex flex-col gap-6 p-4 lg:p-8" onRefresh={async () => { await refetchGoals() }}>
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -222,6 +223,6 @@ export default function Savings() {
           })
         )}
       </div>
-    </div>
+    </PullToRefreshWrapper>
   )
 }

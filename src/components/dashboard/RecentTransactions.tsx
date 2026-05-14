@@ -6,7 +6,7 @@ import { useI18n } from '@/lib/i18n'
 
 export interface TransactionItem {
   id: string
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'transfer' | 'lend' | 'borrow'
   amount: number
   description?: string | null
   transaction_date: string
@@ -16,6 +16,9 @@ export interface TransactionItem {
     color?: string | null
   } | null
   wallet?: {
+    name?: string | null
+  } | null
+  to_wallet?: {
     name?: string | null
   } | null
 }
@@ -54,6 +57,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 transactionDate={tx.transaction_date}
                 category={tx.category}
                 walletName={tx.wallet?.name}
+                toWalletName={tx.to_wallet?.name}
                 variant="compact"
               />
             ))}

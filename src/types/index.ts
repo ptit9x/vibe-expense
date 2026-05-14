@@ -33,6 +33,7 @@ export interface Category {
   type: TransactionType
   icon: string
   color: string
+  slug?: string          // stable identifier for system categories (e.g. 'lend', 'borrow')
   parent_id: UUID | null
   is_system: boolean
   created_at: DateString
@@ -47,6 +48,7 @@ export interface Transaction {
   type: TransactionType
   amount: number
   description: string | null
+  contact_person: string | null
   transaction_date: DateString
   created_at: DateString
   updated_at: DateString
@@ -91,6 +93,7 @@ export interface CreateTransactionInput {
   type: TransactionType
   amount: number
   description?: string
+  contact_person?: string
   transaction_date: DateString
 }
 

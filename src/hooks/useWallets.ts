@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { Wallet, CreateWalletInput, UpdateWalletInput } from '@/types'
 
 export function useWallets(includeInactive = false) {
@@ -10,8 +10,7 @@ export function useWallets(includeInactive = false) {
         return getMockWallets()
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       let query = supabase
         .from('wallets')
@@ -45,11 +44,9 @@ export function useWallets(includeInactive = false) {
       for (const tx of (txData || [])) {
         const wId = tx.wallet_id
         const prev = balanceMap.get(wId) || 0
-        if (tx.type === 'income') {
+        if (tx.type === 'income' || tx.type === 'borrow') {
           balanceMap.set(wId, prev + tx.amount)
-        } else if (tx.type === 'expense' || tx.type === 'lend' || tx.type === 'borrow') {
-          balanceMap.set(wId, prev - tx.amount)
-        } else if (tx.type === 'transfer') {
+        } else if (tx.type === 'expense' || tx.type === 'lend' || tx.type === 'transfer') {
           balanceMap.set(wId, prev - tx.amount)
         }
       }
@@ -88,8 +85,7 @@ export function useCreateWallet() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('wallets')
@@ -115,8 +111,7 @@ export function useUpdateWallet() {
         return { id, ...input }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('wallets')

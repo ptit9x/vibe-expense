@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useWallets, useCreateWallet, useDeleteWallet, useToggleWalletActive } from '@/hooks/useWallets'
+import { useWallets, useCreateWallet, useUpdateWallet, useDeleteWallet, useToggleWalletActive } from '@/hooks/useWallets'
 import { useWalletsStore } from '@/stores/walletsStore'
 import { useUIStore } from '@/stores/uiStore'
 import { toast } from 'sonner'
@@ -14,13 +14,15 @@ import { AddWalletModal } from '@/components/wallets/AddWalletModal'
 import type { Wallet } from '@/types'
 import { BottomSheet, BottomSheetFormField, IconPicker, ColorPicker, Input } from '@/components/ui/bottom-sheet'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { PullToRefreshWrapper } from '@/components/shared'
 
 const ICON_OPTIONS = ['💵', '💳', '🏦', '📱', '💎', '🎁', '🧧', '💰', '🏠', '🚗', '✈️', '🎓']
 const COLOR_OPTIONS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 
 export default function Wallets() {
-  const { data: wallets, isLoading } = useWallets(true) // includeInactive to show all wallets
+  const { data: wallets, isLoading, refetch: refetchWallets } = useWallets(true) // includeInactive to show all wallets
   const createWallet = useCreateWallet()
+  const updateWallet = useUpdateWallet()
   const deleteWallet = useDeleteWallet()
   const deactivateWallet = useToggleWalletActive()
   const { showForm, toggleForm } = useWalletsStore()
@@ -102,13 +104,20 @@ export default function Wallets() {
 
   const handleSaveEdit = () => {
     if (!editingWallet || !editName.trim()) return
-    // TODO: call useUpdateWallet when hook is ready
-    toast.info(t.savingsPage.editWalletComingSoon)
-    setEditModalOpen(false)
+    updateWallet.mutate(
+      { id: editingWallet.id, name: editName.trim(), icon: editIcon, color: editColor },
+      {
+        onSuccess: () => {
+          toast.success(t.settings.saveChanges)
+          setEditModalOpen(false)
+        },
+        onError: (err) => toast.error(err.message || t.common.error),
+      },
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchWallets() }}>
       {/* Header with Total Balance */}
       <TotalBalanceCard
         totalBalance={totalBalance}
@@ -169,7 +178,7 @@ export default function Wallets() {
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         title={t.settings.editWallet}
-        isPending={false}
+        isPending={updateWallet.isPending}
         onSubmit={handleSaveEdit}
         submitDisabled={!editName.trim()}
         submitLabel={t.settings.saveChanges}
@@ -203,6 +212,6 @@ export default function Wallets() {
         variant="destructive"
         onConfirm={confirmState.onConfirm}
       />
-    </div>
+    </PullToRefreshWrapper>
   )
 }

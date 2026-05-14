@@ -33,10 +33,11 @@ interface TransactionFormState {
   toWalletId: string          // for transfer type
   description: string
   date: string
+  contactPerson: string       // for lend/borrow - person name
   showTypeDropdown: boolean
   // actions
   setMode, setType, setAmount, setCategoryId, setWalletId, setToWalletId,
-  setDescription, setDate, setShowTypeDropdown, toggleTypeDropdown,
+  setDescription, setDate, setContactPerson, setShowTypeDropdown, toggleTypeDropdown,
   loadTransaction(data), reset()
 }
 // Note: useAddTransactionStore is a backward-compatible alias
@@ -70,6 +71,8 @@ interface WalletsStore {
 | `TransactionRow` | `components/shared/TransactionRow.tsx` | Shared transaction list item (dashboard + transactions page) |
 | `MonthlyChart` | `components/shared/MonthlyChart.tsx` | Recharts bar chart for monthly overview |
 | `TransactionForm` | `components/add-transaction/TransactionForm.tsx` | Shared form for add/edit transaction |
+| `CategorySelector` | `components/add-transaction/CategorySelector.tsx` | Category dropdown with parent/sub hierarchy |
+| `ContactPersonField` | `components/add-transaction/ContactPersonField.tsx` | Person name input for lend/borrow |
 | `TransferWalletSelector` | `components/add-transaction/TransferWalletSelector.tsx` | Destination wallet for transfers |
 | `DateField` | `components/add-transaction/DateField.tsx` | Date picker field |
 | `DescriptionField` | `components/add-transaction/DescriptionField.tsx` | Description input field |
@@ -258,9 +261,10 @@ const MOCK_USERS = {
 | `/edit-transaction/:id` | EditTransaction | Edit existing transaction (shared TransactionForm) |
 | `/wallets` | Wallets | Wallet management |
 | `/transactions` | Transactions | Full transaction list with filters |
-| `/reports` | Reports | Balance overview + monthly chart |
+| `/reports` | Reports | Balance overview + monthly chart + debt tracker |
 | `/reports/expense` | ExpenseReport | Expense detail report |
 | `/reports/income` | IncomeReport | Income detail report |
+| `/reports/debt` | DebtReport | Debt tracking: lend/borrow summary, by contact, monthly chart |
 | `/categories` | Categories | Category management (system + custom) |
 | `/savings` | Savings | Savings goals |
 | `/profile` | Profile | User profile + settings menu |
@@ -373,6 +377,19 @@ const { data, error } = await supabase
 ```
 
 ## Changelog
+
+### v1.7.0 (2026-05-08)
+- **Debt Tracking**: New `/reports/debt` page — monthly debt chart, debt by contact person, lend/borrow list
+- **DebtTracker component**: Shows total lent, total borrowed, net position on Reports page
+- **Category slug**: Added `slug` column to categories — `lend`, `borrow`, `repay-debt`, `collect-debt`
+- **Category filtering**: TransactionForm filters categories by slug when type is `lend` or `borrow`
+- **New categories**: 🤝 Cho vay, 💳 Trả nợ (expense); 📋 Đi vay, 💵 Thu nợ (income)
+- **ContactPersonField**: New input field for person name in lend/borrow transactions
+- **contact_person**: New column on transactions table for lend/borrow person tracking
+- **get_wallet_balance()**: Updated — `lend` subtracts, `borrow` adds to balance
+- **Dashboard + Transactions**: Updated income/expense totals to include lend/borrow
+- **i18n**: Added debt tracking translations (vi + en) — lender, borrower, debtTracker section
+- **QuickActions**: Added "Báo cáo vay nợ" button on Reports page
 
 ### v1.6.0 (2026-05-07)
 - **Auth layout redesign**: Centered card on gradient background (responsive for mobile + desktop). Logo and app name above card, footer links below.

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
 import PageHeader from '@/components/PageHeader'
+import { PullToRefreshWrapper } from '@/components/shared'
 import type { Transaction } from '@/types'
 
 export default function Transactions() {
@@ -20,8 +21,8 @@ export default function Transactions() {
   })
   const walletFilter = searchParams.get('wallet_id')
 
-  const { data: transactions, isLoading } = useTransactions(month, walletFilter || undefined)
-  const { data: wallets } = useWallets()
+  const { data: transactions, isLoading, refetch: refetchTransactions } = useTransactions(month, walletFilter || undefined)
+  const { data: wallets, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
   const { currency, formatCurrency } = useUIStore()
 
@@ -47,7 +48,10 @@ export default function Transactions() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper
+      className="min-h-screen bg-gray-50 pb-20"
+      onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
+    >
       <PageHeader>
         <h1 className="text-xl font-semibold text-white mb-1">{t.transaction.transactionsTitle}</h1>
         <p className="text-white/60 text-sm">{t.transaction.manageDaily}</p>
@@ -112,8 +116,8 @@ export default function Transactions() {
         ) : (
           <div className="space-y-4">
             {grouped.map(([monthKey, txns]) => {
-              const monthIncome = txns.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
-              const monthExpense = txns.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
+              const monthIncome = txns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((sum, t) => sum + t.amount, 0)
+              const monthExpense = txns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((sum, t) => sum + t.amount, 0)
               const [year, mon] = monthKey.split('-')
               const monthLabel = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString(localeMap[language] || 'vi-VN', { month: 'long', year: 'numeric' })
 
@@ -145,6 +149,7 @@ export default function Transactions() {
                         transactionDate={t.transaction_date}
                         category={t.category}
                         walletName={t.wallet?.name}
+                        toWalletName={t.to_wallet?.name}
                         variant="compact"
                       />
                     ))}
@@ -155,6 +160,6 @@ export default function Transactions() {
           </div>
         )}
       </div>
-    </div>
+    </PullToRefreshWrapper>
   )
 }

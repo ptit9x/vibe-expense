@@ -197,6 +197,7 @@ export function YearPicker({ value, onChange }: YearPickerProps) {
 // ===== Shared YearlyReport =====
 import { useYearTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
+import { PullToRefreshWrapper } from '@/components/shared'
 import { useWallets } from '@/hooks/useWallets'
 
 interface YearlyReportProps {
@@ -224,8 +225,8 @@ export function YearlyReport({
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedWallet, setSelectedWallet] = useState('all')
   const { t } = useI18n()
-  const { data: transactions } = useYearTransactions(selectedYear, type)
-  const { data: categories } = useCategories(type)
+  const { data: transactions, refetch: refetchTx } = useYearTransactions(selectedYear, type)
+  const { data: categories, refetch: refetchCat } = useCategories(type)
   const { data: wallets } = useWallets()
 
   // Apply client-side filters for category & wallet
@@ -265,7 +266,7 @@ export function YearlyReport({
   }, []).sort((a, b) => b.value - a.value)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await Promise.all([refetchTx(), refetchCat()]) }}>
       {/* Header */}
       <div className={`${gradientClass} px-5 pt-4 pb-6`}>
         <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
@@ -326,6 +327,6 @@ export function YearlyReport({
         <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
         <MonthlyList data={monthlyData} year={selectedYear} type={type} />
       </div>
-    </div>
+    </PullToRefreshWrapper>
   )
 }

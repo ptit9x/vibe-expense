@@ -10,6 +10,7 @@ interface TransactionFormState {
   walletId: string
   toWalletId: string
   description: string
+  contactPerson: string
   date: string
   showTypeDropdown: boolean
 
@@ -21,6 +22,7 @@ interface TransactionFormState {
   setWalletId: (walletId: string) => void
   setToWalletId: (toWalletId: string) => void
   setDescription: (description: string) => void
+  setContactPerson: (contactPerson: string) => void
   setDate: (date: string) => void
   setShowTypeDropdown: (show: boolean) => void
   toggleTypeDropdown: () => void
@@ -32,6 +34,7 @@ interface TransactionFormState {
     walletId?: string
     toWalletId?: string
     description?: string
+    contactPerson?: string
     date: string
   }) => void
   reset: () => void
@@ -48,6 +51,7 @@ const initialState = {
   walletId: '',
   toWalletId: '',
   description: '',
+  contactPerson: '',
   date: getInitialDate(),
   showTypeDropdown: false,
 }
@@ -56,12 +60,22 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
   ...initialState,
 
   setMode: (mode) => set({ mode }),
-  setType: (type) => set({ type }),
+  setType: (type) => set((state) => {
+    // Auto-fill description default when switching type (only in add mode)
+    const defaultDesc = state.mode === 'add' && !state.description
+      ? (type === 'transfer' ? 'Chuyển khoản'
+        : type === 'lend' ? 'Cho vay'
+        : type === 'borrow' ? 'Đi vay'
+        : '')
+      : state.description
+    return { type, description: defaultDesc }
+  }),
   setAmount: (amount) => set({ amount }),
   setCategoryId: (categoryId) => set({ categoryId }),
   setWalletId: (walletId) => set({ walletId }),
   setToWalletId: (toWalletId) => set({ toWalletId }),
   setDescription: (description) => set({ description }),
+  setContactPerson: (contactPerson) => set({ contactPerson }),
   setDate: (date) => set({ date }),
   setShowTypeDropdown: (show) => set({ showTypeDropdown: show }),
   toggleTypeDropdown: () => set((state) => ({ showTypeDropdown: !state.showTypeDropdown })),
@@ -74,6 +88,7 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
     walletId: data.walletId || '',
     toWalletId: data.toWalletId || '',
     description: data.description || '',
+    contactPerson: data.contactPerson || '',
     date: data.date,
     showTypeDropdown: false,
   }),
@@ -82,6 +97,3 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
     date: getInitialDate(),
   }),
 }))
-
-// Backward-compatible alias
-export const useAddTransactionStore = useTransactionFormStore

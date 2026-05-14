@@ -3,58 +3,49 @@ import { useTransactions } from '@/hooks/useTransactions'
 import {
   BalanceOverview,
   QuickActions,
+  DebtTracker,
 } from '@/components/reports'
-import { MonthlyChart } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper } from '@/components/shared'
+import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import { useUIStore } from '@/stores/uiStore'
 import type { Transaction } from '@/types'
 
 export default function Reports() {
   const { showBalance, toggleBalance, currentMonth } = useUIStore()
-  const { data: wallets } = useWallets()
-  const { data: transactions } = useTransactions(currentMonth)
+  const { data: wallets, refetch: refetchWallets } = useWallets()
+  const { data: transactions, refetch: refetchTransactions } = useTransactions(currentMonth)
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
-  const debt = 0
 
-  const generateMonthlyData = () => {
-    const months = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date()
-      d.setMonth(d.getMonth() - i)
-      const monthKey = d.toISOString().slice(0, 7)
-      const monthLabel = `T${d.getMonth() + 1}`
+  // Tính nợ thực tế: tiền đi vay (borrow) - tiền cho vay (lend)
+  // debt > 0 nghĩa là đang nợ người khác
+  const debt = (transactions ?? [])
+    .filter((t: Transaction) => t.type === 'borrow')
+    .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
+    -
+    (transactions ?? [])
+    .filter((t: Transaction) => t.type === 'lend')
+    .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
 
-      const monthTransactions = (transactions ?? []).filter((txn: Transaction) =>
-        txn.transaction_date?.startsWith(monthKey)
-      ) || []
-
-      const income = monthTransactions
-        .filter((txn: Transaction) => txn.type === 'income')
-        .reduce((sum: number, txn: Transaction) => sum + Number(txn.amount), 0)
-
-      const expense = monthTransactions
-        .filter((txn: Transaction) => txn.type === 'expense')
-        .reduce((sum: number, txn: Transaction) => sum + Number(txn.amount), 0)
-
-      months.push({ month: monthLabel, income, expense })
-    }
-    return months
-  }
-
-  const monthlyData = generateMonthlyData()
+  const monthlyData = computeMonthlyData(transactions ?? [], 6)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <PullToRefreshWrapper
+      className="min-h-screen bg-gray-50 pb-20"
+      onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
+    >
       <BalanceOverview
         balance={totalBalance}
-        debt={debt}
+        debt={Math.max(debt, 0)}
         showBalance={showBalance}
         onToggleBalance={toggleBalance}
       />
 
+      <DebtTracker transactions={transactions ?? []} />
+
       <MonthlyChart data={monthlyData} />
 
       <QuickActions />
-    </div>
+    </PullToRefreshWrapper>
   )
 }

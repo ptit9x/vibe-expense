@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
-import { supabase, isSupabaseConfigured, isMockAuthAllowed } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, isMockAuthAllowed, requireAuth } from '@/lib/supabase'
 import type { AuthUser, LoginInput, RegisterInput } from '@/types'
 
 // Mock users only loaded in development — tree-shaken from production builds
@@ -195,8 +195,7 @@ export function useUpdateProfile() {
         return { success: true }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { error } = await supabase
         .from('profiles')

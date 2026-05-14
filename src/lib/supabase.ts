@@ -21,6 +21,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const isSupabaseConfigured = () => {
   // Production must always use real Supabase — never allow mock fallback
   if (import.meta.env.PROD) return true
+  if (!supabaseUrl || !supabaseAnonKey) return false
   return !supabaseUrl.includes('placeholder') && !supabaseAnonKey.includes('placeholder')
 }
 
@@ -37,4 +38,12 @@ export async function getCurrentUserId(): Promise<string | null> {
 
   const { data: { user } } = await supabase.auth.getUser()
   return user?.id || null
+}
+
+// Require authenticated user — throws if not logged in
+// Use this in every mutation/query that needs auth
+export async function requireAuth() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  return user
 }

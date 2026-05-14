@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { SavingsGoal, CreateSavingsGoalInput, UpdateSavingsGoalInput, UUID } from '@/types'
 
 export function useSavings() {
@@ -10,8 +10,7 @@ export function useSavings() {
         return getMockSavings()
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('savings_goals')
@@ -57,8 +56,7 @@ export function useCreateSavingsGoal() {
         return { id: crypto.randomUUID(), ...input, created_at: new Date().toISOString() }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('savings_goals')
@@ -84,8 +82,7 @@ export function useUpdateSavingsGoal() {
         return { id, ...input }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { data, error } = await supabase
         .from('savings_goals')
@@ -113,8 +110,7 @@ export function useDeleteSavingsGoal() {
         return { id }
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = await requireAuth()
 
       const { error } = await supabase
         .from('savings_goals')

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Globe, DollarSign, Tags, Download, ChevronRight, Lock } from 'lucide-react'
+import { Globe, DollarSign, Tags, Download, ChevronRight, Lock, MessageSquare, Bell } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -12,7 +12,10 @@ const FEATURES = [
   { icon: DollarSign, labelKey: 'settings.currency', href: '/settings/currency', color: '#10B981' },
   { icon: Tags, labelKey: 'settings.categories', href: '/categories', color: '#F59E0B' },
   { icon: Download, labelKey: 'settings.export', href: '/settings/export', color: '#EF4444' },
+  { icon: Bell, labelKey: 'settings.notifications', href: '/settings/notifications', color: '#06B6D4' },
 ]
+
+const FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScy98U6vpghurp-dkv5jKOnGlyUm3OkC05UoL82rSL17Biurg/viewform'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -85,6 +88,24 @@ export default function Profile() {
               </Link>
             )
           })}
+
+          {/* Feedback */}
+          <a
+            href={FEEDBACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-pink-50">
+                <MessageSquare className="h-5 w-5 text-pink-500" />
+              </div>
+              <div className="text-left">
+                <p className="text-gray-900 font-medium">{t.settings.feedback || 'Góp ý'}</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-300" />
+          </a>
         </div>
       </div>
     </div>
