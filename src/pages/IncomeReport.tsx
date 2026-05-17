@@ -1,7 +1,10 @@
 import { YearlyReport } from '@/components/reports'
 
+import { PageTransition } from '@/components/shared'
+
 export default function IncomeReport() {
   return (
+    <PageTransition>
     <YearlyReport
       type="income"
       title="Báo cáo thu nhập"
@@ -12,5 +15,6 @@ export default function IncomeReport() {
       categoryLabelKey="incomeByCategory"
       monthLabelKey="incomeByMonth"
     />
+    </PageTransition>
   )
 }

@@ -16,7 +16,7 @@ export default function AuthLayout() {
   // If loading, show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full" />
       </div>
     )
@@ -68,12 +68,12 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4 md:p-8">
       <div className="w-full max-w-md">
         {/* Branding - visible on all screens */}
         <div className="text-center mb-6 md:mb-8">
           <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
               <Wallet className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">{t.app.appName}</h1>

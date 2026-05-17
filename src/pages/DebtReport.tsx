@@ -8,6 +8,8 @@ import { YearPicker } from '@/components/reports'
 import { MonthlyBarChart } from '@/components/reports/ReportComponents'
 import { PullToRefreshWrapper } from '@/components/shared'
 
+import { PageTransition } from '@/components/shared'
+
 export default function DebtReport() {
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const { t } = useI18n()
@@ -48,6 +50,7 @@ export default function DebtReport() {
   const contacts = Array.from(contactsMap.values()).sort((a, b) => (b.lent + b.borrowed) - (a.lent + a.borrowed))
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchTx() }}>
       {/* Header */}
       <div className="bg-gradient-to-b from-indigo-500 to-indigo-600 px-5 pt-4 pb-6">
@@ -178,5 +181,6 @@ export default function DebtReport() {
         </div>
       )}
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

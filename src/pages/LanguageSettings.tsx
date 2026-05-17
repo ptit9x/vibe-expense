@@ -6,10 +6,13 @@ const LANGUAGES = [
   { code: 'en' as const, name: 'English', flag: '🇺🇸' },
 ]
 
+import { PageTransition } from '@/components/shared'
+
 export default function LanguageSettings() {
   const { language, setLanguage, t } = useI18n()
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.language}</h1>
@@ -36,5 +39,6 @@ export default function LanguageSettings() {
         </div>
       </div>
     </div>
+    </PageTransition>
   )
 }

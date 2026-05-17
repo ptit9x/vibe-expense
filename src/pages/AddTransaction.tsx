@@ -5,6 +5,8 @@ import { TransactionForm } from '@/components/add-transaction'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
 
+import { PageTransition } from '@/components/shared'
+
 export default function AddTransaction() {
   const navigate = useNavigate()
   const createTransaction = useCreateTransaction()
@@ -59,8 +61,10 @@ export default function AddTransaction() {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50">
       <TransactionForm onSave={handleSave} isPending={createTransaction.isPending} />
     </div>
+    </PageTransition>
   )
 }

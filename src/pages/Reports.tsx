@@ -5,7 +5,7 @@ import {
   QuickActions,
   DebtTracker,
 } from '@/components/reports'
-import { MonthlyChart, PullToRefreshWrapper } from '@/components/shared'
+import { PullToRefreshWrapper, PageTransition, MonthlyChart } from '@/components/shared'
 import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import { useUIStore } from '@/stores/uiStore'
 import type { Transaction } from '@/types'
@@ -30,6 +30,7 @@ export default function Reports() {
   const monthlyData = computeMonthlyData(transactions ?? [], 6)
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper
       className="min-h-screen bg-gray-50 pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
@@ -47,5 +48,6 @@ export default function Reports() {
 
       <QuickActions />
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

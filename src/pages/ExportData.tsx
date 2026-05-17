@@ -19,6 +19,8 @@ interface ExportRow {
   description: string
 }
 
+import { PageTransition } from '@/components/shared'
+
 export default function ExportData() {
   const { t } = useI18n()
   const [exporting, setExporting] = useState<ExportFormat | null>(null)
@@ -188,6 +190,7 @@ export default function ExportData() {
   const recordCount = transactions?.length || 0
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.exportData}</h1>
@@ -314,5 +317,6 @@ export default function ExportData() {
         </div>
       </div>
     </div>
+    </PageTransition>
   )
 }

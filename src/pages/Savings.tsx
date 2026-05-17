@@ -15,6 +15,8 @@ const LOCALE_MAP: Record<Language, string> = {
   en: 'en-US',
 }
 
+import { PageTransition } from '@/components/shared'
+
 export default function Savings() {
   const { data: goals, isLoading, refetch: refetchGoals } = useSavings()
   const createGoal = useCreateSavingsGoal()
@@ -60,6 +62,7 @@ export default function Savings() {
   }
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper className="flex flex-col gap-6 p-4 lg:p-8" onRefresh={async () => { await refetchGoals() }}>
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -229,5 +232,6 @@ export default function Savings() {
         )}
       </div>
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

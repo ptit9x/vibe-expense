@@ -19,6 +19,8 @@ import { PullToRefreshWrapper } from '@/components/shared'
 const ICON_OPTIONS = ['💵', '💳', '🏦', '📱', '💎', '🎁', '🧧', '💰', '🏠', '🚗', '✈️', '🎓']
 const COLOR_OPTIONS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 
+import { PageTransition } from '@/components/shared'
+
 export default function Wallets() {
   const { data: wallets, isLoading, refetch: refetchWallets } = useWallets(true) // includeInactive to show all wallets
   const createWallet = useCreateWallet()
@@ -117,6 +119,7 @@ export default function Wallets() {
   }
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchWallets() }}>
       {/* Header with Total Balance */}
       <TotalBalanceCard
@@ -213,5 +216,6 @@ export default function Wallets() {
         onConfirm={confirmState.onConfirm}
       />
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

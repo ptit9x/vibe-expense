@@ -6,6 +6,8 @@ import { useI18n } from '@/lib/i18n'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import PageHeader from '@/components/PageHeader'
 
+import { PageTransition } from '@/components/shared'
+
 export default function PasswordSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -56,6 +58,7 @@ export default function PasswordSettings() {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
@@ -136,5 +139,6 @@ export default function PasswordSettings() {
         </form>
       </div>
     </div>
+    </PageTransition>
   )
 }

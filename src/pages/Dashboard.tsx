@@ -10,7 +10,7 @@ import {
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
-import { MonthlyChart, PullToRefreshWrapper } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper, PageTransition } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n, type Language } from '@/lib/i18n'
 import { computeMonthlyData } from '@/lib/computeMonthlyData'
@@ -70,18 +70,25 @@ export default function Dashboard() {
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper
       className="min-h-screen bg-gray-50 pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       {/* Header - Greeting with User Name */}
-      <div className="bg-blue-500 px-4 pt-6 pb-8">
+      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4 pt-6 pb-8">
+        {/* Decorative blur circles */}
+        <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-8 -left-4 w-24 h-24 bg-pink-300/20 rounded-full blur-2xl" />
+        <div className="absolute top-10 right-20 w-16 h-16 bg-indigo-300/15 rounded-full blur-xl" />
+
+        <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-white text-xl font-medium">{t.dashboard.greeting} {displayName} 👋</h1>
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30"
+            className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
             onClick={toggleBalance}
             aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
           >
@@ -94,17 +101,18 @@ export default function Dashboard() {
         </div>
 
         {/* Balance Card */}
-        <div className="bg-white rounded-xl p-4 shadow-lg">
-          <p className="text-gray-500 text-xs mb-1">{t.dashboard.totalBalance}</p>
-          <p className="text-2xl font-bold text-gray-900 tracking-tight">
+        <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-5 shadow-lg border border-white/20">
+          <p className="text-white/80 text-xs mb-1 font-medium">{t.dashboard.totalBalance}</p>
+          <p className="text-2xl font-bold text-white tracking-tight">
             {showBalance ? (
               <>
                 {currency.symbol}{formatCurrency(totalBalance)}
               </>
             ) : (
-              <span className="text-gray-400">••••••••</span>
+              <span className="text-white/50">••••••••</span>
             )}
           </p>
+        </div>
         </div>
       </div>
 
@@ -118,11 +126,12 @@ export default function Dashboard() {
       {/* FAB */}
       <Link
         to="/add-transaction"
-        className="fixed right-4 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors z-20"
+        className="fixed right-4 bottom-24 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all z-20 active:scale-90"
         aria-label={t.transaction.add}
       >
         <span className="text-white text-2xl font-light">+</span>
       </Link>
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

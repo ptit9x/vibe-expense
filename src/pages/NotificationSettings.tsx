@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 import PageHeader from '@/components/PageHeader'
 import { useI18n } from '@/lib/i18n'
 
+import { PageTransition } from '@/components/shared'
+
 export default function NotificationSettings() {
   const { data: settings, isLoading } = useNotificationSettings()
   const updateSettings = useUpdateNotificationSettings()
@@ -40,6 +42,7 @@ export default function NotificationSettings() {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.notificationSettings.title}</h1>
@@ -137,6 +140,7 @@ export default function NotificationSettings() {
         </div>
       </div>
     </div>
+    </PageTransition>
   )
 }
 

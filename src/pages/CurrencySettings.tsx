@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n'
 import { useUIStore, CURRENCIES } from '@/stores/uiStore'
 import PageHeader from '@/components/PageHeader'
 
+import { PageTransition } from '@/components/shared'
+
 export default function CurrencySettings() {
   const { t } = useI18n()
   const { currency, setCurrency } = useUIStore()
@@ -28,6 +30,7 @@ export default function CurrencySettings() {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.currencySettings}</h1>
@@ -64,5 +67,6 @@ export default function CurrencySettings() {
         </div>
       </div>
     </div>
+    </PageTransition>
   )
 }

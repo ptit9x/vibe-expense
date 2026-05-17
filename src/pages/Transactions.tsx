@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
 import PageHeader from '@/components/PageHeader'
-import { PullToRefreshWrapper } from '@/components/shared'
+import { PullToRefreshWrapper, PageTransition } from '@/components/shared'
 import type { Transaction } from '@/types'
 
 export default function Transactions() {
@@ -48,6 +48,7 @@ export default function Transactions() {
   }
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper
       className="min-h-screen bg-gray-50 pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
@@ -162,5 +163,6 @@ export default function Transactions() {
         )}
       </div>
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }

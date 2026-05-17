@@ -76,6 +76,8 @@ interface CategoryFormData {
   parent_id?: string
 }
 
+import { PageTransition } from '@/components/shared'
+
 export default function Categories() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense')
@@ -192,6 +194,7 @@ export default function Categories() {
   }
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchCategories() }}>
       {/* Header */}
       <PageHeader>
@@ -368,6 +371,7 @@ export default function Categories() {
         onConfirm={confirmState.onConfirm}
       />
     </PullToRefreshWrapper>
+    </PageTransition>
   )
 }
 

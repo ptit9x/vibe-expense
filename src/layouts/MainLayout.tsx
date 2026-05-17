@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, useLogout } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
+import { AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
   Wallet,
@@ -46,11 +47,13 @@ export default function MainLayout() {
       {/* Content area with sidebar offset on desktop */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <main className="flex-1 overflow-y-auto pb-[max(72px,calc(72px+env(safe-area-inset-bottom)))] max-w-3xl">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <Outlet />
+          </AnimatePresence>
         </main>
       </div>
 
-      <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 border-t bg-white lg:hidden pb-safe">
+      <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 border-t bg-white/80 backdrop-blur-xl lg:hidden pb-safe border-gray-200/50">
         <div className="flex h-[72px] items-center justify-around px-4">
           {bottomNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.href)
@@ -61,9 +64,9 @@ export default function MainLayout() {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className="relative -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg"
+                  className="relative -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 active:scale-90 transition-transform"
                 >
-                  <Icon className="h-7 w-7 text-primary-foreground" />
+                  <Icon className="h-7 w-7 text-white" />
                 </Link>
               )
             }
@@ -73,16 +76,16 @@ export default function MainLayout() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors",
+                  "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-xl transition-all",
                   isActive
-                    ? "text-primary"
-                    : "text-zinc-500 hover:text-zinc-900"
+                    ? "text-indigo-600"
+                    : "text-zinc-400 hover:text-zinc-600"
                 )}
               >
-                <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
+                <Icon className={cn("h-5 w-5 transition-all", isActive && "stroke-[2.5] scale-110")} />
                 <span className={cn(
-                  "text-xs font-medium",
-                  isActive && "font-semibold"
+                  "text-xs transition-all",
+                  isActive ? "font-semibold" : "font-medium"
                 )}>
                   {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
                 </span>
@@ -110,9 +113,9 @@ function DesktopSidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col border-r bg-white z-40">
+    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col border-r bg-white/80 backdrop-blur-xl z-40">
       <div className="flex h-16 items-center border-b px-6">
-        <span className="text-lg font-bold">💰 Money Keeper</span>
+        <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">💰 Money Keeper</span>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {bottomNavItems.map((item) => {

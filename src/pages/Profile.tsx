@@ -1,9 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Globe, DollarSign, Tags, Download, ChevronRight, Lock, MessageSquare, Bell } from 'lucide-react'
+import { Globe, DollarSign, Tags, Download, ChevronRight, Lock, MessageSquare, Bell, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
+import { useTheme } from '@/components/theme-provider'
 import PageHeader from '@/components/PageHeader'
 
 const FEATURES = [
@@ -17,11 +18,14 @@ const FEATURES = [
 
 const FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScy98U6vpghurp-dkv5jKOnGlyUm3OkC05UoL82rSL17Biurg/viewform'
 
+import { PageTransition } from '@/components/shared'
+
 export default function Profile() {
   const navigate = useNavigate()
   const { data: user } = useAuth()
   const logout = useLogout()
   const { t } = useI18n()
+  const { resolvedMode, toggleMode } = useTheme()
 
   const handleLogout = async () => {
     try {
@@ -37,16 +41,26 @@ export default function Profile() {
   const displayEmail = user?.email || ''
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">{t.settings.settings}</h1>
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1.5 bg-white/20 rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-          >
-            {t.auth.logout}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleMode}
+              className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30 transition-colors"
+              aria-label={resolvedMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {resolvedMode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 bg-white/20 rounded-full text-white text-sm hover:bg-white/30 transition-colors"
+            >
+              {t.auth.logout}
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -109,5 +123,6 @@ export default function Profile() {
         </div>
       </div>
     </div>
+    </PageTransition>
   )
 }
