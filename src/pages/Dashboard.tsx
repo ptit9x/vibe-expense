@@ -23,12 +23,12 @@ const LOCALE_MAP: Record<Language, string> = {
   en: 'en-US',
 }
 
-function computeExpenseBreakdown(transactions: Transaction[]): ExpenseItem[] {
+function computeExpenseBreakdown(transactions: Transaction[], otherCategoryName: string): ExpenseItem[] {
   const expenses = transactions?.filter(t => t.type === 'expense') || []
   const breakdown: Record<string, ExpenseItem> = {}
 
   expenses.forEach(t => {
-    const catName = t.category?.name || 'Khác'
+    const catName = t.category?.name || otherCategoryName
     const catColor = t.category?.color || '#6B7280'
     const catIcon = t.category?.icon || '💰'
 
@@ -54,7 +54,7 @@ export default function Dashboard() {
         <div className="text-center">
           <p className="text-red-500 mb-2">{txError?.message || walletError?.message || t.common.error}</p>
           <Button onClick={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}>
-            Thử lại
+            {t.errors.tryAgain}
           </Button>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function Dashboard() {
 
   const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
   const monthlyData = computeMonthlyData(transactions || [], 6, LOCALE_MAP[language])
-  const expenseBreakdown = computeExpenseBreakdown(transactions || [])
+  const expenseBreakdown = computeExpenseBreakdown(transactions || [], t.dashboard.otherCategory)
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 

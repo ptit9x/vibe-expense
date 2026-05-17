@@ -1,48 +1,57 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import AuthLayout from './layouts/AuthLayout'
 import MainLayout from './layouts/MainLayout'
 
-// Auth pages
-import Login from './pages/Login'
-import Register from './pages/Register'
-import VerifyEmail from './pages/VerifyEmail'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
+// Auth pages (lazy loaded)
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 
-// Money Keeper pages
-import Dashboard from './pages/Dashboard'
-import TransactionsPage from './pages/Transactions'
-import AddTransactionPage from './pages/AddTransaction'
-import EditTransactionPage from './pages/EditTransaction'
-import WalletsPage from './pages/Wallets'
-import ReportsPage from './pages/Reports'
-import ExpenseReportPage from './pages/ExpenseReport'
-import IncomeReportPage from './pages/IncomeReport'
-import DebtReportPage from './pages/DebtReport'
-import ProfilePage from './pages/Profile'
-import LanguageSettingsPage from './pages/LanguageSettings'
-import CurrencySettingsPage from './pages/CurrencySettings'
-import ExportDataPage from './pages/ExportData'
-import PasswordSettingsPage from './pages/PasswordSettings'
-import CategoriesPage from './pages/Categories'
-import SavingsPage from './pages/Savings'
-import NotificationSettingsPage from './pages/NotificationSettings'
+// Money Keeper pages (lazy loaded)
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const TransactionsPage = lazy(() => import('./pages/Transactions'))
+const AddTransactionPage = lazy(() => import('./pages/AddTransaction'))
+const EditTransactionPage = lazy(() => import('./pages/EditTransaction'))
+const WalletsPage = lazy(() => import('./pages/Wallets'))
+const ReportsPage = lazy(() => import('./pages/Reports'))
+const ExpenseReportPage = lazy(() => import('./pages/ExpenseReport'))
+const IncomeReportPage = lazy(() => import('./pages/IncomeReport'))
+const DebtReportPage = lazy(() => import('./pages/DebtReport'))
+const ProfilePage = lazy(() => import('./pages/Profile'))
+const LanguageSettingsPage = lazy(() => import('./pages/LanguageSettings'))
+const CurrencySettingsPage = lazy(() => import('./pages/CurrencySettings'))
+const ExportDataPage = lazy(() => import('./pages/ExportData'))
+const PasswordSettingsPage = lazy(() => import('./pages/PasswordSettings'))
+const CategoriesPage = lazy(() => import('./pages/Categories'))
+const SavingsPage = lazy(() => import('./pages/Savings'))
+const NotificationSettingsPage = lazy(() => import('./pages/NotificationSettings'))
 
-// Error pages
-import NotFound from './pages/NotFound'
-import ServerError from './pages/ServerError'
-import Forbidden from './pages/Forbidden'
+// Error pages (lazy loaded)
+const NotFound = lazy(() => import('./pages/NotFound'))
+const ServerError = lazy(() => import('./pages/ServerError'))
+const Forbidden = lazy(() => import('./pages/Forbidden'))
 
 import { Toaster } from '@/components/ui/sonner'
 import { useAuthListener } from '@/hooks/useAuth'
 import './App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+    </div>
+  )
+}
+
 function AppContent() {
   useAuthListener()
 
   return (
-    <>
+    <Suspense fallback={<LoadingSpinner />}>
       <Routes>
           {/* Auth Routes - Shared mobile-first layout */}
           <Route element={<AuthLayout />}>
@@ -83,7 +92,7 @@ function AppContent() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       <Toaster />
-    </>
+    </Suspense>
   )
 }
 

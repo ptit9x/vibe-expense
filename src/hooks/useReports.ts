@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 
 export interface MonthlyReport {
   month: string
@@ -18,36 +18,40 @@ export interface CategoryStat {
   count: number
 }
 
-export function useMonthlyReport(userId: string | null, month: string) {
+export function useMonthlyReport(month: string) {
   return useQuery({
-    queryKey: ['monthlyReport', userId, month],
+    queryKey: ['monthlyReport', month],
     queryFn: async () => {
-      if (!userId || !isSupabaseConfigured()) {
+      if (!isSupabaseConfigured()) {
         return getMockReport(month)
       }
 
+      const user = await requireAuth()
+
       const { data, error } = await supabase.rpc('get_monthly_report', {
-        p_user_id: userId,
+        p_user_id: user.id,
         p_month: month
       })
 
       if (error) throw error
       return data as MonthlyReport
     },
-    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 min
   })
 }
 
-export function useCategoryStats(userId: string | null, startDate: string, endDate: string) {
+export function useCategoryStats(startDate: string, endDate: string) {
   return useQuery({
-    queryKey: ['categoryStats', userId, startDate, endDate],
+    queryKey: ['categoryStats', startDate, endDate],
     queryFn: async () => {
-      if (!userId || !isSupabaseConfigured()) {
+      if (!isSupabaseConfigured()) {
         return getMockCategoryStats()
       }
 
+      const user = await requireAuth()
+
       const { data, error } = await supabase.rpc('get_category_stats', {
-        p_user_id: userId,
+        p_user_id: user.id,
         p_start_date: startDate,
         p_end_date: endDate
       })
@@ -55,7 +59,7 @@ export function useCategoryStats(userId: string | null, startDate: string, endDa
       if (error) throw error
       return data as CategoryStat[]
     },
-    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 min
   })
 }
 

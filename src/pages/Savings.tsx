@@ -5,10 +5,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useSavings, useCreateSavingsGoal } from '@/hooks/useSavings'
-import { useI18n } from '@/lib/i18n'
+import { useI18n, type Language } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
 import { PullToRefreshWrapper } from '@/components/shared'
 import type { SavingsGoal } from '@/types'
+
+const LOCALE_MAP: Record<Language, string> = {
+  vi: 'vi-VN',
+  en: 'en-US',
+}
 
 export default function Savings() {
   const { data: goals, isLoading, refetch: refetchGoals } = useSavings()
@@ -17,7 +22,7 @@ export default function Savings() {
   const [goalName, setGoalName] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const { currency, formatCurrency } = useUIStore()
 
   const goalsData = goals as SavingsGoal[] | undefined
@@ -214,7 +219,7 @@ export default function Savings() {
                   {goal.deadline && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString('vi-VN')}</span>
+                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString(LOCALE_MAP[language])}</span>
                     </div>
                   )}
                 </CardContent>

@@ -3,21 +3,23 @@ import { useNotificationSettings, useUpdateNotificationSettings, useTogglePush, 
 import { isNotificationSupported } from '@/lib/notifications'
 import { toast } from 'sonner'
 import PageHeader from '@/components/PageHeader'
+import { useI18n } from '@/lib/i18n'
 
 export default function NotificationSettings() {
   const { data: settings, isLoading } = useNotificationSettings()
   const updateSettings = useUpdateNotificationSettings()
   const togglePush = useTogglePush()
   const { data: permission } = usePushPermission()
+  const { t } = useI18n()
 
   const supported = isNotificationSupported()
 
   const handleTogglePush = async (enabled: boolean) => {
     try {
       await togglePush.mutateAsync(enabled)
-      toast.success(enabled ? 'Đã bật thông báo' : 'Đã tắt thông báo')
+      toast.success(enabled ? t.notificationSettings.pushEnabled : t.notificationSettings.pushDisabled)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Lỗi')
+      toast.error(err instanceof Error ? err.message : t.common.error)
     }
   }
 
@@ -40,7 +42,7 @@ export default function NotificationSettings() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <PageHeader>
-        <h1 className="text-xl font-semibold text-white">🔔 Thông báo</h1>
+        <h1 className="text-xl font-semibold text-white">{t.notificationSettings.title}</h1>
       </PageHeader>
 
       <div className="px-4 py-3 space-y-3">
@@ -50,8 +52,8 @@ export default function NotificationSettings() {
             <div className="flex items-center gap-3 text-gray-400">
               <BellOff className="h-5 w-5" />
               <div>
-                <p className="font-medium text-gray-500">Trình duyệt không hỗ trợ</p>
-                <p className="text-sm">Hãy cài app lên điện thoại để nhận thông báo</p>
+                <p className="font-medium text-gray-500">{t.notificationSettings.browserNotSupported}</p>
+                <p className="text-sm">{t.notificationSettings.browserNotSupportedDesc}</p>
               </div>
             </div>
           ) : (
@@ -61,12 +63,12 @@ export default function NotificationSettings() {
                   <Bell className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Push Notification</p>
+                  <p className="font-medium text-gray-900">{t.notificationSettings.pushNotification}</p>
                   <p className="text-sm text-gray-400">
                     {permission === 'granted'
-                      ? settings?.push_enabled ? 'Đang bật' : 'Đang tắt'
-                      : permission === 'denied' ? 'Đã bị chặn — kiểm tra cài đặt trình duyệt'
-                      : 'Chưa cấp quyền'}
+                      ? settings?.push_enabled ? t.notificationSettings.enabled : t.notificationSettings.disabled
+                      : permission === 'denied' ? t.notificationSettings.blocked
+                      : t.notificationSettings.permissionNotGranted}
                   </p>
                 </div>
               </div>
@@ -84,8 +86,8 @@ export default function NotificationSettings() {
           <SettingRow
             icon={<Clock className="h-5 w-5 text-green-500" />}
             iconBg="bg-green-50"
-            title="Nhắc nhở hàng ngày"
-            description={`Nhắc nhập giao dịch lúc ${settings?.reminder_time || '20:00'}`}
+            title={t.notificationSettings.dailyReminder}
+            description={`${t.notificationSettings.dailyReminderDesc} ${settings?.reminder_time || '20:00'}`}
             checked={settings?.daily_reminder ?? true}
             onChange={(v) => handleToggleSetting('daily_reminder', v)}
             disabled={!settings?.push_enabled}
@@ -93,8 +95,8 @@ export default function NotificationSettings() {
           <SettingRow
             icon={<Wallet className="h-5 w-5 text-orange-500" />}
             iconBg="bg-orange-50"
-            title="Cảnh báo ngân sách"
-            description="Khi chi tiêu đạt 80% ngân sách"
+            title={t.notificationSettings.budgetAlert}
+            description={t.notificationSettings.budgetAlertDesc}
             checked={settings?.budget_alert ?? true}
             onChange={(v) => handleToggleSetting('budget_alert', v)}
             disabled={!settings?.push_enabled}
@@ -102,8 +104,8 @@ export default function NotificationSettings() {
           <SettingRow
             icon={<HandCoins className="h-5 w-5 text-purple-500" />}
             iconBg="bg-purple-50"
-            title="Nhắc vay nợ"
-            description="Nhắc thu nợ và trả nợ"
+            title={t.notificationSettings.debtReminder}
+            description={t.notificationSettings.debtReminderDesc}
             checked={settings?.debt_reminder ?? true}
             onChange={(v) => handleToggleSetting('debt_reminder', v)}
             disabled={!settings?.push_enabled}
@@ -114,8 +116,8 @@ export default function NotificationSettings() {
         <div className="bg-white rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">Giờ nhắc nhở</p>
-              <p className="text-sm text-gray-400">Thời gian nhận thông báo hàng ngày</p>
+              <p className="font-medium text-gray-900">{t.notificationSettings.reminderTime}</p>
+              <p className="text-sm text-gray-400">{t.notificationSettings.reminderTimeDesc}</p>
             </div>
             <input
               type="time"
@@ -130,7 +132,7 @@ export default function NotificationSettings() {
         {/* Info */}
         <div className="bg-blue-50 rounded-xl p-4">
           <p className="text-sm text-blue-600">
-            💡 <strong>Mẹo:</strong> Cài app lên màn hình chính (Add to Home Screen) để nhận thông báo tốt nhất. Trên iPhone, mở Safari → chia sẻ → Thêm vào MH chính.
+            {t.notificationSettings.tip}
           </p>
         </div>
       </div>
@@ -182,6 +184,8 @@ function ToggleSwitch({
 }) {
   return (
     <button
+      role="switch"
+      aria-checked={checked}
       onClick={() => onChange(!checked)}
       disabled={disabled}
       className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors disabled:cursor-not-allowed ${

@@ -26,6 +26,7 @@ export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
           inputMode="decimal"
           value={value}
           onChange={handleChange}
+          aria-label={t.transaction.amount}
           placeholder="0"
           className="text-center text-5xl font-bold text-white placeholder-white/40 bg-transparent focus:outline-none w-full max-w-[280px]"
         />

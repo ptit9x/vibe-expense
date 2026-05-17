@@ -62,6 +62,7 @@ export default function Transactions() {
             type="month"
             value={month ?? ''}
             onChange={(e) => setMonth(e.target.value || null)}
+            aria-label={t.transaction.selectMonth || 'Select month'}
             className="h-9 px-3 bg-white/20 text-white text-sm rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/30 [color-scheme:dark]"
           />
           <div className="flex gap-1">

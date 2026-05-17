@@ -117,6 +117,7 @@ export const translations = {
       income: 'Thu nhập',
       expense: 'Chi tiêu',
       remaining: 'Còn lại',
+      otherCategory: 'Khác',
     },
     // Transaction
     transaction: {
@@ -163,6 +164,7 @@ export const translations = {
       seeAll: 'Xem tất cả',
       today: 'Hôm nay',
       showingLast12Months: 'Hiển thị 12 tháng gần nhất',
+      selectMonth: 'Chọn tháng',
     },
     // Wallet
     wallet: {
@@ -451,6 +453,32 @@ export const translations = {
     passwordSettings: {
       changePassword: 'Đổi mật khẩu',
     },
+    // Notification Settings
+    notificationSettings: {
+      title: '🔔 Thông báo',
+      browserNotSupported: 'Trình duyệt không hỗ trợ',
+      browserNotSupportedDesc: 'Hãy cài app lên điện thoại để nhận thông báo',
+      pushNotification: 'Push Notification',
+      enabled: 'Đang bật',
+      disabled: 'Đang tắt',
+      blocked: 'Đã bị chặn — kiểm tra cài đặt trình duyệt',
+      permissionNotGranted: 'Chưa cấp quyền',
+      pushEnabled: 'Đã bật thông báo',
+      pushDisabled: 'Đã tắt thông báo',
+      dailyReminder: 'Nhắc nhở hàng ngày',
+      dailyReminderDesc: 'Nhắc nhập giao dịch lúc',
+      budgetAlert: 'Cảnh báo ngân sách',
+      budgetAlertDesc: 'Khi chi tiêu đạt 80% ngân sách',
+      debtReminder: 'Nhắc vay nợ',
+      debtReminderDesc: 'Nhắc thu nợ và trả nợ',
+      reminderTime: 'Giờ nhắc nhở',
+      reminderTimeDesc: 'Thời gian nhận thông báo hàng ngày',
+      tip: '💡 Mẹo: Cài app lên màn hình chính (Add to Home Screen) để nhận thông báo tốt nhất. Trên iPhone, mở Safari → chia sẻ → Thêm vào MH chính.',
+    },
+    // Auth errors
+    authErrors: {
+      invalidCredentials: 'Email hoặc mật khẩu không đúng',
+    },
   },
   en: {
     // Navigation
@@ -570,6 +598,7 @@ export const translations = {
       income: 'Income',
       expense: 'Expense',
       remaining: 'Remaining',
+      otherCategory: 'Other',
     },
     // Transaction
     transaction: {
@@ -616,6 +645,7 @@ export const translations = {
       seeAll: 'See all',
       today: 'Today',
       showingLast12Months: 'Showing last 12 months',
+      selectMonth: 'Select month',
     },
     // Wallet
     wallet: {
@@ -903,6 +933,32 @@ export const translations = {
     // Password settings specific
     passwordSettings: {
       changePassword: 'Change Password',
+    },
+    // Notification Settings
+    notificationSettings: {
+      title: '🔔 Notifications',
+      browserNotSupported: 'Browser not supported',
+      browserNotSupportedDesc: 'Install the app on your phone to receive notifications',
+      pushNotification: 'Push Notification',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      blocked: 'Blocked — check browser settings',
+      permissionNotGranted: 'Permission not granted',
+      pushEnabled: 'Notifications enabled',
+      pushDisabled: 'Notifications disabled',
+      dailyReminder: 'Daily Reminder',
+      dailyReminderDesc: 'Remind to log transactions at',
+      budgetAlert: 'Budget Alert',
+      budgetAlertDesc: 'When spending reaches 80% of budget',
+      debtReminder: 'Debt Reminder',
+      debtReminderDesc: 'Remind to collect and repay debts',
+      reminderTime: 'Reminder Time',
+      reminderTimeDesc: 'Time to receive daily notifications',
+      tip: '💡 Tip: Install the app to your home screen (Add to Home Screen) for the best notification experience. On iPhone, open Safari → share → Add to Home Screen.',
+    },
+    // Auth errors
+    authErrors: {
+      invalidCredentials: 'Invalid email or password',
     },
   },
 } as const

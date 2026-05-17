@@ -62,11 +62,9 @@ export const useTransactionFormStore = create<TransactionFormState>((set) => ({
   setMode: (mode) => set({ mode }),
   setType: (type) => set((state) => {
     // Auto-fill description default when switching type (only in add mode)
+    // Note: localized defaults are handled by the component, not the store
     const defaultDesc = state.mode === 'add' && !state.description
-      ? (type === 'transfer' ? 'Chuyển khoản'
-        : type === 'lend' ? 'Cho vay'
-        : type === 'borrow' ? 'Đi vay'
-        : '')
+      ? ''
       : state.description
     return { type, description: defaultDesc }
   }),

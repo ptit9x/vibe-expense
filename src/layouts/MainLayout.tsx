@@ -45,12 +45,12 @@ export default function MainLayout() {
     <div className="flex h-screen flex-col">
       {/* Content area with sidebar offset on desktop */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
-        <main className="flex-1 overflow-y-auto pb-20 max-w-3xl">
+        <main className="flex-1 overflow-y-auto pb-[max(72px,calc(72px+env(safe-area-inset-bottom)))] max-w-3xl">
           <Outlet />
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-white lg:hidden">
+      <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 border-t bg-white lg:hidden pb-safe">
         <div className="flex h-[72px] items-center justify-around px-4">
           {bottomNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.href)

@@ -68,6 +68,7 @@ export function TransactionRow({
   return (
     <Link
       to={`/edit-transaction/${id}`}
+      aria-label={`${prefix}${currency.symbol}${formatCurrency(amount)} - ${description || category?.name || type} - ${dateLabel}`}
       className={cn(
         'flex items-center justify-between transition-colors cursor-pointer',
         isCompact

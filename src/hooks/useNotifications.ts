@@ -45,10 +45,12 @@ export function useNotificationSettings() {
 
         if (error) throw error
         return data || { ...DEFAULT_SETTINGS, user_id: user.id }
-      } catch {
+      } catch (error) {
+        console.error('Failed to fetch notification settings:', error)
         return DEFAULT_SETTINGS
       }
     },
+    staleTime: 5 * 60 * 1000, // 5 min
   })
 }
 

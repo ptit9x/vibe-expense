@@ -24,7 +24,7 @@ export default function Register() {
       return
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       toast.error(t.auth.passwordMinLength)
       return
     }

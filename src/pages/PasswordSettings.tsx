@@ -14,6 +14,7 @@ export default function PasswordSettings() {
   const [showNew, setShowNew] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
   const { t } = useI18n()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,22 +25,27 @@ export default function PasswordSettings() {
       return
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setMessage(t.auth.passwordMinLength)
       return
     }
 
     setIsLoading(true)
     setMessage('')
+    setIsSuccess(false)
 
     try {
       if (isSupabaseConfigured()) {
+        const { error: reauthError } = await supabase.auth.reauthenticate()
+        if (reauthError) throw reauthError
+
         const { error } = await supabase.auth.updateUser({ password: newPassword })
         if (error) throw error
       }
 
       setIsLoading(false)
       setMessage(t.settings.changePasswordSuccess)
+      setIsSuccess(true)
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -115,7 +121,7 @@ export default function PasswordSettings() {
           </div>
 
           {message && (
-            <p className={`text-sm ${message.includes('thành công') || message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-sm ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
               {message}
             </p>
           )}

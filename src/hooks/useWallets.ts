@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 import type { Wallet, CreateWalletInput, UpdateWalletInput } from '@/types'
+import { getMockWallets } from '@/mocks/mockWallets'
 
 export function useWallets(includeInactive = false) {
   return useQuery({
@@ -73,6 +74,7 @@ export function useWallets(includeInactive = false) {
 
       return walletsWithBalance as Wallet[]
     },
+    staleTime: 5 * 60 * 1000, // 5 min — wallets change rarely
   })
 }
 
@@ -144,6 +146,8 @@ export function useDeleteWallet() {
         return { id: wallet.id, deleted: true }
       }
 
+      const user = await requireAuth()
+
       // Check if wallet has any transactions
       const { data: transactions } = await supabase
         .from('transactions')
@@ -157,7 +161,7 @@ export function useDeleteWallet() {
           .from('wallets')
           .update({ is_active: false, updated_at: new Date().toISOString() })
           .eq('id', wallet.id)
-          .eq('user_id', wallet.user_id)
+          .eq('user_id', user.id)
 
         if (error) throw error
         return { id: wallet.id, deleted: false, deactivated: true }
@@ -168,7 +172,7 @@ export function useDeleteWallet() {
         .from('wallets')
         .delete()
         .eq('id', wallet.id)
-        .eq('user_id', wallet.user_id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id: wallet.id, deleted: true }
@@ -189,13 +193,15 @@ export function useToggleWalletActive() {
         return { id: wallet.id, is_active: !wallet.is_active }
       }
 
+      const user = await requireAuth()
+
       const newStatus = !wallet.is_active
 
       const { error } = await supabase
         .from('wallets')
         .update({ is_active: newStatus, updated_at: new Date().toISOString() })
         .eq('id', wallet.id)
-        .eq('user_id', wallet.user_id)
+        .eq('user_id', user.id)
 
       if (error) throw error
       return { id: wallet.id, is_active: newStatus }
@@ -206,47 +212,3 @@ export function useToggleWalletActive() {
   })
 }
 
-// Mock data
-function getMockWallets(): Wallet[] {
-  return [
-    {
-      id: 'w1',
-      user_id: 'user1',
-      name: 'Cash',
-      type: 'cash' as const,
-      icon: '💵',
-      color: '#3B82F6',
-      initial_balance: 2000000,
-      balance: 3500000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 'w2',
-      user_id: 'user1',
-      name: 'MB Bank',
-      type: 'bank' as const,
-      icon: '🏦',
-      color: '#10B981',
-      initial_balance: 50000000,
-      balance: 47850000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 'w3',
-      user_id: 'user1',
-      name: 'Momo',
-      type: 'e_wallet' as const,
-      icon: '📱',
-      color: '#A855F7',
-      initial_balance: 0,
-      balance: 750000,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ]
-}

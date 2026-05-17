@@ -101,7 +101,7 @@ export default function Profile() {
                 <MessageSquare className="h-5 w-5 text-pink-500" />
               </div>
               <div className="text-left">
-                <p className="text-gray-900 font-medium">{t.settings.feedback || 'Góp ý'}</p>
+                <p className="text-gray-900 font-medium">{t.settings.feedback}</p>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-gray-300" />

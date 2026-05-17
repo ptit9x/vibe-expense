@@ -87,7 +87,20 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
           <TypeDropdown
             types={transactionTypes}
             selectedType={type}
-            onSelect={(t) => setType(t as typeof type)}
+            onSelect={(newType) => {
+              const wasEmpty = !description
+              setType(newType as typeof type)
+              // Set localized default description in add mode when description was empty
+              if (mode === 'add' && wasEmpty) {
+                const defaults: Record<string, string> = {
+                  transfer: t.transaction.transfer,
+                  lend: t.transaction.lend,
+                  borrow: t.transaction.borrow,
+                }
+                const defaultDesc = defaults[newType] || ''
+                if (defaultDesc) setDescription(defaultDesc)
+              }
+            }}
             isOpen={showTypeDropdown}
             onToggle={toggleTypeDropdown}
           />
@@ -146,7 +159,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
         <SaveButton
           onClick={onSave}
           isPending={isPending}
-          label={mode === 'edit' ? 'Save Changes' : undefined}
+          label={mode === 'edit' ? t.settings.saveChanges : undefined}
         />
       </div>
     </div>

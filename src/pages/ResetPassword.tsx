@@ -23,7 +23,7 @@ export default function ResetPassword() {
   useEffect(() => {
     const checkRecovery = async () => {
       // 1. Check query params (explicit redirect)
-      if (searchParams.has("access_token") || searchParams.has("token")) {
+      if ((searchParams.has("access_token") && searchParams.get("type") === "recovery") || searchParams.has("token")) {
         setIsRecoverySession(true)
         return
       }
@@ -62,7 +62,7 @@ export default function ResetPassword() {
       return
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       toast.error(t.auth.passwordMinLength)
       return
     }
