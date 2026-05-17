@@ -5,6 +5,7 @@ import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Button } from '@/components/ui/button'
 import {
+  SummaryCards,
   ExpenseAnalysis,
   RecentTransactions,
   type ExpenseItem,
@@ -62,10 +63,13 @@ export default function Dashboard() {
   }
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
+  const currentTransactions = transactions || []
+  const income = currentTransactions.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0)
+  const expense = currentTransactions.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0)
 
-  const recentTransactions: TransactionItem[] = (transactions || []).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  const monthlyData = computeMonthlyData(transactions || [], 6, LOCALE_MAP[language])
-  const expenseBreakdown = computeExpenseBreakdown(transactions || [], t.dashboard.otherCategory)
+  const recentTransactions: TransactionItem[] = currentTransactions.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
+  const monthlyData = computeMonthlyData(currentTransactions, 6, LOCALE_MAP[language])
+  const expenseBreakdown = computeExpenseBreakdown(currentTransactions, t.dashboard.otherCategory)
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 
@@ -118,6 +122,7 @@ export default function Dashboard() {
 
       {/* Content */}
       <div className="px-4 -mt-4 space-y-4">
+        <SummaryCards totalBalance={totalBalance} income={income} expense={expense} showBalance={showBalance} />
         <ExpenseAnalysis items={expenseBreakdown} />
         <MonthlyChart data={monthlyData} />
         <RecentTransactions transactions={recentTransactions} />
