@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
@@ -11,7 +10,7 @@ import {
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
-import { MonthlyChart, PullToRefreshWrapper, PageTransition } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper, PageTransition, AnimatedFAB } from '@/components/shared'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n, type Language } from '@/lib/i18n'
 import { computeMonthlyData } from '@/lib/computeMonthlyData'
@@ -129,13 +128,9 @@ export default function Dashboard() {
       </div>
 
       {/* FAB */}
-      <Link
-        to="/add-transaction"
-        className="fixed right-4 bottom-24 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all z-20 active:scale-90"
-        aria-label={t.transaction.add}
-      >
-        <span className="text-white text-2xl font-light">+</span>
-      </Link>
+      <div className="fixed right-4 bottom-24 z-20">
+        <AnimatedFAB to="/add-transaction" ariaLabel={t.transaction.add} />
+      </div>
     </PullToRefreshWrapper>
     </PageTransition>
   )

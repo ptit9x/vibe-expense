@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, useLogout } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   LayoutDashboard,
   Wallet,
@@ -9,6 +9,7 @@ import {
   BarChart3,
   Menu,
   LogOut,
+  User,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -44,7 +45,6 @@ export default function MainLayout() {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Content area with sidebar offset on desktop */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <main className="flex-1 overflow-y-auto pb-[max(72px,calc(72px+env(safe-area-inset-bottom)))] max-w-3xl">
           <AnimatePresence mode="wait">
@@ -53,45 +53,68 @@ export default function MainLayout() {
         </main>
       </div>
 
-      <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 border-t bg-white/80 backdrop-blur-xl lg:hidden pb-safe border-gray-200/50">
-        <div className="flex h-[72px] items-center justify-around px-4">
-          {bottomNavItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.href)
-            const Icon = item.icon
+      {/* ── Bottom Nav (mobile) ── */}
+      <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 lg:hidden pb-safe">
+        <div className="bg-white/70 backdrop-blur-2xl border-t border-gray-200/40">
+          <div className="flex h-[72px] items-center justify-around px-2">
+            {bottomNavItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.href)
+              const Icon = item.icon
 
-            if (item.isPlus) {
+              if (item.isPlus) {
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className="relative -mt-8 z-10"
+                  >
+                    <motion.div
+                      className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
+                      whileTap={{ scale: 0.88 }}
+                      whileHover={{ scale: 1.05, boxShadow: '0 8px 30px rgba(99,102,241,0.4)' }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                    >
+                      <Icon className="h-7 w-7 text-white" />
+                    </motion.div>
+                  </Link>
+                )
+              }
+
               return (
                 <Link
                   key={item.href}
                   to={item.href}
-                  className="relative -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 active:scale-90 transition-transform"
+                  className="relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px]"
                 >
-                  <Icon className="h-7 w-7 text-white" />
+                  {/* Active pill background */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="bottomNavPill"
+                      className="absolute inset-0 rounded-2xl bg-indigo-50/80"
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  <div className="relative z-10 flex flex-col items-center gap-0.5">
+                    <motion.div
+                      animate={isActive ? { scale: 1.1, y: -1 } : { scale: 1, y: 0 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    >
+                      <Icon className={cn(
+                        "h-5 w-5 transition-colors",
+                        isActive ? "text-indigo-600 stroke-[2.5]" : "text-zinc-400"
+                      )} />
+                    </motion.div>
+                    <span className={cn(
+                      "text-[10px] leading-tight transition-colors",
+                      isActive ? "font-semibold text-indigo-600" : "font-medium text-zinc-400"
+                    )}>
+                      {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
+                    </span>
+                  </div>
                 </Link>
               )
-            }
-
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-xl transition-all",
-                  isActive
-                    ? "text-indigo-600"
-                    : "text-zinc-400 hover:text-zinc-600"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 transition-all", isActive && "stroke-[2.5] scale-110")} />
-                <span className={cn(
-                  "text-xs transition-all",
-                  isActive ? "font-semibold" : "font-medium"
-                )}>
-                  {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
-                </span>
-              </Link>
-            )
-          })}
+            })}
+          </div>
         </div>
       </nav>
 
@@ -105,6 +128,7 @@ function DesktopSidebar() {
   const { t } = useI18n()
   const logout = useLogout()
   const navigate = useNavigate()
+  const { data: user } = useAuth()
 
   const handleLogout = () => {
     logout.mutate(undefined, {
@@ -113,11 +137,16 @@ function DesktopSidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col border-r bg-white/80 backdrop-blur-xl z-40">
-      <div className="flex h-16 items-center border-b px-6">
-        <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">💰 Money Keeper</span>
+    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col bg-white/70 backdrop-blur-2xl border-r border-gray-200/40 z-40">
+      {/* Logo */}
+      <div className="flex h-16 items-center px-6 border-b border-gray-100">
+        <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          💰 Money Keeper
+        </span>
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+
+      {/* Nav items */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {bottomNavItems.map((item) => {
           const isActive = location.pathname.startsWith(item.href)
           const Icon = item.icon
@@ -126,23 +155,47 @@ function DesktopSidebar() {
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                  ? "text-white"
+                  : "text-zinc-500 hover:text-zinc-800 hover:bg-gray-100/60"
               )}
             >
-              <Icon className="h-4 w-4" />
-              {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
+              {/* Active gradient bg */}
+              {isActive && (
+                <motion.div
+                  layoutId="sidebarPill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20"
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
+              )}
+              <Icon className={cn("h-4 w-4 relative z-10", isActive ? "text-white" : "")} />
+              <span className="relative z-10">{t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}</span>
             </Link>
           )
         })}
       </nav>
-      <div className="border-t p-4">
+
+      {/* User info + Logout */}
+      <div className="border-t border-gray-100 p-3 space-y-1">
+        {/* User info */}
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2 mb-1">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
+              <User className="h-4 w-4 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-gray-800 truncate">
+                {user.full_name || user.email?.split('@')[0]}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
+            </div>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           disabled={logout.isPending}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 hover:bg-red-50 hover:text-red-500 transition-all"
         >
           <LogOut className="h-4 w-4" />
           {t.auth.logout}
