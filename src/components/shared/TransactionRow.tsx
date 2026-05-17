@@ -73,13 +73,13 @@ export function TransactionRow({
         'flex items-center justify-between transition-colors cursor-pointer',
         isCompact
           ? 'py-2.5 border-b border-gray-100 last:border-0'
-          : 'p-3 rounded-lg border hover:bg-muted/50'
+          : 'p-4 rounded-2xl border-0 shadow-sm hover:shadow-md transition-all bg-white'
       )}
     >
       <div className={cn('flex items-center min-w-0', isCompact ? 'gap-2.5 flex-1' : 'gap-3')}>
         <div
           className={cn(
-            'rounded-full flex items-center justify-center shrink-0',
+            'rounded-xl flex items-center justify-center shrink-0',
             isCompact ? 'w-9 h-9 text-base' : 'w-10 h-10 text-lg'
           )}
           style={{ backgroundColor: (category?.color || '#6B7280') + (isCompact ? '15' : '20') }}

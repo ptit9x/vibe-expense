@@ -48,13 +48,13 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
 
   return (
     <div className="bg-white mt-2 px-5 py-4" ref={ref}>
-      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">{t.transaction.category}</p>
+      <p className="text-xs text-gray-500 font-medium mb-2">{t.transaction.category}</p>
 
       <button
         onClick={() => setOpen(!open)}
         className={cn(
           "w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all",
-          open ? "border-blue-400 bg-blue-50/50" : "border-gray-200 bg-gray-50"
+          open ? "border-indigo-400 bg-indigo-50/50" : "border-gray-200 bg-gray-50"
         )}
       >
         <div className="flex items-center gap-2.5">
@@ -70,7 +70,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
       </button>
 
       {open && (
-        <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm max-h-64 overflow-y-auto">
+        <div className="mt-2 border border-gray-200 rounded-2xl overflow-hidden shadow-sm max-h-64 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 space-y-2">
               {[1, 2, 3, 4].map(i => (
@@ -94,14 +94,14 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
                       className={cn(
                         "flex-1 flex items-center gap-2.5 px-4 py-3 text-left transition-colors",
                         isParentSelected
-                          ? "bg-blue-50 text-blue-600"
+                          ? "bg-indigo-50 text-indigo-600"
                           : "text-gray-700 hover:bg-gray-50"
                       )}
                     >
                       <span className="text-base">{parent.icon}</span>
                       <span className="text-sm font-medium">{parent.name}</span>
                       {isParentSelected && (
-                        <svg className="h-4 w-4 ml-auto text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="h-4 w-4 ml-auto text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       )}
@@ -129,14 +129,14 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
                         className={cn(
                           "w-full flex items-center gap-2.5 pl-10 pr-4 py-2.5 text-left border-b border-gray-50 last:border-0 transition-colors",
                           isSubSelected
-                            ? "bg-blue-50 text-blue-600"
+                            ? "bg-indigo-50 text-indigo-600"
                             : "text-gray-600 hover:bg-gray-50"
                         )}
                       >
                         <span className="text-sm">{sub.icon}</span>
                         <span className="text-sm">{sub.name}</span>
                         {isSubSelected && (
-                          <svg className="h-3.5 w-3.5 ml-auto text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="h-3.5 w-3.5 ml-auto text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         )}

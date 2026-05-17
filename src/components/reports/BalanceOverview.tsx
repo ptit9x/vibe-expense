@@ -36,7 +36,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
       <p className="text-3xl font-bold text-white mb-2">
         {showBalance ? (
           <>
-            {formatCurrency(balance)} {currency.symbol}
+            {currency.symbol}{formatCurrency(balance)}
           </>
         ) : (
           <span className="text-white/40">••••••••</span>
@@ -48,7 +48,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
         <p className="text-white font-medium">
           {showBalance ? (
             <>
-              {formatCurrency(debt)} {currency.symbol}
+              {currency.symbol}{formatCurrency(debt)}
             </>
           ) : (
             <span className="text-white/40">••••</span>

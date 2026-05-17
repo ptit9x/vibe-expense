@@ -46,26 +46,13 @@ export default function Profile() {
       <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">{t.settings.settings}</h1>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMode}
-              className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30 transition-colors"
-              aria-label={resolvedMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {resolvedMode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 bg-white/20 rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-            >
-              {t.auth.logout}
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-            <span className="text-2xl">👤</span>
+          <div className="w-16 h-16 rounded-full p-[3px] bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500">
+            <div className="w-full h-full rounded-full bg-white/20 flex items-center justify-center">
+              <span className="text-2xl">👤</span>
+            </div>
           </div>
           <div>
             <p className="text-lg font-semibold text-white">{displayName}</p>
@@ -76,7 +63,33 @@ export default function Profile() {
 
       <div className="px-4 py-3">
         <p className="text-sm font-medium text-gray-500 mb-3 px-1">{t.settings.settings}</p>
-        <div className="bg-white rounded-xl divide-y divide-gray-100">
+        <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
+          {/* Dark mode toggle — first item */}
+          <button
+            onClick={toggleMode}
+            className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all"
+            aria-label={resolvedMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: '#F59E0B15' }}
+              >
+                {resolvedMode === 'dark' ? (
+                  <Sun className="h-5 w-5" style={{ color: '#F59E0B' }} />
+                ) : (
+                  <Moon className="h-5 w-5" style={{ color: '#F59E0B' }} />
+                )}
+              </div>
+              <div className="text-left">
+                <p className="text-gray-900 font-medium">
+                  {resolvedMode === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </button>
+
           {FEATURES.map((feature, index) => {
             const Icon = feature.icon
             const label = t.settings[feature.labelKey.split('.')[1] as keyof typeof t.settings] as string
@@ -85,11 +98,11 @@ export default function Profile() {
               <Link
                 key={index}
                 to={feature.href}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: feature.color + '15' }}
                   >
                     <Icon className="h-5 w-5" style={{ color: feature.color }} />
@@ -98,7 +111,7 @@ export default function Profile() {
                     <p className="text-gray-900 font-medium">{label}</p>
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-300" />
+                <ChevronRight className="h-5 w-5 text-gray-400" />
               </Link>
             )
           })}
@@ -108,18 +121,28 @@ export default function Profile() {
             href={FEEDBACK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-pink-50">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-pink-50">
                 <MessageSquare className="h-5 w-5 text-pink-500" />
               </div>
               <div className="text-left">
                 <p className="text-gray-900 font-medium">{t.settings.feedback}</p>
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-gray-300" />
+            <ChevronRight className="h-5 w-5 text-gray-400" />
           </a>
+        </div>
+
+        {/* Logout — separate danger card */}
+        <div className="mt-3 bg-white rounded-2xl shadow-sm">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center p-3.5 text-red-500 font-medium hover:bg-red-50 rounded-2xl transition-all"
+          >
+            {t.auth.logout}
+          </button>
         </div>
       </div>
     </div>

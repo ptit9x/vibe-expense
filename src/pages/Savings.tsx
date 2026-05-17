@@ -70,7 +70,7 @@ export default function Savings() {
           <h1 className="text-3xl font-bold tracking-tight">{t.savings.savings}</h1>
           <p className="text-muted-foreground">{t.savings.trackGoals}</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl" onClick={() => setShowForm(!showForm)}>
           <Plus className="mr-2 h-4 w-4" />
           {t.savings.addGoal}
         </Button>
@@ -78,7 +78,7 @@ export default function Savings() {
 
       {/* Summary */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+        <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-white/80 flex items-center gap-2">
               <PiggyBank className="h-5 w-5" />
@@ -94,7 +94,7 @@ export default function Savings() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
+        <Card className="bg-gradient-to-br from-rose-500 to-pink-600 text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-white/80 flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -179,7 +179,7 @@ export default function Savings() {
             const remaining = goal.target_amount - goal.current_amount
 
             return (
-              <Card key={goal.id} className="relative overflow-hidden">
+              <Card key={goal.id} className="relative overflow-hidden rounded-2xl border-0 shadow-md">
                 <div
                   className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
                   style={{ backgroundColor: goal.color }}
@@ -203,7 +203,7 @@ export default function Savings() {
                         {currency.symbol}{formatCurrency(goal.target_amount)}
                       </span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
                         style={{

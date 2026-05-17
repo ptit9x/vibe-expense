@@ -29,10 +29,11 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
 
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm relative group cursor-pointer active:scale-[0.99] transition-transform"
+      className="relative overflow-hidden bg-white rounded-2xl shadow-sm transition-all hover:shadow-md group cursor-pointer"
       onClick={() => navigate(`/transactions?wallet_id=${wallet.id}`)}
     >
-      <div className="p-4 pb-2">
+      <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: wallet.color }} />
+      <div className="p-4 pb-2 pl-5">
         <div className="flex items-center justify-between">
           {/* Left: Icon + Name + Type */}
           <div className="flex items-center gap-3 min-w-0">
@@ -76,7 +77,7 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
 
       {/* Actions - stop propagation so they don't trigger navigation */}
       <div
-        className="flex items-center gap-1 px-4 pb-3 pt-1 border-t border-gray-50"
+        className="flex items-center gap-1 px-4 pb-3 pt-1 border-t border-gray-100/50"
         onClick={(e) => e.stopPropagation()}
       >
         <button
