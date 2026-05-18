@@ -44,7 +44,8 @@ function computeExpenseBreakdown(transactions: Transaction[], otherCategoryName:
 export default function Dashboard() {
   const { data: user } = useAuth()
   const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
-  const { data: transactions, error: txError, refetch: refetchTransactions } = useTransactions(currentMonth)
+  // Fetch 12 months for chart + expense breakdown
+  const { data: allTransactions, error: txError, refetch: refetchTransactions } = useTransactions(null)
   const { data: wallets, error: walletError, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
 
@@ -62,13 +63,19 @@ export default function Dashboard() {
   }
 
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
-  const currentTransactions = transactions || []
-  const income = currentTransactions.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0)
-  const expense = currentTransactions.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0)
+  const allTxns = allTransactions || []
 
-  const recentTransactions: TransactionItem[] = currentTransactions.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  const monthlyData = computeMonthlyData(currentTransactions, 6, LOCALE_MAP[language])
-  const expenseBreakdown = computeExpenseBreakdown(currentTransactions, t.dashboard.otherCategory)
+  // Filter current month for summary cards
+  const currentMonthTxns = allTxns.filter(t => t.transaction_date?.startsWith(currentMonth))
+  const income = currentMonthTxns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0)
+  const expense = currentMonthTxns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0)
+
+  // Recent transactions from current month only
+  const recentTransactions: TransactionItem[] = currentMonthTxns.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
+  // Chart uses all 12 months of data for meaningful bars
+  const monthlyData = computeMonthlyData(allTxns, 6, LOCALE_MAP[language])
+  // Expense breakdown for current month
+  const expenseBreakdown = computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory)
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 

@@ -83,7 +83,7 @@ export default function Profile() {
               </div>
               <div className="text-left">
                 <p className="text-gray-900 font-medium">
-                  {resolvedMode === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                  {resolvedMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </p>
               </div>
             </div>

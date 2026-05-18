@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import AuthLayout from './layouts/AuthLayout'
 import MainLayout from './layouts/MainLayout'
 
@@ -39,6 +40,15 @@ import { useAuthListener } from '@/hooks/useAuth'
 import './App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 
+/** Scroll to top on route change */
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -51,8 +61,10 @@ function AppContent() {
   useAuthListener()
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <Routes>
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
           {/* Auth Routes - Shared mobile-first layout */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
@@ -93,6 +105,7 @@ function AppContent() {
         </Routes>
       <Toaster />
     </Suspense>
+    </>
   )
 }
 
