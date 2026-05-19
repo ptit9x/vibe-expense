@@ -366,6 +366,12 @@ export const translations = {
       feedback: 'Góp ý',
       notifications: 'Thông báo',
       exportFailed: 'Xuất dữ liệu thất bại',
+      avatarUpdated: 'Cập nhật ảnh đại diện thành công',
+      avatarTooLarge: 'File quá lớn. Tối đa 2MB.',
+      editProfile: 'Chỉnh sửa thông tin',
+      fullName: 'Họ và tên',
+      updateProfile: 'Cập nhật',
+      profileUpdated: 'Cập nhật thông tin thành công',
     },
     // Wallet card
     walletCard: {
@@ -847,6 +853,12 @@ export const translations = {
       feedback: 'Feedback',
       notifications: 'Notifications',
       exportFailed: 'Failed to export data',
+      avatarUpdated: 'Avatar updated successfully',
+      avatarTooLarge: 'File too large. Max 2MB.',
+      editProfile: 'Edit Profile',
+      fullName: 'Full Name',
+      updateProfile: 'Update',
+      profileUpdated: 'Profile updated successfully',
     },
     // Wallet card
     walletCard: {

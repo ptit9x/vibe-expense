@@ -16,10 +16,17 @@ export function useAuth() {
           // Check if email is confirmed
           const emailConfirmed = !!user.email_confirmed_at || !!user.confirmed_at
 
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('avatar_url, full_name')
+            .eq('id', user.id)
+            .single()
+
           return {
             id: user.id,
             email: user.email || '',
-            full_name: user.user_metadata?.full_name || null,
+            full_name: profile?.full_name || user.user_metadata?.full_name || null,
+            avatar_url: profile?.avatar_url || null,
             confirmed: emailConfirmed,
           }
         } catch {
@@ -37,6 +44,7 @@ export function useAuth() {
           id: 'dev-user',
           email: 'dev@example.com',
           full_name: 'Dev User',
+          avatar_url: null,
           confirmed: true,
         }
       }
@@ -90,6 +98,7 @@ export function useLogin() {
           id: data.user.id,
           email: data.user.email || '',
           full_name: data.user.user_metadata?.full_name || null,
+          avatar_url: null,
           confirmed: emailConfirmed,
         }
       }
@@ -106,6 +115,7 @@ export function useLogin() {
           id: mockUser.id,
           email: mockUser.email,
           full_name: mockUser.full_name,
+          avatar_url: null,
           confirmed: true,
         }
       }
@@ -141,6 +151,7 @@ export function useRegister() {
           id: data.user.id,
           email: data.user.email || '',
           full_name: full_name,
+          avatar_url: null,
           confirmed: false, // Registration doesn't auto-confirm email
         }
       }
@@ -154,6 +165,7 @@ export function useRegister() {
         id: crypto.randomUUID(),
         email,
         full_name,
+        avatar_url: null,
         confirmed: true, // Mock always confirmed
       }
       localStorage.setItem('token', 'mock-jwt-token')
@@ -186,7 +198,7 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (updates: { currency?: string; full_name?: string }) => {
+    mutationFn: async (updates: { currency?: string; full_name?: string; avatar_url?: string }) => {
       if (!isSupabaseConfigured()) {
         return { success: true }
       }

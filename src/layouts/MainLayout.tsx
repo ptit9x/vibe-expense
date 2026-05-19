@@ -9,9 +9,9 @@ import {
   BarChart3,
   Menu,
   LogOut,
-  User,
 } from 'lucide-react'
 
+import { Avatar } from '@/components/shared'
 import { cn } from '@/lib/utils'
 
 const bottomNavItems = [
@@ -181,9 +181,7 @@ function DesktopSidebar() {
         {/* User info */}
         {user && (
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
-              <User className="h-4 w-4 text-white" />
-            </div>
+            <Avatar src={user.avatar_url} name={user.full_name || user.email?.split('@')[0]} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-gray-800 truncate">
                 {user.full_name || user.email?.split('@')[0]}

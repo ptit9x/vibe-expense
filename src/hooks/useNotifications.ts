@@ -39,7 +39,7 @@ export function useNotificationSettings() {
 
         const { data, error } = await supabase
           .from('notification_settings')
-          .select('*')
+          .select('user_id, daily_reminder, budget_alert, debt_reminder, reminder_time, push_enabled')
           .eq('user_id', user.id)
           .maybeSingle()
 

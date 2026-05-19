@@ -178,6 +178,7 @@ export interface AuthUser {
   id: UUID
   email: string
   full_name: string | null
+  avatar_url: string | null
   confirmed: boolean  // email confirmed flag
 }
 

@@ -31,6 +31,9 @@ export default defineConfig({
           if (id.includes('node_modules/framer-motion/')) {
             return 'motion'
           }
+          if (id.includes('node_modules/heic2any/')) {
+            return 'heic2any'
+          }
         },
       },
     },
