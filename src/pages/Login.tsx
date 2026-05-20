@@ -43,16 +43,16 @@ export default function Login() {
 
   return (
     <>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
         {t.loginPage.welcomeBack}
       </h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
         {t.loginPage.loginDescription}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-sm text-gray-500 font-medium mb-2 block">
+          <label className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-2 block">
             {t.auth.email}
           </label>
           <input
@@ -60,12 +60,12 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
-            className="w-full h-12 px-4 bg-gray-50/80 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
+            className="w-full h-12 px-4 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-500 font-medium mb-2 block">
+          <label className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-2 block">
             {t.auth.password}
           </label>
           <div className="relative">
@@ -74,7 +74,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.loginPage.enterPassword}
-              className="w-full h-12 px-4 pr-12 bg-gray-50/80 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
+              className="w-full h-12 px-4 pr-12 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
             />
             <button
               type="button"

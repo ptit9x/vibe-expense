@@ -50,20 +50,20 @@ export default function VerifyEmail() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 bg-white rounded-t-3xl px-5 py-8">
+      <div className="flex-1 bg-white dark:bg-[hsl(224,30%,11%)] rounded-t-3xl px-5 py-8">
         <div className="text-center">
           <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Mail className="h-10 w-10 text-blue-500" />
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             {t.verifyEmail.emailNotConfirmed}
           </h2>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
             {t.verifyEmail.subtitle}<br />
-            <span className="font-medium text-gray-700">{user?.email}</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">{user?.email}</span>
           </p>
-          <p className="text-sm text-gray-400 mb-8">
+          <p className="text-sm text-gray-400 dark:text-gray-500 mb-8">
             {t.verifyEmail.instruction}
           </p>
 
@@ -78,7 +78,7 @@ export default function VerifyEmail() {
 
             <button
               onClick={handleLogout}
-              className="w-full h-12 bg-gray-100 text-gray-700 font-medium text-base rounded-xl hover:bg-gray-200 transition-colors"
+              className="w-full h-12 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-medium text-base rounded-xl hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
             >
               {t.verifyEmail.logout}
             </button>

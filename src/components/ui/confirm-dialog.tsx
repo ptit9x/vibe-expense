@@ -32,15 +32,15 @@ export function ConfirmDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[320px] rounded-2xl p-6 gap-4">
         <DialogHeader className="gap-2">
-          <DialogTitle className="text-lg text-gray-900">{title}</DialogTitle>
-          <DialogDescription className="text-sm text-gray-500 leading-relaxed">
+          <DialogTitle className="text-lg text-gray-900 dark:text-gray-100">{title}</DialogTitle>
+          <DialogDescription className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             {description}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row gap-3 sm:gap-3">
           <button
             onClick={() => onOpenChange(false)}
-            className="flex-1 h-11 rounded-xl text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 active:scale-[0.98] transition-all"
+            className="flex-1 h-11 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 active:scale-[0.98] transition-all"
           >
             {cancelLabel}
           </button>
@@ -51,8 +51,8 @@ export function ConfirmDialog({
             }}
             className={`flex-1 h-11 rounded-xl text-sm font-semibold text-white active:scale-[0.98] transition-all ${
               variant === 'destructive'
-                ? 'bg-red-500 hover:bg-red-600 shadow-sm shadow-red-200'
-                : 'bg-blue-500 hover:bg-blue-600 shadow-sm shadow-blue-200'
+                ? 'bg-red-500 hover:bg-red-600 shadow-sm shadow-red-200 dark:shadow-red-900/30'
+                : 'bg-blue-500 hover:bg-blue-600 shadow-sm shadow-blue-200 dark:shadow-blue-900/30'
             }`}
           >
             {confirmLabel}

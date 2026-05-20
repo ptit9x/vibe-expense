@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
+import { useTheme } from '@/components/theme-provider'
 
 export interface MonthlyData {
   month: string
@@ -16,6 +17,13 @@ interface MonthlyChartProps {
 export function MonthlyChart({ data }: MonthlyChartProps) {
   const { t } = useI18n()
   const { currency, formatCurrency } = useUIStore()
+  const { resolvedMode } = useTheme()
+  const isDark = resolvedMode === 'dark'
+
+  const tickColor = isDark ? '#94A3B8' : '#9CA3AF'
+  const tooltipBg = isDark ? '#1e293b' : '#ffffff'
+  const tooltipColor = isDark ? '#f1f5f9' : '#1f2937'
+  const tooltipShadow = isDark ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)'
 
   return (
     <Card className="rounded-2xl border-0 shadow-md bg-white overflow-hidden">
@@ -43,7 +51,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                tick={{ fill: tickColor, fontSize: 12 }}
               />
               <YAxis hide />
               <Tooltip
@@ -51,9 +59,11 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
                 contentStyle={{
                   borderRadius: '12px',
                   border: 'none',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  boxShadow: tooltipShadow,
                   fontSize: '13px',
                   padding: '8px 12px',
+                  backgroundColor: tooltipBg,
+                  color: tooltipColor,
                 }}
               />
               <Bar

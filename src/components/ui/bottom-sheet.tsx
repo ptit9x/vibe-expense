@@ -34,21 +34,21 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 z-60 bg-black/50" onClick={handleClose}>
       <div
-        className="absolute bottom-20 left-0 right-0 bg-white rounded-t-3xl animate-slide-up flex flex-col"
+        className="absolute bottom-20 left-0 right-0 bg-white dark:bg-[hsl(224,30%,11%)] rounded-t-3xl animate-slide-up flex flex-col"
         style={{ maxHeight: '70vh' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 shrink-0">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
           <button
             onClick={handleClose}
-            className="p-1 text-gray-400 hover:text-gray-600"
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -62,7 +62,7 @@ export function BottomSheet({
 
         {/* Submit Button */}
         {submitLabel && onSubmit && (
-          <div className="px-5 pb-6 pt-3 shrink-0 border-t border-gray-100">
+          <div className="px-5 pb-6 pt-3 shrink-0 border-t border-gray-100 dark:border-white/10">
             <Button
               type="submit"
               onClick={onSubmit}
@@ -86,7 +86,7 @@ interface BottomSheetFormFieldProps {
 export function BottomSheetFormField({ label, children }: BottomSheetFormFieldProps) {
   return (
     <div className="mb-4">
-      <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">
+      <label className="text-sm text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wide mb-2 block">
         {label}
       </label>
       {children}
@@ -104,7 +104,7 @@ export function IconPicker({ value, onChange, options }: IconPickerProps) {
   return (
     <div className="flex gap-3">
       {/* Selected preview */}
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-blue-50 sticky top-0 self-start">
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-blue-50 dark:bg-blue-900/30 sticky top-0 self-start">
         {value}
       </div>
       <div className="flex flex-wrap gap-1">
@@ -117,7 +117,7 @@ export function IconPicker({ value, onChange, options }: IconPickerProps) {
               "w-11 h-11 rounded-lg flex items-center justify-center text-base transition-all",
               value === icon
                 ? "bg-blue-500 text-white shadow-sm"
-                : "bg-gray-100 hover:bg-gray-200"
+                : "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20"
             )}
           >
             {icon}
@@ -153,7 +153,7 @@ export function ColorPicker({ value, onChange, options, previewIcon = '📦' }: 
             onClick={() => onChange(color)}
             className={cn(
               "w-11 h-11 rounded-lg flex items-center justify-center text-xs text-white font-bold transition-all",
-              value === color ? "ring-2 ring-offset-1 ring-gray-400 scale-110" : ""
+              value === color ? "ring-2 ring-offset-1 ring-gray-400 dark:ring-gray-500 dark:ring-offset-[hsl(224,30%,11%)] scale-110" : ""
             )}
             style={{ backgroundColor: color }}
           >

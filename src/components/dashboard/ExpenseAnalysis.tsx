@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PieChart, Pie, ResponsiveContainer, Sector, type PieSectorDataItem } from 'recharts'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
+import { useTheme } from '@/components/theme-provider'
 
 const COLORS = ['#6366F1', '#F43F5E', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#3B82F6', '#14B8A6']
 
@@ -36,18 +37,24 @@ interface SectorProps {
 
 function PieSector(props: SectorProps) {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, percent, name, value, isActive, currency, formatCurrency } = props
+  const { resolvedMode } = useTheme()
+  const isDark = resolvedMode === 'dark'
+
+  const textPrimary = isDark ? '#F1F5F9' : '#374151'
+  const textSecondary = isDark ? '#94A3B8' : '#6B7280'
+  const textTertiary = isDark ? '#64748B' : '#9CA3AF'
 
   return (
     <g>
       {isActive && (
         <>
-          <text x={cx} y={cy - 8} textAnchor="middle" fill="#374151" fontSize={13} fontWeight={600}>
+          <text x={cx} y={cy - 8} textAnchor="middle" fill={textPrimary} fontSize={13} fontWeight={600}>
             {name}
           </text>
-          <text x={cx} y={cy + 10} textAnchor="middle" fill="#6B7280" fontSize={12}>
+          <text x={cx} y={cy + 10} textAnchor="middle" fill={textSecondary} fontSize={12}>
             {currency.symbol}{formatCurrency(value)}
           </text>
-          <text x={cx} y={cy + 24} textAnchor="middle" fill="#9CA3AF" fontSize={11}>
+          <text x={cx} y={cy + 24} textAnchor="middle" fill={textTertiary} fontSize={11}>
             ({(percent * 100).toFixed(0)}%)
           </text>
         </>

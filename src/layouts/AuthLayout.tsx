@@ -84,7 +84,7 @@ export default function AuthLayout() {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl md:shadow-xl px-6 py-8 md:px-8 md:py-10">
+        <div className="bg-white dark:bg-[hsl(224,30%,11%)] rounded-2xl md:rounded-3xl shadow-2xl md:shadow-xl px-6 py-8 md:px-8 md:py-10">
           <Outlet />
         </div>
 

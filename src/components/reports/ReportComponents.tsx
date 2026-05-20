@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useTheme } from '@/components/theme-provider'
 
 interface ReportFiltersProps {
   children: ReactNode
@@ -34,7 +35,7 @@ export function SelectFilter({ value, onChange, options, placeholder }: SelectFi
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-10 pl-3 pr-8 bg-gray-50 rounded-lg text-sm appearance-none"
+        className="w-full h-10 pl-3 pr-8 bg-gray-50 rounded-lg text-sm text-gray-900 appearance-none"
       >
         <option value="all">{placeholder || defaultPlaceholder}</option>
         {options.map(opt => (
@@ -73,6 +74,14 @@ interface MonthlyBarChartProps {
 
 export function MonthlyBarChart({ data, color = '#3B82F6' }: MonthlyBarChartProps) {
   const { currency, formatCurrency } = useUIStore()
+  const { resolvedMode } = useTheme()
+  const isDark = resolvedMode === 'dark'
+
+  const tickColor = isDark ? '#94A3B8' : '#9CA3AF'
+  const tooltipBg = isDark ? '#1e293b' : '#ffffff'
+  const tooltipColor = isDark ? '#f1f5f9' : '#1f2937'
+  const tooltipShadow = isDark ? '0 2px 8px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.1)'
+
   return (
     <div className="h-48">
       <ResponsiveContainer width="100%" height="100%">
@@ -81,12 +90,12 @@ export function MonthlyBarChart({ data, color = '#3B82F6' }: MonthlyBarChartProp
             dataKey="month" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#9CA3AF', fontSize: 11 }}
+            tick={{ fill: tickColor, fontSize: 11 }}
           />
           <YAxis hide />
           <Tooltip 
             formatter={(value: unknown) => [currency.symbol + formatCurrency(Number(value)), '']}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: tooltipShadow, backgroundColor: tooltipBg, color: tooltipColor }}
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {data.map((_: unknown, index: number) => (
