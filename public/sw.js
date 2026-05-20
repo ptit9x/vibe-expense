@@ -45,8 +45,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Vibe Expense'
   const options = {
     body: data.body || 'Bạn có thông báo mới',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: '/icons/logo.png',
+    badge: '/icons/logo.png',
     data: {
       url: data.url || '/dashboard',
     },
