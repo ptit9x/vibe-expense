@@ -199,3 +199,16 @@ export interface AuthResponse {
     expires_at: number
   }
 }
+
+// ===== In-App Notifications =====
+
+export interface AppNotification {
+  id: UUID
+  user_id: UUID
+  title: string
+  body: string
+  type: 'info' | 'warning' | 'success' | 'budget_alert' | 'debt_reminder'
+  is_read: boolean
+  link_url: string | null
+  created_at: DateString
+}

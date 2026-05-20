@@ -459,27 +459,15 @@ export const translations = {
     passwordSettings: {
       changePassword: 'Đổi mật khẩu',
     },
-    // Notification Settings
-    notificationSettings: {
+    // Notifications
+    notifications: {
       title: '🔔 Thông báo',
-      browserNotSupported: 'Trình duyệt không hỗ trợ',
-      browserNotSupportedDesc: 'Hãy cài app lên điện thoại để nhận thông báo',
-      pushNotification: 'Push Notification',
-      enabled: 'Đang bật',
-      disabled: 'Đang tắt',
-      blocked: 'Đã bị chặn — kiểm tra cài đặt trình duyệt',
-      permissionNotGranted: 'Chưa cấp quyền',
-      pushEnabled: 'Đã bật thông báo',
-      pushDisabled: 'Đã tắt thông báo',
-      dailyReminder: 'Nhắc nhở hàng ngày',
-      dailyReminderDesc: 'Nhắc nhập giao dịch lúc',
-      budgetAlert: 'Cảnh báo ngân sách',
-      budgetAlertDesc: 'Khi chi tiêu đạt 80% ngân sách',
-      debtReminder: 'Nhắc vay nợ',
-      debtReminderDesc: 'Nhắc thu nợ và trả nợ',
-      reminderTime: 'Giờ nhắc nhở',
-      reminderTimeDesc: 'Thời gian nhận thông báo hàng ngày',
-      tip: '💡 Mẹo: Cài app lên màn hình chính (Add to Home Screen) để nhận thông báo tốt nhất. Trên iPhone, mở Safari → chia sẻ → Thêm vào MH chính.',
+      unread: 'chưa đọc',
+      empty: 'Không có thông báo',
+      emptyDesc: 'Các thông báo sẽ xuất hiện ở đây khi bạn có cập nhật.',
+      markAllRead: 'Đánh dấu tất cả đã đọc',
+      markRead: 'Đánh dấu đã đọc',
+      delete: 'Xóa',
     },
     // Auth errors
     authErrors: {
@@ -946,27 +934,15 @@ export const translations = {
     passwordSettings: {
       changePassword: 'Change Password',
     },
-    // Notification Settings
-    notificationSettings: {
+    // Notifications
+    notifications: {
       title: '🔔 Notifications',
-      browserNotSupported: 'Browser not supported',
-      browserNotSupportedDesc: 'Install the app on your phone to receive notifications',
-      pushNotification: 'Push Notification',
-      enabled: 'Enabled',
-      disabled: 'Disabled',
-      blocked: 'Blocked — check browser settings',
-      permissionNotGranted: 'Permission not granted',
-      pushEnabled: 'Notifications enabled',
-      pushDisabled: 'Notifications disabled',
-      dailyReminder: 'Daily Reminder',
-      dailyReminderDesc: 'Remind to log transactions at',
-      budgetAlert: 'Budget Alert',
-      budgetAlertDesc: 'When spending reaches 80% of budget',
-      debtReminder: 'Debt Reminder',
-      debtReminderDesc: 'Remind to collect and repay debts',
-      reminderTime: 'Reminder Time',
-      reminderTimeDesc: 'Time to receive daily notifications',
-      tip: '💡 Tip: Install the app to your home screen (Add to Home Screen) for the best notification experience. On iPhone, open Safari → share → Add to Home Screen.',
+      unread: 'unread',
+      empty: 'No notifications',
+      emptyDesc: 'Notifications will appear here when you have updates.',
+      markAllRead: 'Mark all as read',
+      markRead: 'Mark as read',
+      delete: 'Delete',
     },
     // Auth errors
     authErrors: {

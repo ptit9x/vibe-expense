@@ -28,7 +28,7 @@ const ExportDataPage = lazy(() => import('./pages/ExportData'))
 const PasswordSettingsPage = lazy(() => import('./pages/PasswordSettings'))
 const CategoriesPage = lazy(() => import('./pages/Categories'))
 const SavingsPage = lazy(() => import('./pages/Savings'))
-const NotificationSettingsPage = lazy(() => import('./pages/NotificationSettings'))
+const NotificationsPage = lazy(() => import('./pages/Notifications'))
 
 // Error pages (lazy loaded)
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -95,7 +95,7 @@ function AppContent() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
-            <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Error Pages */}

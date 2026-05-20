@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, useLogout } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
+import { useUnreadNotificationCount } from '@/hooks/useAppNotifications'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -9,6 +10,7 @@ import {
   BarChart3,
   Menu,
   LogOut,
+  Bell,
 } from 'lucide-react'
 
 import { Avatar } from '@/components/shared'
@@ -129,6 +131,7 @@ function DesktopSidebar() {
   const logout = useLogout()
   const navigate = useNavigate()
   const { data: user } = useAuth()
+  const { data: unreadCount } = useUnreadNotificationCount()
 
   const handleLogout = () => {
     logout.mutate(undefined, {
@@ -139,10 +142,21 @@ function DesktopSidebar() {
   return (
     <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col bg-white dark:bg-[hsl(224,30%,11%)] backdrop-blur-2xl border-r border-gray-200 dark:border-[hsl(224,25%,18%)] z-40">
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-gray-100">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-gray-100">
         <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
           💰 Vibe Expense
         </span>
+        <Link
+          to="/notifications"
+          className="relative p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+        >
+          <Bell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          {unreadCount && unreadCount > 0 ? (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          ) : null}
+        </Link>
       </div>
 
       {/* Nav items */}

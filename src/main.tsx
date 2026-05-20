@@ -5,12 +5,8 @@ import { ThemeProvider } from './components/theme-provider'
 import { I18nProvider } from './lib/i18n'
 import './index.css'
 import App from './App.tsx'
-import { registerServiceWorker } from './lib/notifications'
 
 const queryClient = new QueryClient()
-
-// Register service worker for PWA + push notifications
-registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

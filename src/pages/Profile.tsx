@@ -19,7 +19,7 @@ const FEATURES = [
   { icon: DollarSign, labelKey: 'settings.currency', href: '/settings/currency', color: '#10B981' },
   { icon: Tags, labelKey: 'settings.categories', href: '/categories', color: '#F59E0B' },
   { icon: Download, labelKey: 'settings.export', href: '/settings/export', color: '#EF4444' },
-  { icon: Bell, labelKey: 'settings.notifications', href: '/settings/notifications', color: '#06B6D4' },
+  { icon: Bell, labelKey: 'settings.notifications', href: '/notifications', color: '#06B6D4' },
 ]
 
 const FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScy98U6vpghurp-dkv5jKOnGlyUm3OkC05UoL82rSL17Biurg/viewform'
