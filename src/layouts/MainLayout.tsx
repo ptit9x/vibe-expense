@@ -141,7 +141,7 @@ function DesktopSidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-gray-100">
         <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-          💰 Money Keeper
+          💰 Vibe Expense
         </span>
       </div>
 

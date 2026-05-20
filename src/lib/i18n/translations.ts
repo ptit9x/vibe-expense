@@ -104,7 +104,7 @@ export const translations = {
     },
     // App
     app: {
-      appName: 'Money Keeper',
+      appName: 'Vibe Expense',
     },
     // Dashboard
     dashboard: {
@@ -591,7 +591,7 @@ export const translations = {
     },
     // App
     app: {
-      appName: 'Money Keeper',
+      appName: 'Vibe Expense',
     },
     // Dashboard
     dashboard: {
