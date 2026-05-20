@@ -55,7 +55,7 @@ export default function MainLayout() {
 
       {/* ── Bottom Nav (mobile) ── */}
       <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="bg-white/70 dark:bg-[hsl(224,30%,11%)]/80 backdrop-blur-2xl border-t border-gray-200/40 dark:border-[hsl(224,25%,18%)]/40">
+        <div className="bg-white dark:bg-[hsl(224,30%,11%)] backdrop-blur-2xl border-t border-gray-200/40 dark:border-[hsl(224,25%,18%)]/40">
           <div className="flex h-[72px] items-center justify-around px-2">
             {bottomNavItems.map((item) => {
               const isActive = location.pathname.startsWith(item.href)
@@ -137,7 +137,7 @@ function DesktopSidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col bg-white/70 dark:bg-[hsl(224,30%,11%)]/80 backdrop-blur-2xl border-r border-gray-200/40 dark:border-[hsl(224,25%,18%)]/40 z-40">
+    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col bg-white dark:bg-[hsl(224,30%,11%)] backdrop-blur-2xl border-r border-gray-200 dark:border-[hsl(224,25%,18%)] z-40">
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-gray-100">
         <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">

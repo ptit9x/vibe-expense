@@ -167,6 +167,9 @@ body {
 .dark .border-gray-200\/40 {
   border-color: hsl(224 25% 16%);
 }
+.dark .bg-white\/70 {
+  background-color: hsl(224 30% 11%);
+}
 .dark .border-gray-100\/50 {
   border-color: hsl(224 25% 15%);
 }
