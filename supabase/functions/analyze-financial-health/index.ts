@@ -145,7 +145,7 @@ async function callGemini(prompt: string, apiUrl: string): Promise<any> {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 2000,
+        maxOutputTokens: 4096,
         responseMimeType: 'application/json',
       },
     }),
@@ -157,7 +157,14 @@ async function callGemini(prompt: string, apiUrl: string): Promise<any> {
   }
 
   const data = await response.json()
-  const content = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  const candidate = data.candidates?.[0]
+
+  // Check if response was truncated
+  if (candidate?.finishReason === 'MAX_TOKENS') {
+    console.error('Gemini response truncated (MAX_TOKENS). Increasing maxOutputTokens recommended.')
+  }
+
+  const content = candidate?.content?.parts?.[0]?.text || ''
 
   return parseAIResponse(content)
 }
@@ -186,6 +193,36 @@ function parseAIResponse(content: string): any {
         } catch { /* continue */ }
         break
       }
+    }
+
+    // 2b) Truncated JSON repair: close open brackets/braces
+    if (depth > 0) {
+      let repaired = cleaned.slice(firstBrace)
+      // Remove trailing incomplete value (partial string, number, etc.)
+      repaired = repaired.replace(/[^,\[{]\s*$/, '')
+      // Count unclosed brackets
+      let opens = 0
+      let closeChars = ''
+      for (const ch of repaired) {
+        if (ch === '[' || ch === '{') opens++
+        else if (ch === ']' || ch === '}') opens--
+      }
+      // Close in reverse order: } before ] etc.
+      for (let i = opens; i > 0; i--) {
+        // Simple heuristic: close ] if last unclosed was [, } if last was {
+        closeChars += '}'
+      }
+      // More precise: track stack
+      const stack: string[] = []
+      for (const ch of repaired) {
+        if (ch === '[' || ch === '{') stack.push(ch === '[' ? ']' : '}')
+        else if ((ch === ']' || ch === '}') && stack.length > 0) stack.pop()
+      }
+      closeChars = stack.reverse().join('')
+      repaired += closeChars
+      try {
+        return JSON.parse(repaired)
+      } catch { /* continue */ }
     }
   }
 
