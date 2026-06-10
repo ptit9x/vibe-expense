@@ -502,6 +502,110 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
         ? `Sức khỏe tài chính ở mức trung bình (điểm ${score}/100, hạng ${grade}). Tiết kiệm ${metrics.savingsRate}% thu nhập. Cần cải thiện một số chỉ số.`
         : `Sức khỏe tài chính cần cải thiện (điểm ${score}/100, hạng ${grade}). Chi tiêu vượt thu nhập hoặc nợ quá cao. Hãy xem các đề xuất bên dưới.`
 
+  // Financial Runway
+  const avgMonthlyExpense = metrics.expenseToIncomeRatio > 0 && metrics.totalIncome > 0
+    ? metrics.totalExpense
+    : metrics.totalExpense
+  const runwayMonths = avgMonthlyExpense > 0 && metrics.netWorth > 0
+    ? Math.round(metrics.netWorth / avgMonthlyExpense)
+    : 0
+
+  const financial_runway = {
+    months: runwayMonths,
+    description: runwayMonths >= 6
+      ? `Với tài sản ròng ${fmtNetWorth}đ, bạn có thể sống ${runwayMonths} tháng không có thu nhập. Đủ an toàn!`
+      : runwayMonths >= 3
+        ? `Tài sản ròng ${fmtNetWorth}đ đủ cho ${runwayMonths} tháng. Nên tăng quỹ dự phòng lên 6 tháng.`
+        : runwayMonths > 0
+          ? `Chỉ có đủ cho ${runwayMonths} tháng. Ưu tiên xây quỹ dự phòng 3-6 tháng chi tiêu.`
+          : `Tài sản ròng chưa đủ để cover chi tiêu. Cần ưu tiên tích lũy ngay.`,
+  }
+
+  // Asset Allocation
+  const asset_allocation = {
+    emergency_fund: {
+      percentage: metrics.netWorth > 0 ? Math.min(Math.round((avgMonthlyExpense * 6 / metrics.netWorth) * 100), 80) : 100,
+      amount: Math.round(avgMonthlyExpense * 6),
+      description: 'Quỹ dự phòng 3-6 tháng chi tiêu, đặt tại tài khoản tiết kiệm dễ rút.',
+    },
+    investment_capital: {
+      percentage: metrics.netWorth > 0 ? Math.max(100 - Math.min(Math.round((avgMonthlyExpense * 6 / metrics.netWorth) * 100), 80), 20) : 0,
+      amount: metrics.netWorth > 0 ? Math.max(metrics.netWorth - avgMonthlyExpense * 6, 0) : 0,
+      description: 'Phần tài sản còn lại sau quỹ dự phòng, dùng để đầu tư sinh lời.',
+    },
+    description: metrics.netWorth > avgMonthlyExpense * 6
+      ? 'Tài sản ròng đủ mạnh. Đã có quỹ dự phòng, phần còn lại nên đầu tư sinh lời.'
+      : 'Ưu tiên xây quỹ dự phòng 3-6 tháng trước khi nghĩ đến đầu tư.',
+  }
+
+  // Investment Channels
+  const investment_channels = [
+    {
+      name: 'Tiết kiệm ngân hàng',
+      risk_level: 'low' as const,
+      suggested_percentage: 40,
+      description: 'Gửi tiết kiệm kỳ hạn 6-12 tháng, lãi suất ổn định, rủi ro gần như bằng 0.',
+    },
+    {
+      name: 'Chứng chỉ quỹ ETF',
+      risk_level: 'medium_low' as const,
+      suggested_percentage: 30,
+      description: 'Đầu tư thụ động qua quỹ chỉ số, phân tán rủi ro, phù hợp người mới.',
+    },
+    {
+      name: 'Vàng',
+      risk_level: 'medium_low' as const,
+      suggested_percentage: 20,
+      description: 'Tránh lạm phát, tính thanh khoản cao. Nên mua vàng miếng SJC hoặc quỹ vàng.',
+    },
+    {
+      name: 'Đầu tư phát triển bản thân',
+      risk_level: 'medium' as const,
+      suggested_percentage: 10,
+      description: 'Học kỹ năng mới, chứng chỉ chuyên môn — khoản đầu tư ROI cao nhất.',
+    },
+  ]
+
+  // Action Plan
+  const action_plan = [
+    {
+      icon: '🏦',
+      title: 'Xây quỹ dự phòng',
+      description: `Mục tiêu: ${Math.round(avgMonthlyExpense * 6).toLocaleString('vi-VN')}đ (6 tháng chi tiêu). Mở sổ tiết kiệm riêng.`,
+      timeline: '1-3 tháng',
+      priority: 'high' as const,
+    },
+    {
+      icon: '📊',
+      title: 'Theo dõi chi tiêu hàng tuần',
+      description: 'Kiểm tra báo cáo chi tiêu mỗi tuần để phát hiện khoản bất thường sớm.',
+      timeline: 'Liên tục',
+      priority: 'medium' as const,
+    },
+    {
+      icon: '🎯',
+      title: 'Đặt mục tiêu tiết kiệm',
+      description: 'Tạo mục tiêu tiết kiệm trong app để theo dõi tiến độ. Mục tiêu: 20% thu nhập.',
+      timeline: '1 tháng',
+      priority: 'high' as const,
+    },
+    metrics.totalDebt > 0
+      ? {
+          icon: '💳',
+          title: 'Lên kế hoạch trả nợ',
+          description: `Tổng nợ ${metrics.totalDebt.toLocaleString('vi-VN')}đ. Ưu tiên trả nợ lãi suất cao trước.`,
+          timeline: '3-6 tháng',
+          priority: 'high' as const,
+        }
+      : {
+          icon: '📈',
+          title: 'Bắt đầu đầu tư',
+          description: 'Tài chính ổn, không có nợ. Bắt đầu đầu tư nhỏ qua quỹ ETF hoặc vàng.',
+          timeline: '3-6 tháng',
+          priority: 'medium' as const,
+        },
+  ].filter(Boolean)
+
   return {
     overall_score: score,
     grade,
@@ -509,5 +613,9 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
     insights,
     recommendations,
     risk_flags,
+    financial_runway,
+    asset_allocation,
+    investment_channels,
+    action_plan,
   }
 }

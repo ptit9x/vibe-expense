@@ -230,6 +230,32 @@ export interface AIAnalysis {
   insights: { icon: string; title: string; description: string; severity: 'positive' | 'neutral' | 'negative' }[]
   recommendations: { icon: string; title: string; description: string; priority: 'high' | 'medium' | 'low' }[]
   risk_flags: { title: string; description: string; severity: 'warning' | 'danger' }[]
+  // New: Financial Runway & Deep Analysis
+  financial_runway: {
+    months: number            // how many months user can survive without income
+    description: string       // explanation in user's language
+  }
+  // New: Asset Allocation Strategy
+  asset_allocation: {
+    emergency_fund: { percentage: number; amount: number; description: string }
+    investment_capital: { percentage: number; amount: number; description: string }
+    description: string       // overall strategy description
+  }
+  // New: Investment Channels
+  investment_channels: {
+    name: string
+    risk_level: 'low' | 'medium_low' | 'medium'
+    suggested_percentage: number
+    description: string
+  }[]
+  // New: Action Plan (next steps)
+  action_plan: {
+    icon: string
+    title: string
+    description: string
+    timeline: string           // e.g. "1-3 tháng", "6-12 tháng"
+    priority: 'high' | 'medium' | 'low'
+  }[]
 }
 
 export interface FinancialReport {

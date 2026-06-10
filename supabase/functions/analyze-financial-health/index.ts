@@ -93,53 +93,100 @@ serve(async (req) => {
   }
 })
 
-const LANG_MAP: Record<string, { name: string; instruction: string }> = {
-  vi: { name: 'Vietnamese', instruction: 'All text must be in Vietnamese (Tiếng Việt)' },
-  en: { name: 'English', instruction: 'All text must be in English' },
+const LANG_MAP: Record<string, { name: string; instruction: string; advisorRole: string; sectionTitles: { overview: string; deepAnalysis: string; strategy: string } }> = {
+  vi: {
+    name: 'Vietnamese',
+    instruction: 'All text must be in Vietnamese (Tiếng Việt). Use Vietnamese number formatting (e.g. 1.000.000đ).',
+    advisorRole: 'Bạn là một chuyên gia Cố vấn Tài chính Cá nhân (Personal Financial Advisor) dày dạn kinh nghiệm.',
+    sectionTitles: {
+      overview: 'Đánh giá Tổng quan',
+      deepAnalysis: 'Phân tích Chuyên sâu',
+      strategy: 'Chiến lược Đầu tư',
+    },
+  },
+  en: {
+    name: 'English',
+    instruction: 'All text must be in English. Use standard number formatting.',
+    advisorRole: 'You are an experienced Personal Financial Advisor.',
+    sectionTitles: {
+      overview: 'Overview Assessment',
+      deepAnalysis: 'Deep Analysis',
+      strategy: 'Investment Strategy',
+    },
+  },
 }
 
 function buildPrompt(metrics: any, locale: string): string {
   const lang = LANG_MAP[locale] || LANG_MAP['vi']
-  return `You are a financial health analyst AI. Analyze the following personal finance metrics and return a JSON response.
 
-METRICS:
+  // Compute monthly average expense for runway hint
+  const monthlyData = metrics.monthlyExpenseComparison || []
+  const avgMonthlyExpense = monthlyData.length > 0
+    ? Math.round(monthlyData.reduce((s: number, m: any) => s + m.total, 0) / monthlyData.length)
+    : metrics.totalExpense
+
+  return `${lang.advisorRole}
+
+Analyze the following personal finance metrics comprehensively and return a JSON response.
+
+${lang.sectionTitles.overview} — Core Metrics:
 - Total Income: ${metrics.totalIncome}
 - Total Expense: ${metrics.totalExpense}
-- Total Debt (owing): ${metrics.totalDebt}
-- Total Lent: ${metrics.totalLent}
 - Total Assets (wallet balances): ${metrics.totalAssets}
 - Net Worth (assets - debt): ${metrics.netWorth}
-- Asset-to-Debt Ratio: ${metrics.assetToDebtRatio}%
+- Total Debt (owing): ${metrics.totalDebt}
+- Total Lent: ${metrics.totalLent}
 - Savings Rate: ${metrics.savingsRate}%
 - Expense-to-Income Ratio: ${metrics.expenseToIncomeRatio}%
 - Debt-to-Income Ratio: ${metrics.debtToIncomeRatio}%
+- Asset-to-Debt Ratio: ${metrics.assetToDebtRatio}%
 - Spending Trend: ${metrics.spendingTrend}
+- Average Monthly Expense (estimated): ${avgMonthlyExpense}
 - Top Expense Categories: ${JSON.stringify(metrics.topExpenseCategories?.slice(0, 3))}
 - Budget Usage: ${JSON.stringify(metrics.budgetUsage)}
 - Savings Goals: ${JSON.stringify(metrics.savingsGoalProgress)}
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no code fences):
+Return ONLY a valid JSON object (no markdown, no code fences) with this EXACT structure:
 {
   "overall_score": <number 0-100>,
   "grade": "<A+|A|B+|B|C+|C|D|F>",
-  "summary": "<2-3 sentence summary in ${lang.name}>",
+  "summary": "<2-3 sentence overall assessment in ${lang.name}>",
   "insights": [
-    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "severity": "<positive|neutral|negative>"}
+    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<specific detail with numbers in ${lang.name}>", "severity": "<positive|neutral|negative>"}
   ],
   "recommendations": [
-    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "priority": "<high|medium|low>"}
+    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<actionable advice in ${lang.name}>", "priority": "<high|medium|low>"}
   ],
   "risk_flags": [
-    {"title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "severity": "<warning|danger>"}
+    {"title": "<short title in ${lang.name}>", "description": "<risk detail in ${lang.name}>", "severity": "<warning|danger>"}
+  ],
+  "financial_runway": {
+    "months": <number — net worth divided by average monthly expense>,
+    "description": "<explanation in ${lang.name} about how long they can survive without income>"
+  },
+  "asset_allocation": {
+    "emergency_fund": {"percentage": <number 0-100>, "amount": <number>, "description": "<in ${lang.name}>"},
+    "investment_capital": {"percentage": <number 0-100>, "amount": <number>, "description": "<in ${lang.name}>"},
+    "description": "<overall allocation strategy explanation in ${lang.name}>"
+  },
+  "investment_channels": [
+    {"name": "<channel name in ${lang.name}>", "risk_level": "<low|medium_low|medium>", "suggested_percentage": <number>, "description": "<why this fits their profile, in ${lang.name}>"}
+  ],
+  "action_plan": [
+    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<specific action in ${lang.name}>", "timeline": "<e.g. 1-3 tháng / 6-12 tháng>", "priority": "<high|medium|low>"}
   ]
 }
 
 Rules:
 - Score 90-100: A+, 80-89: A, 70-79: B+, 60-69: B, 50-59: C+, 40-49: C, 25-39: D, below 25: F
 - Provide 3-6 insights, 2-4 recommendations, 0-3 risk flags
+- Provide 3-4 investment channels (low to medium risk: savings, index funds, gold, self-development, etc.)
+- Provide 3-5 action plan items with realistic timelines
+- financial_runway.months: net worth / avg monthly expense (0 if no expenses). If negative net worth, months = 0.
+- asset_allocation: percentages must add up to 100%. Emergency fund typically 3-6 months of expenses.
 - ${lang.instruction}
-- Be specific with numbers from the data
-- risk_flags array can be empty if no risks found`
+- Be specific with numbers from the data — reference actual amounts, percentages, and category names
+- risk_flags and investment_channels arrays can be empty if not applicable`
 }
 
 async function callGemini(prompt: string, apiUrl: string): Promise<any> {
@@ -153,7 +200,7 @@ async function callGemini(prompt: string, apiUrl: string): Promise<any> {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
         responseMimeType: 'application/json',
       },
     }),
