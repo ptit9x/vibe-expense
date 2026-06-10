@@ -224,18 +224,13 @@ async function fetchWallets() {
 async function callAnalysisEdgeFunction(
   metrics: FinancialHealthMetrics
 ): Promise<AIAnalysis> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session) throw new Error('No session')
-
+  // Let supabase.functions.invoke() handle auth automatically — it refreshes
+  // tokens and sets Authorization header. Manual override can send stale tokens
+  // which the gateway rejects (without CORS headers → browser CORS error).
   const { data, error } = await supabase.functions.invoke(
     'analyze-financial-health',
     {
       body: { metrics },
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-      },
     }
   )
 

@@ -8,18 +8,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const GEMINI_35_FLASH_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent'
 const GEMINI_25_FLASH_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:4173',
-  'https://vibe-expense.vercel.app',
-]
-
 function getCorsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get('Origin') || ''
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+  const origin = req.headers.get('Origin') || '*'
   return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   }
 }
 
