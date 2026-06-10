@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { FileSpreadsheet, FileText, Loader2, Calendar, Filter, Wallet, AlertCircle } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
-import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { toast } from 'sonner'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
@@ -27,14 +26,9 @@ export default function ExportData() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [walletFilter, setWalletFilter] = useState('all')
+  const [lastExportCount, setLastExportCount] = useState<number | null>(null)
 
-  // Current month for default fetch
-  const currentMonth = new Date().toISOString().slice(0, 7)
-  const { data: transactions, isLoading: txLoading, error: txError, refetch: refetchTx } = useTransactions(currentMonth)
   const { data: wallets, isLoading: walletsLoading, error: walletsError, refetch: refetchWallets } = useWallets()
-
-  const isLoading = txLoading || walletsLoading
-  const error = txError || walletsError
 
   // Fetch filtered transactions for export
   const fetchExportData = async (): Promise<Transaction[]> => {
@@ -61,14 +55,8 @@ export default function ExportData() {
       if (error) throw error
       return data as unknown as Transaction[]
     } else {
-      // Mock data - apply filters client-side
-      const mock = transactions || []
-      return mock.filter((t) => {
-        if (dateFrom && t.transaction_date < dateFrom) return false
-        if (dateTo && t.transaction_date > dateTo) return false
-        if (walletFilter !== 'all' && t.wallet_id !== walletFilter) return false
-        return true
-      })
+      // Mock data — no pre-fetch needed
+      return []
     }
   }
 
@@ -107,6 +95,7 @@ export default function ExportData() {
       }
 
       const rows = mapToRows(data)
+      setLastExportCount(rows.length)
 
       if (format === 'csv') {
         exportToCSV(rows)
@@ -190,7 +179,6 @@ export default function ExportData() {
   }
 
   const hasFilters = dateFrom || dateTo || walletFilter !== 'all'
-  const recordCount = transactions?.length || 0
 
   return (
     <PageTransition>
@@ -199,17 +187,17 @@ export default function ExportData() {
         <h1 className="text-xl font-semibold text-white">{t.settings.exportData}</h1>
       </PageHeader>
 
-      {isLoading ? (
+      {walletsLoading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
           <Loader2 className="h-8 w-8 animate-spin mb-3" />
           <p className="text-sm">{t.common.loading}</p>
         </div>
-      ) : error ? (
+      ) : walletsError ? (
         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
           <AlertCircle className="h-8 w-8 text-red-400 mb-3" />
           <p className="text-sm text-red-500 mb-3">{t.common.error}</p>
           <button
-            onClick={() => { void refetchTx(); void refetchWallets() }}
+            onClick={() => { void refetchWallets() }}
             className="text-sm text-indigo-500 font-medium hover:text-indigo-600"
           >
             {t.common.retry || 'Retry'}
@@ -284,7 +272,7 @@ export default function ExportData() {
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">{t.settings.availableRecords}</span>
             <span className="text-sm font-medium text-gray-900">
-              {recordCount} {t.settings.transactions}
+              {lastExportCount !== null ? `${lastExportCount} ` : ''}{t.settings.transactions}
             </span>
           </div>
         </div>

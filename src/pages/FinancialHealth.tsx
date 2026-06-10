@@ -8,7 +8,6 @@ import {
   ReportHistory,
 } from '@/components/financial-health'
 import {
-  useLatestFinancialReport,
   useFinancialReports,
   useGenerateReport,
 } from '@/hooks/useFinancialReports'
@@ -20,9 +19,11 @@ export default function FinancialHealth() {
   const reportIdParam = searchParams.get('report')
   const { t, language } = useI18n()
 
-  const { data: latestReport, isLoading: loadingLatest, refetch } = useLatestFinancialReport()
-  const { data: allReports = [], isLoading: loadingHistory } = useFinancialReports()
+  const { data: allReports = [], isLoading: loadingReports, refetch } = useFinancialReports()
   const generateReport = useGenerateReport()
+
+  // Derive latest from the list — no separate query needed
+  const latestReport = allReports[0] || null
 
   // If report ID in URL, find it in the list
   const activeReport = reportIdParam
@@ -95,7 +96,7 @@ export default function FinancialHealth() {
 
         {/* Content */}
         <div className="px-4 -mt-4 space-y-4">
-          {loadingLatest && !activeReport ? (
+          {loadingReports && !activeReport ? (
             <div className="bg-white rounded-2xl p-8 flex flex-col items-center justify-center">
               <RefreshCw className="h-8 w-8 text-gray-300 animate-spin mb-3" />
               <p className="text-sm text-gray-400">{t.financialHealth.loadingReport}</p>
@@ -129,7 +130,7 @@ export default function FinancialHealth() {
           )}
 
           {/* Report History */}
-          {!loadingHistory && allReports.length > 0 && (
+          {!loadingReports && allReports.length > 0 && (
             <ReportHistory reports={allReports} currentId={activeReport?.id} />
           )}
 

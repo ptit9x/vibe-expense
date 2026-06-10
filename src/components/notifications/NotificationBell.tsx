@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAppNotifications, useUnreadNotificationCount, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '@/hooks/useAppNotifications'
+import { useAppNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '@/hooks/useAppNotifications'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import type { NotificationType } from '@/types'
@@ -40,7 +40,7 @@ export default function NotificationBell() {
   const navigate = useNavigate()
 
   const { data: notifications = [] } = useAppNotifications()
-  const { data: unreadCount = 0 } = useUnreadNotificationCount()
+  const unreadCount = notifications.filter(n => !n.is_read).length
   const markRead = useMarkNotificationRead()
   const markAllRead = useMarkAllNotificationsRead()
   const deleteNotif = useDeleteNotification()

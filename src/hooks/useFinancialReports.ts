@@ -36,33 +36,6 @@ export function useFinancialReports() {
   })
 }
 
-// ── Fetch single latest report ───────────────────────────────────────
-
-export function useLatestFinancialReport() {
-  return useQuery({
-    queryKey: ['financialReports', 'latest'],
-    queryFn: async (): Promise<FinancialReport | null> => {
-      if (!isSupabaseConfigured()) {
-        const mocks = getMockReports()
-        return mocks[0] || null
-      }
-
-      const user = await requireAuth()
-      const { data, error } = await supabase
-        .from('financial_reports')
-        .select(REPORT_SELECT)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (error) throw error
-      return data
-    },
-    staleTime: 2 * 60 * 1000,
-  })
-}
-
 // ── Generate report (call Edge Function or local fallback) ───────────
 
 export function useGenerateReport() {
@@ -80,9 +53,13 @@ export function useGenerateReport() {
         ? await fetchTransactionsForPeriod(opts.periodStart, opts.periodEnd)
         : getMockTransactions()
 
-      const wallets = isSupabaseConfigured()
-        ? await fetchWallets()
-        : getMockWallets()
+      // Try to reuse cached wallets from useWallets() instead of re-fetching
+      const cachedWallets = queryClient.getQueryData<import('@/types').Wallet[]>(['wallets', false])
+      const wallets = cachedWallets
+        ? cachedWallets.filter(w => w.is_active)
+        : isSupabaseConfigured()
+          ? await fetchWallets()
+          : getMockWallets()
 
       const metrics = computeHealthMetrics({
         transactions,

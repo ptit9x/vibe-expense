@@ -234,8 +234,11 @@ export function YearlyReport({
   const [selectedWallet, setSelectedWallet] = useState('all')
   const { t, language } = useI18n()
   const { data: transactions, refetch: refetchTx } = useYearTransactions(selectedYear, type)
-  const { data: categories, refetch: refetchCat } = useCategories(type)
+  const { data: categories, refetch: refetchCat } = useCategories()
   const { data: wallets } = useWallets()
+
+  // Filter categories by type client-side (single cache key for all types)
+  const filteredCategories = categories?.filter(c => c.type === type) ?? []
 
   // Apply client-side filters for category & wallet
   const filtered = transactions?.filter(tx => {
@@ -305,7 +308,7 @@ export function YearlyReport({
           value={selectedCategory}
           onChange={setSelectedCategory}
           placeholder={t.reports.allCategories}
-          options={categories?.map(cat => ({ value: cat.id, label: cat.name })) || []}
+          options={filteredCategories.map(cat => ({ value: cat.id, label: cat.name }))}
         />
         <SelectFilter
           value={selectedWallet}

@@ -52,11 +52,14 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     : type === 'income' ? 'income'
     : 'expense'
 
-  const { data: dbCategories, isLoading: isCategoriesLoading } = useCategories(categoryType)
+  const { data: dbCategories, isLoading: isCategoriesLoading } = useCategories()
 
   const transactionTypes = getTransactionTypes(t)
 
-  const categories = (dbCategories || []).map((cat) => ({
+  // Filter categories by type client-side (single cache key for all types)
+  const categories = (dbCategories || [])
+    .filter(cat => cat.type === categoryType)
+    .map((cat) => ({
     id: cat.id,
     name: cat.name,
     icon: cat.icon || '📦',

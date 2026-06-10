@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, useLogout } from '@/hooks/useAuth'
 import { useI18n } from '@/lib/i18n'
-import { useUnreadNotificationCount } from '@/hooks/useAppNotifications'
+import { useAppNotifications } from '@/hooks/useAppNotifications'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -120,18 +120,18 @@ export default function MainLayout() {
         </div>
       </nav>
 
-      <DesktopSidebar />
+      <DesktopSidebar user={user} />
     </div>
   )
 }
 
-function DesktopSidebar() {
+function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
   const location = useLocation()
   const { t } = useI18n()
   const logout = useLogout()
   const navigate = useNavigate()
-  const { data: user } = useAuth()
-  const { data: unreadCount } = useUnreadNotificationCount()
+  const { data: notifications } = useAppNotifications()
+  const unreadCount = notifications?.filter(n => !n.is_read).length ?? 0
 
   const handleLogout = () => {
     logout.mutate(undefined, {

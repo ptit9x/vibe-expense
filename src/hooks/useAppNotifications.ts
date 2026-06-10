@@ -22,31 +22,7 @@ export function useAppNotifications() {
       return data || []
     },
     staleTime: 30 * 1000, // 30s
-  })
-}
-
-export function useUnreadNotificationCount() {
-  return useQuery({
-    queryKey: ['unreadNotificationCount'],
-    queryFn: async (): Promise<number> => {
-      if (!isSupabaseConfigured()) return 0
-
-      try {
-        const user = await requireAuth()
-        const { count, error } = await supabase
-          .from('app_notifications')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_read', false)
-
-        if (error) throw error
-        return count || 0
-      } catch {
-        return 0
-      }
-    },
-    staleTime: 10 * 1000, // 10s
-    refetchInterval: 30 * 1000, // poll every 30s
+    refetchInterval: 30 * 1000, // poll every 30s for unread badge
   })
 }
 
@@ -68,7 +44,6 @@ export function useMarkNotificationRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appNotifications'] })
-      queryClient.invalidateQueries({ queryKey: ['unreadNotificationCount'] })
     },
   })
 }
@@ -91,7 +66,6 @@ export function useMarkAllNotificationsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appNotifications'] })
-      queryClient.invalidateQueries({ queryKey: ['unreadNotificationCount'] })
     },
   })
 }
@@ -114,7 +88,6 @@ export function useDeleteNotification() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appNotifications'] })
-      queryClient.invalidateQueries({ queryKey: ['unreadNotificationCount'] })
     },
   })
 }
