@@ -20,20 +20,16 @@ export function useFinancialReports() {
     queryFn: async (): Promise<FinancialReport[]> => {
       if (!isSupabaseConfigured()) return getMockReports()
 
-      try {
-        const user = await requireAuth()
-        const { data, error } = await supabase
-          .from('financial_reports')
-          .select(REPORT_SELECT)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(12)
+      const user = await requireAuth()
+      const { data, error } = await supabase
+        .from('financial_reports')
+        .select(REPORT_SELECT)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(12)
 
-        if (error) throw error
-        return data || []
-      } catch {
-        return getMockReports()
-      }
+      if (error) throw error
+      return data || []
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -50,21 +46,17 @@ export function useLatestFinancialReport() {
         return mocks[0] || null
       }
 
-      try {
-        const user = await requireAuth()
-        const { data, error } = await supabase
-          .from('financial_reports')
-          .select(REPORT_SELECT)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
+      const user = await requireAuth()
+      const { data, error } = await supabase
+        .from('financial_reports')
+        .select(REPORT_SELECT)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
-        if (error) throw error
-        return data
-      } catch {
-        return getMockReports()[0] || null
-      }
+      if (error) throw error
+      return data
     },
     staleTime: 2 * 60 * 1000,
   })

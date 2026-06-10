@@ -54,7 +54,22 @@ serve(async (req) => {
       )
     }
 
-    const { metrics } = await req.json()
+    let metrics
+    try {
+      const body = await req.json()
+      metrics = body.metrics
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      )
+    }
+    if (!metrics) {
+      return new Response(
+        JSON.stringify({ error: 'Missing metrics' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      )
+    }
 
     // Build analysis prompt
     const prompt = buildPrompt(metrics)
@@ -77,7 +92,7 @@ serve(async (req) => {
     console.error('Analysis error:', error)
     return new Response(
       JSON.stringify({ error: error.message || 'Analysis failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     )
   }
 })
@@ -129,9 +144,9 @@ async function callGemini(prompt: string, apiUrl: string): Promise<any> {
   const apiKey = Deno.env.get('GEMINI_API_KEY')
   if (!apiKey) throw new Error('GEMINI_API_KEY not set')
 
-  const response = await fetch(`${apiUrl}?key=${apiKey}`, {
+  const response = await fetch(apiUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {

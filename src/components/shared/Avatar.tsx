@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const SIZE_MAP = {
@@ -37,6 +37,7 @@ interface AvatarProps {
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
   const [imgError, setImgError] = useState(false)
+  useEffect(() => setImgError(false), [src])
   const displayName = name || 'User'
 
   const showImage = src && !imgError

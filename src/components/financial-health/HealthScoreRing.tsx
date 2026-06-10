@@ -72,7 +72,7 @@ export default function HealthScoreRing({ score, grade, size = 160 }: Props) {
       <div
         className={`text-2xl font-bold ${gradeColors[grade] || 'text-gray-500'}`}
       >
-        Grade: {grade}
+        Hạng: {grade}
       </div>
     </div>
   )

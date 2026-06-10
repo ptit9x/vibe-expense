@@ -161,7 +161,7 @@ export function useUpdateTransaction() {
 
       const { data, error } = await supabase
         .from('transactions')
-        .update(input)
+        .update({ ...input, updated_at: new Date().toISOString() })
         .eq('id', id)
         .eq('user_id', user.id)
         .select()

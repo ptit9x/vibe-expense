@@ -10,21 +10,16 @@ export function useAppNotifications() {
     queryFn: async (): Promise<AppNotification[]> => {
       if (!isSupabaseConfigured()) return getMockNotifications()
 
-      try {
-        const user = await requireAuth()
-        const { data, error } = await supabase
-          .from('app_notifications')
-          .select(NOTIFICATION_SELECT)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(50)
+      const user = await requireAuth()
+      const { data, error } = await supabase
+        .from('app_notifications')
+        .select(NOTIFICATION_SELECT)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
 
-        if (error) throw error
-        return data || []
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to fetch notifications:', error)
-        return getMockNotifications()
-      }
+      if (error) throw error
+      return data || []
     },
     staleTime: 30 * 1000, // 30s
   })

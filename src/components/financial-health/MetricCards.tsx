@@ -8,10 +8,10 @@ interface Props {
 
 function formatCompact(value: number): string {
   if (Math.abs(value) >= 1_000_000_000) {
-    return `${(value / 1_000_000_000).toFixed(1)}B`
+    return `${(value / 1_000_000_000).toFixed(1)} tỷ`
   }
   if (Math.abs(value) >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`
+    return `${(value / 1_000_000).toFixed(1)} triệu`
   }
   if (Math.abs(value) >= 1_000) {
     return `${(value / 1_000).toFixed(1)}K`

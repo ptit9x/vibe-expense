@@ -95,7 +95,7 @@ export function useUploadAvatar() {
         .from('avatars')
         .upload(filePath, resized, {
           upsert: true,
-          contentType: file.type,
+          contentType: 'image/jpeg',
         })
 
       if (uploadError) throw uploadError

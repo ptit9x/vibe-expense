@@ -154,7 +154,7 @@ export default function Profile() {
               </div>
               <div className="text-left">
                 <p className="text-gray-900 font-medium">
-                  {resolvedMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                  {resolvedMode === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}
                 </p>
               </div>
             </div>
@@ -248,28 +248,6 @@ export default function Profile() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Hidden file input for avatar upload in dialog */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (!file) return
-          if (file.size > 2 * 1024 * 1024) {
-            toast.error(t.settings.avatarTooLarge || 'File quá lớn. Tối đa 2MB.')
-            return
-          }
-          uploadAvatar.mutate(file, {
-            onSuccess: () => toast.success(t.settings.avatarUpdated || 'Cập nhật avatar thành công'),
-            onError: () => toast.error(t.common.error),
-          })
-          e.target.value = ''
-          setIsProfileDialogOpen(false)
-        }}
-      />
     </div>
     </PageTransition>
   )
