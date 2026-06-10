@@ -1,4 +1,6 @@
 import { cn } from '@/lib/utils'
+import { createPortal } from 'react-dom'
+import { useRef, useState, useEffect } from 'react'
 
 export interface TransactionTypeItem {
   id: string
@@ -17,10 +19,24 @@ interface TypeDropdownProps {
 
 export function TypeDropdown({ types, selectedType, onSelect, isOpen, onToggle }: TypeDropdownProps) {
   const current = types.find(item => item.id === selectedType) || types[0]
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+
+  // Calculate portal menu position from trigger button
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setMenuPos({
+        top: rect.bottom + 8,
+        left: rect.left + rect.width / 2,
+      })
+    }
+  }, [isOpen])
 
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         onClick={onToggle}
         className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full hover:bg-white/30 transition-colors"
       >
@@ -31,13 +47,19 @@ export function TypeDropdown({ types, selectedType, onSelect, isOpen, onToggle }
         </svg>
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <>
           <div
-            className="fixed inset-0 z-20"
+            className="fixed inset-0 z-[9998]"
             onClick={onToggle}
           />
-          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white dark:bg-[hsl(224,30%,13%)] rounded-2xl shadow-xl border-0 z-30 overflow-hidden min-w-[170px]">
+          <div
+            className="fixed z-[9999] bg-white dark:bg-[hsl(224,30%,13%)] rounded-2xl shadow-2xl border border-gray-200/50 dark:border-white/10 overflow-hidden min-w-[170px]"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left - 85,
+            }}
+          >
             {types.map((typeItem) => (
               <button
                 key={typeItem.id}
@@ -54,7 +76,8 @@ export function TypeDropdown({ types, selectedType, onSelect, isOpen, onToggle }
               </button>
             ))}
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   )
