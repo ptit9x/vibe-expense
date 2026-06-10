@@ -124,8 +124,8 @@ export function CategoryList({ items, total }: CategoryListProps) {
   const { currency, formatCurrency } = useUIStore()
   return (
     <div className="space-y-3">
-      {items.map((item, index) => (
-        <div key={index} className="flex items-center justify-between">
+      {items.map((item) => (
+        <div key={item.name} className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
@@ -159,11 +159,11 @@ export function MonthlyList({ data, year, type }: MonthlyListProps) {
   const { currency, formatCurrency } = useUIStore()
   return (
     <div className="space-y-2">
-      {data.slice().reverse().map((item, index) => {
+      {data.slice().reverse().map((item) => {
         const monthParam = `${year}-${item.monthNum || (item.month.match(/\d+/)?.[0] || '').padStart(2, '0')}`
         return (
           <Link
-            key={index}
+            key={item.monthNum || item.month}
             to={`/transactions?month=${monthParam}&type=${type}`}
             className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
           >

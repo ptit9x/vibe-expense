@@ -22,8 +22,9 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 rounded-full bg-white/20 hover:bg-white/30"
+          className="h-11 w-11 rounded-full bg-white/20 hover:bg-white/30"
           onClick={onToggleBalance}
+          aria-label={showBalance ? "Hide balance" : "Show balance"}
         >
           {showBalance ? (
             <Eye className="h-5 w-5 text-white" />

@@ -8,8 +8,10 @@ interface Props {
   currentId?: string
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
+const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
+
+function formatDate(dateStr: string, locale: string): string {
+  return new Date(dateStr).toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -26,7 +28,8 @@ function getGradeColor(grade: string): string {
 
 export default function ReportHistory({ reports, currentId }: Props) {
   const navigate = useNavigate()
-  const { t } = useI18n()
+  const { t, language } = useI18n()
+  const locale = localeMap[language] || 'vi-VN'
 
   if (reports.length === 0) return null
 
@@ -66,8 +69,8 @@ export default function ReportHistory({ reports, currentId }: Props) {
                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   {report.period_type === 'monthly' ? t.financialHealth.history.monthlyReport : t.financialHealth.history.weeklyReport}
                 </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  {formatDate(report.period_start)} — {formatDate(report.period_end)}
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {formatDate(report.period_start, locale)} — {formatDate(report.period_end, locale)}
                 </p>
               </div>
 

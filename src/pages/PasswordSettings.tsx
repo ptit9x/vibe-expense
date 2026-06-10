@@ -53,7 +53,7 @@ export default function PasswordSettings() {
       setConfirmPassword('')
     } catch (err) {
       setIsLoading(false)
-      setMessage(err instanceof Error ? err.message : 'Password change failed')
+      setMessage(err instanceof Error ? err.message : t.settings.passwordChangeFailed)
     }
   }
 
@@ -81,7 +81,8 @@ export default function PasswordSettings() {
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400"
+              aria-label={showCurrent ? "Hide password" : "Show password"}
               >
                 {showCurrent ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -103,7 +104,8 @@ export default function PasswordSettings() {
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400"
+              aria-label={showNew ? "Hide password" : "Show password"}
               >
                 {showNew ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>

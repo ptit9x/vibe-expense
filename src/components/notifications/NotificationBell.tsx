@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '@/hooks/useAppNotifications'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/lib/i18n'
 import type { NotificationType } from '@/types'
 
 const typeConfig: Record<NotificationType, { emoji: string; color: string }> = {
@@ -17,7 +18,9 @@ const typeConfig: Record<NotificationType, { emoji: string; color: string }> = {
   financial_health: { emoji: '🏥', color: 'bg-indigo-100 text-indigo-600' },
 }
 
-function formatTimeAgo(dateStr: string): string {
+const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
+
+function formatTimeAgo(dateStr: string, t: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }, locale: string): string {
   const now = Date.now()
   const then = new Date(dateStr).getTime()
   const diff = Math.max(0, now - then)
@@ -25,14 +28,16 @@ function formatTimeAgo(dateStr: string): string {
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
 
-  if (minutes < 1) return 'vừa xong'
-  if (minutes < 60) return `${minutes} phút trước`
-  if (hours < 24) return `${hours} giờ trước`
-  if (days < 7) return `${days} ngày trước`
-  return new Date(dateStr).toLocaleDateString('vi-VN')
+  if (minutes < 1) return t.justNow
+  if (minutes < 60) return `${minutes} ${t.minutesAgo}`
+  if (hours < 24) return `${hours} ${t.hoursAgo}`
+  if (days < 7) return `${days} ${t.daysAgo}`
+  return new Date(dateStr).toLocaleDateString(locale)
 }
 
 export default function NotificationBell() {
+  const { t, language } = useI18n()
+  const locale = localeMap[language] || 'vi-VN'
   const [isOpen, setIsOpen] = useState(false)
   const bellRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -125,7 +130,7 @@ export default function NotificationBell() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg"
+            className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.span>
@@ -154,7 +159,7 @@ export default function NotificationBell() {
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">Thông báo</h3>
+                  <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">{t.notifications.title}</h3>
                   {unreadCount > 0 && (
                     <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
                       {unreadCount}
@@ -166,7 +171,7 @@ export default function NotificationBell() {
                     <button
                       onClick={() => markAllRead.mutate()}
                       className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                      title="Đánh dấu đã đọc tất cả"
+                      title={t.notifications.markAllRead}
                     >
                       <CheckCheck className="h-4 w-4 text-gray-400" />
                     </button>
@@ -185,7 +190,7 @@ export default function NotificationBell() {
                 {notifications.length === 0 ? (
                   <div className="py-12 text-center">
                     <Bell className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-sm text-gray-400">Không có thông báo</p>
+                    <p className="text-sm text-gray-400">{t.notifications.empty}</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
@@ -231,8 +236,8 @@ export default function NotificationBell() {
                                 {notif.body}
                               </p>
                             )}
-                            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
-                              {formatTimeAgo(notif.created_at)}
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              {formatTimeAgo(notif.created_at, t.common, locale)}
                             </p>
                           </div>
 
@@ -242,7 +247,7 @@ export default function NotificationBell() {
                               <button
                                 onClick={(e) => { e.stopPropagation(); markRead.mutate(notif.id) }}
                                 className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                title="Đánh dấu đã đọc"
+                                title={t.notifications.markRead}
                               >
                                 <Check className="h-3.5 w-3.5 text-gray-400" />
                               </button>
@@ -250,7 +255,7 @@ export default function NotificationBell() {
                             <button
                               onClick={(e) => { e.stopPropagation(); deleteNotif.mutate(notif.id) }}
                               className="p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors"
-                              title="Xoá"
+                              title={t.notifications.delete}
                             >
                               <Trash2 className="h-3.5 w-3.5 text-gray-400 hover:text-red-500" />
                             </button>
@@ -269,7 +274,7 @@ export default function NotificationBell() {
                     onClick={() => { setIsOpen(false); navigate('/notifications') }}
                     className="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors"
                   >
-                    Xem tất cả thông báo
+                    {t.notifications.viewAll || "View all"}
                   </button>
                 </div>
               )}

@@ -37,7 +37,8 @@ export default function VerifyEmail() {
     try {
       await logout.mutateAsync()
     } catch {
-      // ignore logout errors
+      // Logout errors are non-critical, user is redirecting anyway
+      if (import.meta.env.DEV) console.error('Logout error:', arguments[0])
     }
     navigate('/login')
   }

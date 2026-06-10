@@ -58,7 +58,7 @@ export default function AISummaryCard({ analysis }: Props) {
                 <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {analysis.financial_runway.months}
                 </span>
-                <p className="text-[10px] text-purple-500 font-medium">{fht.months}</p>
+                <p className="text-xs text-purple-500 font-medium">{fht.months}</p>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed flex-1">
                 {analysis.financial_runway.description}
@@ -77,9 +77,9 @@ export default function AISummaryCard({ analysis }: Props) {
             </h4>
           </div>
           <div className="px-4 pb-3 space-y-2">
-            {analysis.insights.map((insight, i) => (
+            {analysis.insights.map((insight) => (
               <div
-                key={i}
+                key={insight.title}
                 className={`flex items-start gap-2.5 p-2.5 rounded-xl border ${severityStyles[insight.severity]}`}
               >
                 <span className="text-lg shrink-0">{insight.icon}</span>
@@ -87,7 +87,7 @@ export default function AISummaryCard({ analysis }: Props) {
                   <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                     {insight.title}
                   </p>
-                  <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">
                     {insight.description}
                   </p>
                 </div>
@@ -118,7 +118,7 @@ export default function AISummaryCard({ analysis }: Props) {
                 style={{ width: `${analysis.asset_allocation.investment_capital.percentage}%` }}
               />
             </div>
-            <div className="flex gap-4 text-[11px]">
+            <div className="flex gap-4 text-xs">
               <span className="flex items-center gap-1">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 dark:bg-emerald-500" />
                 {fht.emergencyFund}: {analysis.asset_allocation.emergency_fund.percentage}%
@@ -128,7 +128,7 @@ export default function AISummaryCard({ analysis }: Props) {
                 {fht.investCapital}: {analysis.asset_allocation.investment_capital.percentage}%
               </span>
             </div>
-            <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
               {analysis.asset_allocation.description}
             </p>
           </div>
@@ -145,19 +145,19 @@ export default function AISummaryCard({ analysis }: Props) {
             </h4>
           </div>
           <div className="px-4 pb-3 space-y-2">
-            {analysis.investment_channels.map((ch, i) => (
+            {analysis.investment_channels.map((ch) => (
               <div
-                key={i}
+                key={ch.name}
                 className="p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">{ch.name}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${riskLevelStyles[ch.risk_level]}`}>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${riskLevelStyles[ch.risk_level]}`}>
                     {ch.risk_level === 'low' ? fht.riskLow : ch.risk_level === 'medium_low' ? fht.riskMediumLow : fht.riskMedium}
                   </span>
-                  <span className="text-[10px] text-gray-500 ml-auto">{ch.suggested_percentage}%</span>
+                  <span className="text-xs text-gray-500 ml-auto">{ch.suggested_percentage}%</span>
                 </div>
-                <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                   {ch.description}
                 </p>
               </div>
@@ -176,9 +176,9 @@ export default function AISummaryCard({ analysis }: Props) {
             </h4>
           </div>
           <div className="px-4 pb-3 space-y-2">
-            {analysis.risk_flags.map((flag, i) => (
+            {analysis.risk_flags.map((flag) => (
               <div
-                key={i}
+                key={flag.title}
                 className={`flex items-start gap-2.5 p-2.5 rounded-xl border ${
                   flag.severity === 'danger'
                     ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20'
@@ -192,7 +192,7 @@ export default function AISummaryCard({ analysis }: Props) {
                   <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                     {flag.title}
                   </p>
-                  <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                     {flag.description}
                   </p>
                 </div>
@@ -212,9 +212,9 @@ export default function AISummaryCard({ analysis }: Props) {
             </h4>
           </div>
           <div className="px-4 pb-3 space-y-2">
-            {analysis.recommendations.map((rec, i) => (
+            {analysis.recommendations.map((rec) => (
               <div
-                key={i}
+                key={rec.title}
                 className="flex items-start gap-2.5 p-2.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10"
               >
                 <span className="text-lg shrink-0">{rec.icon}</span>
@@ -223,11 +223,11 @@ export default function AISummaryCard({ analysis }: Props) {
                     <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                       {rec.title}
                     </p>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${priorityStyles[rec.priority]}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${priorityStyles[rec.priority]}`}>
                       {rec.priority === 'high' ? fht.priorityHigh : rec.priority === 'medium' ? fht.priorityMedium : fht.priorityLow}
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                     {rec.description}
                   </p>
                 </div>
@@ -247,9 +247,9 @@ export default function AISummaryCard({ analysis }: Props) {
             </h4>
           </div>
           <div className="px-4 pb-3 space-y-2">
-            {analysis.action_plan.map((action, i) => (
+            {analysis.action_plan.map((action) => (
               <div
-                key={i}
+                key={action.title}
                 className="flex items-start gap-2.5 p-2.5 rounded-xl bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10"
               >
                 <span className="text-lg shrink-0">{action.icon}</span>
@@ -258,14 +258,14 @@ export default function AISummaryCard({ analysis }: Props) {
                     <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                       {action.title}
                     </p>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 font-medium">
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 font-medium">
                       {action.timeline}
                     </span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${priorityStyles[action.priority]}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${priorityStyles[action.priority]}`}>
                       {action.priority === 'high' ? fht.priorityHigh : action.priority === 'medium' ? fht.priorityMedium : fht.priorityLow}
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">
                     {action.description}
                   </p>
                 </div>

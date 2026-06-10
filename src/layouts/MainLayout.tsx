@@ -107,7 +107,7 @@ export default function MainLayout() {
                       )} />
                     </motion.div>
                     <span className={cn(
-                      "text-[10px] leading-tight transition-colors",
+                      "text-xs leading-tight transition-colors",
                       isActive ? "font-semibold text-indigo-600" : "font-medium text-zinc-400 dark:text-zinc-500"
                     )}>
                       {t.nav[item.labelKey.split('.')[1] as keyof typeof t.nav]}
@@ -148,11 +148,12 @@ function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
         </span>
         <Link
           to="/notifications"
-          className="relative p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+          className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+          aria-label={t.notifications.title}
         >
           <Bell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           {unreadCount && unreadCount > 0 ? (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           ) : null}
@@ -200,7 +201,7 @@ function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
               <p className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">
                 {user.full_name || user.email?.split('@')[0]}
               </p>
-              <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user.email}</p>
             </div>
           </div>
         )}

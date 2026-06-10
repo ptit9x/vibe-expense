@@ -25,7 +25,7 @@ export function ContactPersonField({ value, onChange, type }: ContactPersonField
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-blue-50/50 transition-all"
+        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-base font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:bg-blue-50/50 transition-all"
       />
     </div>
   )

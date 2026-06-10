@@ -26,11 +26,11 @@ export function QuickActions({ items = defaultItems }: QuickActionsProps) {
       <p className="text-sm font-medium text-gray-900 mb-3">{t.reports.reports}</p>
       
       <div className="grid grid-cols-2 gap-3">
-        {items.map((item, index) => {
+        {items.map((item) => {
           const Icon = item.icon
           return (
             <Link
-              key={index}
+              key={item.href}
               to={item.href}
               className="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >

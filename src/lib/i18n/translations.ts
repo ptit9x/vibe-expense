@@ -383,6 +383,7 @@ export const translations = {
       fullName: 'Họ và tên',
       updateProfile: 'Cập nhật',
       profileUpdated: 'Cập nhật thông tin thành công',
+      passwordChangeFailed: 'Đổi mật khẩu thất bại',
     },
     // Wallet card
     walletCard: {
@@ -479,6 +480,7 @@ export const translations = {
       markAllRead: 'Đánh dấu tất cả đã đọc',
       markRead: 'Đánh dấu đã đọc',
       delete: 'Xóa',
+      viewAll: 'Xem tất cả thông báo',
       inactivityReminder: {
         title: 'Nhắc nhở hoạt động',
         body: 'Bạn đã không ghi nhận giao dịch nào trong 7 ngày qua. Hãy mở app và kiểm tra tài khoản nhé!',
@@ -525,6 +527,9 @@ export const translations = {
         stable: 'Ổn định',
         insufficient: 'Chưa đủ dữ liệu',
       },
+      grade: 'Hạng',
+      billion: 'tỷ',
+      million: 'triệu',
       history: {
         title: 'Lịch sử báo cáo',
         monthlyReport: 'Báo cáo tháng',
@@ -920,6 +925,7 @@ export const translations = {
       fullName: 'Full Name',
       updateProfile: 'Update',
       profileUpdated: 'Profile updated successfully',
+      passwordChangeFailed: 'Password change failed',
     },
     // Wallet card
     walletCard: {
@@ -1016,6 +1022,7 @@ export const translations = {
       markAllRead: 'Mark all as read',
       markRead: 'Mark as read',
       delete: 'Delete',
+      viewAll: 'View all notifications',
       inactivityReminder: {
         title: 'Activity Reminder',
         body: "You haven't logged any transactions in 7 days. Open the app and check your accounts!",
@@ -1062,6 +1069,9 @@ export const translations = {
         stable: 'Stable',
         insufficient: 'Insufficient data',
       },
+      grade: 'Rank',
+      billion: 'B',
+      million: 'M',
       history: {
         title: 'Report History',
         monthlyReport: 'Monthly Report',

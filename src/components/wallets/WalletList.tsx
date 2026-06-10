@@ -36,6 +36,7 @@ export function AddWalletFAB({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       className="fixed right-5 bottom-24 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 active:scale-95 transition-all z-20"
+      aria-label="Add wallet"
     >
       <Plus className="h-6 w-6 text-white" />
     </button>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { HealthGrade } from '@/types'
+import { useI18n } from '@/lib/i18n'
 
 interface Props {
   score: number
@@ -26,6 +27,7 @@ function getScoreColor(score: number): string {
 }
 
 export default function HealthScoreRing({ score, grade, size = 160 }: Props) {
+  const { t } = useI18n()
   const strokeWidth = 10
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
@@ -72,7 +74,7 @@ export default function HealthScoreRing({ score, grade, size = 160 }: Props) {
       <div
         className={`text-2xl font-bold ${gradeColors[grade] || 'text-gray-500'}`}
       >
-        Hạng: {grade}
+        {t.financialHealth.grade}: {grade}
       </div>
     </div>
   )
