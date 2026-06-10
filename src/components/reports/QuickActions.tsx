@@ -4,6 +4,7 @@ import {
   Receipt,
   PiggyBank,
   HandCoins,
+  Heart,
 } from 'lucide-react'
 
 interface QuickActionsProps {
@@ -14,6 +15,7 @@ const defaultItems = [
   { icon: Receipt, labelKey: 'reports.expenseReport', href: '/reports/expense', color: '#EF4444' },
   { icon: PiggyBank, labelKey: 'reports.incomeReport', href: '/reports/income', color: '#10B981' },
   { icon: HandCoins, labelKey: 'reports.debtReport', href: '/reports/debt', color: '#6366F1' },
+  { icon: Heart, labelKey: 'reports.financialHealth', href: '/financial-health', color: '#8B5CF6' },
 ]
 
 export function QuickActions({ items = defaultItems }: QuickActionsProps) {
