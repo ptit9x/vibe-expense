@@ -49,9 +49,11 @@ serve(async (req) => {
     }
 
     let metrics
+    let locale = 'vi'
     try {
       const body = await req.json()
       metrics = body.metrics
+      locale = body.locale || 'vi'
     } catch {
       return new Response(
         JSON.stringify({ error: 'Invalid JSON body' }),
@@ -66,7 +68,7 @@ serve(async (req) => {
     }
 
     // Build analysis prompt
-    const prompt = buildPrompt(metrics)
+    const prompt = buildPrompt(metrics, locale)
 
     // Try Gemini 3.5 Flash first, fallback to 2.5 Flash
     let analysis
@@ -91,7 +93,13 @@ serve(async (req) => {
   }
 })
 
-function buildPrompt(metrics: any): string {
+const LANG_MAP: Record<string, { name: string; instruction: string }> = {
+  vi: { name: 'Vietnamese', instruction: 'All text must be in Vietnamese (Tiếng Việt)' },
+  en: { name: 'English', instruction: 'All text must be in English' },
+}
+
+function buildPrompt(metrics: any, locale: string): string {
+  const lang = LANG_MAP[locale] || LANG_MAP['vi']
   return `You are a financial health analyst AI. Analyze the following personal finance metrics and return a JSON response.
 
 METRICS:
@@ -114,22 +122,22 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
 {
   "overall_score": <number 0-100>,
   "grade": "<A+|A|B+|B|C+|C|D|F>",
-  "summary": "<2-3 sentence summary in Vietnamese>",
+  "summary": "<2-3 sentence summary in ${lang.name}>",
   "insights": [
-    {"icon": "<emoji>", "title": "<short title in Vietnamese>", "description": "<detail in Vietnamese>", "severity": "<positive|neutral|negative>"}
+    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "severity": "<positive|neutral|negative>"}
   ],
   "recommendations": [
-    {"icon": "<emoji>", "title": "<short title in Vietnamese>", "description": "<detail in Vietnamese>", "priority": "<high|medium|low>"}
+    {"icon": "<emoji>", "title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "priority": "<high|medium|low>"}
   ],
   "risk_flags": [
-    {"title": "<short title in Vietnamese>", "description": "<detail in Vietnamese>", "severity": "<warning|danger>"}
+    {"title": "<short title in ${lang.name}>", "description": "<detail in ${lang.name}>", "severity": "<warning|danger>"}
   ]
 }
 
 Rules:
 - Score 90-100: A+, 80-89: A, 70-79: B+, 60-69: B, 50-59: C+, 40-49: C, 25-39: D, below 25: F
 - Provide 3-6 insights, 2-4 recommendations, 0-3 risk flags
-- All text must be in Vietnamese
+- ${lang.instruction}
 - Be specific with numbers from the data
 - risk_flags array can be empty if no risks found`
 }

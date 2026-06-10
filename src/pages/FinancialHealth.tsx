@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 export default function FinancialHealth() {
   const [searchParams] = useSearchParams()
   const reportIdParam = searchParams.get('report')
-  const { t } = useI18n()
+  const { t, language } = useI18n()
 
   const { data: latestReport, isLoading: loadingLatest, refetch } = useLatestFinancialReport()
   const { data: allReports = [], isLoading: loadingHistory } = useFinancialReports()
@@ -39,6 +39,7 @@ export default function FinancialHealth() {
       periodType: 'monthly',
       periodStart,
       periodEnd,
+      locale: language,
     })
   }
 

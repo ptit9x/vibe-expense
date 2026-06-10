@@ -8,6 +8,7 @@ import {
 import { getMockTransactions } from '@/mocks/mockTransactions'
 import { getMockWallets } from '@/mocks/mockWallets'
 import type { FinancialReport, AIAnalysis, FinancialHealthMetrics } from '@/types'
+import type { Language } from '@/lib/i18n'
 
 const REPORT_SELECT =
   'id, user_id, period_type, period_start, period_end, health_data, ai_analysis, overall_score, grade, created_at'
@@ -72,6 +73,7 @@ export function useGenerateReport() {
       periodType: 'weekly' | 'monthly'
       periodStart: string
       periodEnd: string
+      locale?: Language
     }): Promise<FinancialReport> => {
       // Compute metrics from current data
       const transactions = isSupabaseConfigured()
@@ -91,7 +93,7 @@ export function useGenerateReport() {
       let aiAnalysis: AIAnalysis
 
       try {
-        aiAnalysis = await callAnalysisEdgeFunction(metrics)
+        aiAnalysis = await callAnalysisEdgeFunction(metrics, opts.locale)
       } catch {
         aiAnalysis = generateLocalAnalysis(metrics)
       }
@@ -222,7 +224,8 @@ async function fetchWallets() {
 }
 
 async function callAnalysisEdgeFunction(
-  metrics: FinancialHealthMetrics
+  metrics: FinancialHealthMetrics,
+  locale?: Language
 ): Promise<AIAnalysis> {
   // Let supabase.functions.invoke() handle auth automatically — it refreshes
   // tokens and sets Authorization header. Manual override can send stale tokens
@@ -230,7 +233,7 @@ async function callAnalysisEdgeFunction(
   const { data, error } = await supabase.functions.invoke(
     'analyze-financial-health',
     {
-      body: { metrics },
+      body: { metrics, locale: locale || 'vi' },
     }
   )
 
