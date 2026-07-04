@@ -63,7 +63,7 @@ export default function Profile() {
     }
     try {
       await updateProfile.mutateAsync({ full_name: trimmed })
-      toast.success(t.settings.profileUpdated || 'Cập nhật thông tin thành công')
+      toast.success(t.settings.profileUpdated)
       setIsProfileDialogOpen(false)
     } catch {
       toast.error(t.common.error)
@@ -100,11 +100,11 @@ export default function Profile() {
                 const file = e.target.files?.[0]
                 if (!file) return
                 if (file.size > 2 * 1024 * 1024) {
-                  toast.error(t.settings.avatarTooLarge || 'File quá lớn. Tối đa 2MB.')
+                  toast.error(t.settings.avatarTooLarge)
                   return
                 }
                 uploadAvatar.mutate(file, {
-                  onSuccess: () => toast.success(t.settings.avatarUpdated || 'Cập nhật avatar thành công'),
+                  onSuccess: () => toast.success(t.settings.avatarUpdated),
                   onError: () => toast.error(t.common.error),
                 })
                 e.target.value = ''
@@ -154,7 +154,7 @@ export default function Profile() {
               </div>
               <div className="text-left">
                 <p className="text-gray-900 font-medium">
-                  {resolvedMode === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}
+                  {resolvedMode === 'dark' ? t.darkMode.switchToLight : t.darkMode.switchToDark}
                 </p>
               </div>
             </div>
@@ -221,29 +221,29 @@ export default function Profile() {
       <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{t.settings.editProfile || 'Chỉnh sửa thông tin'}</DialogTitle>
+                  <DialogTitle>{t.settings.editProfile}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
             <Avatar src={user?.avatar_url} name={profileName || displayName} size="lg" />
             <div className="w-full space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t.settings.fullName || 'Họ và tên'}</label>
+                  <label className="text-sm font-medium text-gray-700">{t.settings.fullName}</label>
               <Input
                 value={profileName}
                 onChange={(e) => setProfileName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') saveProfile()
                 }}
-                placeholder={t.settings.fullName || 'Nhập họ và tên'}
+                placeholder={t.settings.enterFullName}
                 className="w-full"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
-              {t.common.cancel || 'Hủy'}
+              {t.common.cancel}
             </Button>
             <Button onClick={saveProfile} disabled={updateProfile.isPending}>
-              {updateProfile.isPending ? (t.common.loading || 'Đang tải...') : (t.settings.updateProfile || 'Cập nhật')}
+              {updateProfile.isPending ? t.common.loading : t.settings.updateProfile}
             </Button>
           </DialogFooter>
         </DialogContent>

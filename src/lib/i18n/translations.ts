@@ -309,8 +309,69 @@ export const translations = {
       repaying: 'Trả nợ',
       borrowing: 'Đi vay',
       collecting: 'Thu nợ',
+      // ── New parent categories ──
+      pets: 'Thú cưng',
+      sports: 'Thể thao & Fitness',
+      insurance: 'Bảo hiểm',
+      taxes: 'Thuế & Phí',
+      technology: 'Công nghệ',
+      rental: 'Cho thuê',
+      pension: 'Hưu trí & Trợ cấp',
+      // ── New subcategories: Thú cưng ──
+      petFood: 'Thức ăn thú cưng',
+      petVet: 'Khám thú y',
+      petAccessories: 'Phụ kiện thú cưng',
+      petGrooming: 'Tắm tỉa lông',
+      // ── Thể thao ──
+      gym: 'Gym/Yoga',
+      sportsGear: 'Đồ thể thao',
+      courtRental: 'Thuê sân',
+      swimming: 'Bơi lội',
+      // ── Bảo hiểm ──
+      insuranceVehicle: 'Bảo hiểm xe',
+      insuranceHome: 'Bảo hiểm nhà',
+      insuranceLife: 'Bảo hiểm nhân thọ',
+      insuranceTravel: 'Bảo hiểm du lịch',
+      // ── Thuế & Phí ──
+      incomeTax: 'Thuế thu nhập',
+      roadFee: 'Phí đường bộ',
+      fines: 'Phạt vi phạm',
+      licenseFee: 'Phí giấy phép',
+      // ── Công nghệ ──
+      techPhone: 'Điện thoại',
+      techLaptop: 'Laptop/Máy tính',
+      techAccessories: 'Phụ kiện công nghệ',
+      techRepair: 'Sửa chữa điện tử',
+      // ── Cho thuê (income) ──
+      rentalHouse: 'Cho thuê nhà',
+      rentalVehicle: 'Cho thuê xe',
+      rentalItems: 'Cho thuê đồ',
+      // ── Hưu trí (income) ──
+      pensionPay: 'Lương hưu',
+      familyAllowance: 'Trợ cấp gia đình',
+      socialWelfare: 'Trợ cấp xã hội',
+      // ── Ăn uống: sáng/trưa/tối + bổ sung ──
+      breakfast: 'Ăn sáng',
+      lunch: 'Ăn trưa',
+      dinner: 'Ăn tối',
+      drinks: 'Đồ uống (trà sữa)',
+      foodDelivery: 'Đặt đồ online',
+      snacks: 'Ăn vặt',
+      // ── Đi lại: bổ sung ──
+      carWash: 'Rửa xe',
+      trafficFines: 'Phạt vi phạm giao thông',
+      carInsurance: 'Bảo hiểm xe',
+      // ── Sức khỏe: bổ sung ──
+      dental: 'Nha khoa',
+      eyecare: 'Mắt kính',
+      checkup: 'Khám tổng quát',
+      // ── Hưởng thụ: bổ sung ──
+      karaoke: 'Karaoke',
+      subscription: 'Đăng ký dịch vụ (Netflix/Spotify)',
+      // ── Lương: bổ sung ──
+      dailyWage: 'Lương ngày',
+      fee: 'Thù lao',
     },
-    // Savings
     savings: {
       savings: 'Tiết kiệm',
       addGoal: 'Thêm mục tiêu',
@@ -383,6 +444,7 @@ export const translations = {
       fullName: 'Họ và tên',
       updateProfile: 'Cập nhật',
       profileUpdated: 'Cập nhật thông tin thành công',
+      enterFullName: 'Nhập họ và tên',
       passwordChangeFailed: 'Đổi mật khẩu thất bại',
     },
     // Wallet card
@@ -536,9 +598,101 @@ export const translations = {
         weeklyReport: 'Báo cáo tuần',
       },
     },
+    // Dark mode toggle
+    darkMode: {
+      switchToLight: 'Chế độ sáng',
+      switchToDark: 'Chế độ tối',
+    },
     // Auth errors
     authErrors: {
       invalidCredentials: 'Email hoặc mật khẩu không đúng',
+    },
+    // Local Analysis (generateLocalAnalysis fallback)
+    localAnalysis: {
+      // Savings insights
+      savingsGood_title: 'Tỷ lệ tiết kiệm tốt',
+      savingsGood_desc: 'Bạn đang tiết kiệm {rate}% thu nhập — vượt mức khuyến nghị 20%!',
+      savingsLow_title: 'Tỷ lệ tiết kiệm thấp',
+      savingsLow_desc: 'Tiết kiệm {rate}% thu nhập. Nên đạt ít nhất 20%.',
+      overspending_title: 'Chi tiêu vượt thu nhập',
+      overspending_desc: 'Bạn đang chi tiêu nhiều hơn thu nhập {rate}%. Cần cắt giảm ngay!',
+      // Debt insights
+      hasDebt_title: 'Đang có khoản nợ',
+      hasDebt_desc: 'Tổng nợ {debt} ({ratio}% thu nhập).',
+      debtTooHigh_title: 'Nợ quá cao',
+      debtTooHigh_desc: 'Tỷ lệ nợ/thu nhập {ratio}% vượt ngưỡng an toàn 30%.',
+      // Net worth insights
+      netWorthPositive_title: 'Tài sản ròng dương',
+      netWorthPositive_desc: 'Tổng tài sản {assets}, không có nợ. Tình trạng tài chính rất ổn định!',
+      assetsStrong_title: 'Tài sản đủ mạnh',
+      assetsStrong_desc: 'Tổng tài sản {assets} gấp {multiple} lần tổng nợ. Nợ được bảo đảm tốt.',
+      assetsCoverDebt_title: 'Tài sản đủ cover nợ',
+      assetsCoverDebt_desc: 'Tổng tài sản {assets} đủ để trả toàn bộ nợ ({debt}).',
+      assetsInsufficient_title: 'Tài sản chưa đủ cover nợ',
+      assetsInsufficient_desc: 'Tổng tài sản {assets} thấp hơn tổng nợ {debt}. Tài sản ròng âm.',
+      negativeNetWorth_title: 'Tài sản ròng âm',
+      negativeNetWorth_riskDesc: 'Tổng nợ ({debt}) vượt tổng tài sản ({assets}). Nợ không được bảo đảm.',
+      negativeNetWorth_insightDesc: 'Tổng nợ vượt tổng tài sản. Tài sản ròng: {netWorth}.',
+      negativeNetWorth_riskDescShort: 'Tổng nợ ({debt}) vượt tổng tài sản ({assets}).',
+      noAssetsHasDebt_title: 'Không có tài sản, đang có nợ',
+      noAssetsHasDebt_desc: 'Bạn có nợ {debt} nhưng chưa có tài sản nào. Tạo ví để theo dõi!',
+      createWallet_title: 'Tạo ví và tích lũy tài sản',
+      createWallet_desc: 'Tạo ví tiền mặt/ngân hàng để theo dõi tài sản và xây dựng quỹ dự phòng.',
+      // Top category
+      topCategory_title: 'Chi nhiều nhất: {name}',
+      topCategory_desc: '{percentage}% tổng chi tiêu ({amount}).',
+      // Spending trend
+      spendingIncreasing_title: 'Chi tiêu đang tăng',
+      spendingIncreasing_desc: 'So với tháng trước, chi tiêu của bạn có xu hướng tăng.',
+      createBudget_title: 'Lập ngân sách chi tiêu',
+      createBudget_desc: 'Tạo budget cho các danh mục chi tiêu chính để kiểm soát tốt hơn.',
+      spendingDecreasing_title: 'Chi tiêu đang giảm',
+      spendingDecreasing_desc: 'Tốt! Chi tiêu đang có xu hướng giảm so với trước.',
+      // Budget alerts
+      overBudget_title: '{count} danh mục vượt ngân sách',
+      // Recommendations
+      increaseSavings_title: 'Tăng tỷ lệ tiết kiệm',
+      increaseSavings_desc: 'Đặt mục tiêu tiết kiệm ít nhất 20% thu nhập hàng tháng.',
+      debtPlan_title: 'Lên kế hoạch trả nợ',
+      debtPlan_desc: 'Ưu tiên trả các khoản nợ lãi suất cao trước.',
+      weeklyTracking_title: 'Theo dõi chi tiêu hàng tuần',
+      weeklyTracking_desc: 'Kiểm tra báo cáo chi tiêu hàng tuần để phát hiện sớm các khoản bất thường.',
+      // Summary
+      summary_good: 'Sức khỏe tài chính của bạn ở mức tốt (điểm {score}/100, hạng {grade}). Tiết kiệm {savingsRate}% thu nhập. Tiếp tục duy trì!',
+      summary_average: 'Sức khỏe tài chính ở mức trung bình (điểm {score}/100, hạng {grade}). Tiết kiệm {savingsRate}% thu nhập. Cần cải thiện một số chỉ số.',
+      summary_poor: 'Sức khỏe tài chính cần cải thiện (điểm {score}/100, hạng {grade}). Chi tiêu vượt thu nhập hoặc nợ quá cao. Hãy xem các đề xuất bên dưới.',
+      // Financial runway
+      runway_safe: 'Với tài sản ròng {netWorth}, bạn có thể sống {months} tháng không có thu nhập. Đủ an toàn!',
+      runway_ok: 'Tài sản ròng {netWorth} đủ cho {months} tháng. Nên tăng quỹ dự phòng lên 6 tháng.',
+      runway_short: 'Chỉ có đủ cho {months} tháng. Ưu tiên xây quỹ dự phòng 3-6 tháng chi tiêu.',
+      runway_none: 'Tài sản ròng chưa đủ để cover chi tiêu. Cần ưu tiên tích lũy ngay.',
+      // Asset allocation
+      emergencyFund_desc: 'Quỹ dự phòng 3-6 tháng chi tiêu, đặt tại tài khoản tiết kiệm dễ rút.',
+      investmentCapital_desc: 'Phần tài sản còn lại sau quỹ dự phòng, dùng để đầu tư sinh lời.',
+      allocation_strong: 'Tài sản ròng đủ mạnh. Đã có quỹ dự phòng, phần còn lại nên đầu tư sinh lời.',
+      allocation_weak: 'Ưu tiên xây quỹ dự phòng 3-6 tháng trước khi nghĩ đến đầu tư.',
+      // Investment channels
+      channel_savings: 'Tiết kiệm ngân hàng',
+      channel_savings_desc: 'Gửi tiết kiệm kỳ hạn 6-12 tháng, lãi suất ổn định, rủi ro gần như bằng 0.',
+      channel_etf: 'Chứng chỉ quỹ ETF',
+      channel_etf_desc: 'Đầu tư thụ động qua quỹ chỉ số, phân tán rủi ro, phù hợp người mới.',
+      channel_gold: 'Vàng',
+      channel_gold_desc: 'Tránh lạm phát, tính thanh khoản cao. Nên mua vàng miếng SJC hoặc quỹ vàng.',
+      channel_selfInvest: 'Đầu tư phát triển bản thân',
+      channel_selfInvest_desc: 'Học kỹ năng mới, chứng chỉ chuyên môn — khoản đầu tư ROI cao nhất.',
+      // Action plan
+      action_emergency_title: 'Xây quỹ dự phòng',
+      action_emergency_desc: 'Mục tiêu: {target} (6 tháng chi tiêu). Mở sổ tiết kiệm riêng.',
+      timeline_1_3_months: '1-3 tháng',
+      action_weeklyTracking_desc: 'Kiểm tra báo cáo chi tiêu mỗi tuần để phát hiện khoản bất thường sớm.',
+      timeline_ongoing: 'Liên tục',
+      action_savingsGoal_title: 'Đặt mục tiêu tiết kiệm',
+      action_savingsGoal_desc: 'Tạo mục tiêu tiết kiệm trong app để theo dõi tiến độ. Mục tiêu: 20% thu nhập.',
+      timeline_1_month: '1 tháng',
+      action_debtPlan_desc: 'Tổng nợ {debt}. Ưu tiên trả nợ lãi suất cao trước.',
+      timeline_3_6_months: '3-6 tháng',
+      action_startInvesting_title: 'Bắt đầu đầu tư',
+      action_startInvesting_desc: 'Tài chính ổn, không có nợ. Bắt đầu đầu tư nhỏ qua quỹ ETF hoặc vàng.',
     },
   },
   en: {
@@ -851,6 +1005,68 @@ export const translations = {
       repaying: 'Repaying Debt',
       borrowing: 'Borrowing',
       collecting: 'Collecting Debt',
+      // ── New parent categories ──
+      pets: 'Pets',
+      sports: 'Sports & Fitness',
+      insurance: 'Insurance',
+      taxes: 'Taxes & Fees',
+      technology: 'Technology',
+      rental: 'Rental',
+      pension: 'Pension & Benefits',
+      // ── New subcategories: Pets ──
+      petFood: 'Pet Food',
+      petVet: 'Vet',
+      petAccessories: 'Pet Accessories',
+      petGrooming: 'Grooming',
+      // ── Sports ──
+      gym: 'Gym/Yoga',
+      sportsGear: 'Sports Gear',
+      courtRental: 'Court Rental',
+      swimming: 'Swimming',
+      // ── Insurance ──
+      insuranceVehicle: 'Vehicle Insurance',
+      insuranceHome: 'Home Insurance',
+      insuranceLife: 'Life Insurance',
+      insuranceTravel: 'Travel Insurance',
+      // ── Taxes & Fees ──
+      incomeTax: 'Income Tax',
+      roadFee: 'Road Fee',
+      fines: 'Fines',
+      licenseFee: 'License Fee',
+      // ── Technology ──
+      techPhone: 'Phone',
+      techLaptop: 'Laptop/Computer',
+      techAccessories: 'Tech Accessories',
+      techRepair: 'Electronics Repair',
+      // ── Rental (income) ──
+      rentalHouse: 'House Rental',
+      rentalVehicle: 'Vehicle Rental',
+      rentalItems: 'Item Rental',
+      // ── Pension (income) ──
+      pensionPay: 'Pension',
+      familyAllowance: 'Family Allowance',
+      socialWelfare: 'Social Welfare',
+      // ── Food: breakfast/lunch/dinner ──
+      breakfast: 'Breakfast',
+      lunch: 'Lunch',
+      dinner: 'Dinner',
+      drinks: 'Drinks (Milk Tea)',
+      foodDelivery: 'Food Delivery',
+      snacks: 'Snacks',
+      // ── Transport: additions ──
+      carWash: 'Car Wash',
+      trafficFines: 'Traffic Fines',
+      carInsurance: 'Car Insurance',
+      // ── Health: additions ──
+      dental: 'Dental',
+      eyecare: 'Eyecare',
+      checkup: 'General Checkup',
+      // ── Entertainment: additions ──
+      karaoke: 'Karaoke',
+      subscription: 'Subscription (Netflix/Spotify)',
+      // ── Salary: additions ──
+      dailyWage: 'Daily Wage',
+      fee: 'Freelance Fee',
     },
     // Savings
     savings: {
@@ -925,6 +1141,7 @@ export const translations = {
       fullName: 'Full Name',
       updateProfile: 'Update',
       profileUpdated: 'Profile updated successfully',
+      enterFullName: 'Enter your full name',
       passwordChangeFailed: 'Password change failed',
     },
     // Wallet card
@@ -1078,9 +1295,101 @@ export const translations = {
         weeklyReport: 'Weekly Report',
       },
     },
+    // Dark mode toggle
+    darkMode: {
+      switchToLight: 'Light Mode',
+      switchToDark: 'Dark Mode',
+    },
     // Auth errors
     authErrors: {
       invalidCredentials: 'Invalid email or password',
+    },
+    // Local Analysis (generateLocalAnalysis fallback)
+    localAnalysis: {
+      // Savings insights
+      savingsGood_title: 'Good savings rate',
+      savingsGood_desc: 'You are saving {rate}% of your income — exceeding the recommended 20%!',
+      savingsLow_title: 'Low savings rate',
+      savingsLow_desc: 'Saving {rate}% of income. Should reach at least 20%.',
+      overspending_title: 'Spending exceeds income',
+      overspending_desc: 'You are spending {rate}% more than your income. Cut back immediately!',
+      // Debt insights
+      hasDebt_title: 'Outstanding debt',
+      hasDebt_desc: 'Total debt {debt} ({ratio}% of income).',
+      debtTooHigh_title: 'Debt too high',
+      debtTooHigh_desc: 'Debt-to-income ratio {ratio}% exceeds safe threshold of 30%.',
+      // Net worth insights
+      netWorthPositive_title: 'Positive net worth',
+      netWorthPositive_desc: 'Total assets {assets}, no debt. Financial situation is very stable!',
+      assetsStrong_title: 'Strong assets',
+      assetsStrong_desc: 'Total assets {assets} are {multiple}x total debt. Debt is well-covered.',
+      assetsCoverDebt_title: 'Assets cover debt',
+      assetsCoverDebt_desc: 'Total assets {assets} are enough to cover all debt ({debt}).',
+      assetsInsufficient_title: 'Assets insufficient to cover debt',
+      assetsInsufficient_desc: 'Total assets {assets} are less than total debt {debt}. Negative net worth.',
+      negativeNetWorth_title: 'Negative net worth',
+      negativeNetWorth_riskDesc: 'Total debt ({debt}) exceeds total assets ({assets}). Debt is unsecured.',
+      negativeNetWorth_insightDesc: 'Total debt exceeds total assets. Net worth: {netWorth}.',
+      negativeNetWorth_riskDescShort: 'Total debt ({debt}) exceeds total assets ({assets}).',
+      noAssetsHasDebt_title: 'No assets, has debt',
+      noAssetsHasDebt_desc: 'You have {debt} in debt but no assets. Create a wallet to track!',
+      createWallet_title: 'Create wallet and build assets',
+      createWallet_desc: 'Create a cash/bank wallet to track assets and build an emergency fund.',
+      // Top category
+      topCategory_title: 'Top spending: {name}',
+      topCategory_desc: '{percentage}% of total spending ({amount}).',
+      // Spending trend
+      spendingIncreasing_title: 'Spending is increasing',
+      spendingIncreasing_desc: 'Compared to last month, your spending is trending up.',
+      createBudget_title: 'Set a spending budget',
+      createBudget_desc: 'Create budgets for main expense categories for better control.',
+      spendingDecreasing_title: 'Spending is decreasing',
+      spendingDecreasing_desc: 'Great! Spending is trending down compared to before.',
+      // Budget alerts
+      overBudget_title: '{count} categories over budget',
+      // Recommendations
+      increaseSavings_title: 'Increase savings rate',
+      increaseSavings_desc: 'Set a goal to save at least 20% of monthly income.',
+      debtPlan_title: 'Make a debt repayment plan',
+      debtPlan_desc: 'Prioritize paying off high-interest debt first.',
+      weeklyTracking_title: 'Track weekly spending',
+      weeklyTracking_desc: 'Check weekly expense reports to spot unusual charges early.',
+      // Summary
+      summary_good: 'Your financial health is good (score {score}/100, grade {grade}). Saving {savingsRate}% of income. Keep it up!',
+      summary_average: 'Financial health is average (score {score}/100, grade {grade}). Saving {savingsRate}% of income. Some metrics need improvement.',
+      summary_poor: 'Financial health needs improvement (score {score}/100, grade {grade}). Spending exceeds income or debt is too high. See recommendations below.',
+      // Financial runway
+      runway_safe: 'With net worth of {netWorth}, you can live {months} months without income. Safe enough!',
+      runway_ok: 'Net worth {netWorth} covers {months} months. Should increase emergency fund to 6 months.',
+      runway_short: 'Only enough for {months} months. Prioritize building a 3-6 month emergency fund.',
+      runway_none: 'Net worth insufficient to cover expenses. Prioritize saving immediately.',
+      // Asset allocation
+      emergencyFund_desc: 'Emergency fund for 3-6 months of expenses, kept in an easy-access savings account.',
+      investmentCapital_desc: 'Remaining assets after emergency fund, used for income-generating investments.',
+      allocation_strong: 'Net worth is strong. Emergency fund covered, invest the rest for returns.',
+      allocation_weak: 'Prioritize building a 3-6 month emergency fund before considering investing.',
+      // Investment channels
+      channel_savings: 'Bank savings',
+      channel_savings_desc: '6-12 month term deposits, stable interest, near-zero risk.',
+      channel_etf: 'ETF Fund Certificates',
+      channel_etf_desc: 'Passive investing via index funds, diversified risk, beginner-friendly.',
+      channel_gold: 'Gold',
+      channel_gold_desc: 'Hedge against inflation, high liquidity. Buy SJC gold bars or gold funds.',
+      channel_selfInvest: 'Self-development investment',
+      channel_selfInvest_desc: 'Learn new skills, professional certificates — the highest ROI investment.',
+      // Action plan
+      action_emergency_title: 'Build emergency fund',
+      action_emergency_desc: 'Target: {target} (6 months of expenses). Open a dedicated savings account.',
+      timeline_1_3_months: '1-3 months',
+      action_weeklyTracking_desc: 'Check expense reports weekly to spot unusual charges early.',
+      timeline_ongoing: 'Ongoing',
+      action_savingsGoal_title: 'Set a savings goal',
+      action_savingsGoal_desc: 'Create a savings goal in the app to track progress. Target: 20% of income.',
+      timeline_1_month: '1 month',
+      action_debtPlan_desc: 'Total debt {debt}. Prioritize paying off high-interest debt.',
+      timeline_3_6_months: '3-6 months',
+      action_startInvesting_title: 'Start investing',
+      action_startInvesting_desc: 'Finances are stable, no debt. Start small with ETF funds or gold.',
     },
   },
 } as const

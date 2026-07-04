@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, Minus, PiggyBank, CreditCard, Activity, Wallet, Landmark } from 'lucide-react'
 import type { FinancialHealthMetrics } from '@/types'
 import { useI18n } from '@/lib/i18n'
+import { useUIStore } from '@/stores/uiStore'
 
 interface Props {
   metrics: FinancialHealthMetrics
@@ -16,11 +17,13 @@ function formatCompact(value: number, unitBillion: string, unitMillion: string):
   if (Math.abs(value) >= 1_000) {
     return `${(value / 1_000).toFixed(1)}K`
   }
-  return value.toLocaleString('vi-VN')
+  return value.toLocaleString()
 }
 
 export default function MetricCards({ metrics }: Props) {
   const { t } = useI18n()
+  const { currency } = useUIStore()
+  const curSym = currency.symbol
 
   const trendIcon = {
     increasing: <TrendingUp className="h-4 w-4 text-red-500" />,
@@ -84,7 +87,7 @@ export default function MetricCards({ metrics }: Props) {
     {
       icon: <Wallet className="h-5 w-5" />,
       label: t.financialHealth.metrics.totalAssets,
-      value: `${formatCompact(metrics.totalAssets, t.financialHealth.billion, t.financialHealth.million)}đ`,
+      value: `${formatCompact(metrics.totalAssets, t.financialHealth.billion, t.financialHealth.million)}${curSym}`,
       color:
         metrics.totalAssets > 0
           ? 'text-blue-500 bg-blue-50'
@@ -93,7 +96,7 @@ export default function MetricCards({ metrics }: Props) {
     {
       icon: <Landmark className="h-5 w-5" />,
       label: t.financialHealth.metrics.netWorth,
-      value: `${formatCompact(metrics.netWorth, t.financialHealth.billion, t.financialHealth.million)}đ`,
+      value: `${formatCompact(metrics.netWorth, t.financialHealth.billion, t.financialHealth.million)}${curSym}`,
       color:
         metrics.netWorth > 0
           ? 'text-green-500 bg-green-50'

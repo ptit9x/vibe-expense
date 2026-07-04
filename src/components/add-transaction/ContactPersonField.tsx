@@ -10,12 +10,12 @@ export function ContactPersonField({ value, onChange, type }: ContactPersonField
   const { t } = useI18n()
 
   const label = type === 'lend'
-    ? (t.transaction.lender || 'Người vay')
-    : (t.transaction.borrower || 'Người cho vay')
+    ? t.transaction.lender
+    : t.transaction.borrower
 
   const placeholder = type === 'lend'
-    ? (t.transaction.lenderPlaceholder || 'Nhập tên người bạn cho vay')
-    : (t.transaction.borrowerPlaceholder || 'Nhập tên người cho bạn vay')
+    ? t.transaction.lenderPlaceholder
+    : t.transaction.borrowerPlaceholder
 
   return (
     <div className="bg-white mt-2 px-5 py-4">

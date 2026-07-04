@@ -8,6 +8,7 @@ import {
 import { getMockTransactions } from '@/mocks/mockTransactions'
 import { getMockWallets } from '@/mocks/mockWallets'
 import type { FinancialReport, AIAnalysis, FinancialHealthMetrics } from '@/types'
+import { translations } from '@/lib/i18n/translations'
 import type { Language } from '@/lib/i18n'
 
 const REPORT_SELECT =
@@ -72,7 +73,8 @@ export function useGenerateReport() {
       try {
         aiAnalysis = await callAnalysisEdgeFunction(metrics, opts.locale)
       } catch {
-        aiAnalysis = generateLocalAnalysis(metrics)
+        const t = translations[opts.locale || 'vi']
+        aiAnalysis = generateLocalAnalysis(metrics, t)
       }
 
       const report: FinancialReport = {
@@ -229,7 +231,7 @@ function getMockReports(): FinancialReport[] {
     wallets: getMockWallets(),
   })
 
-  const analysis = generateLocalAnalysis(metrics)
+  const analysis = generateLocalAnalysis(metrics, translations.vi)
 
   return [
     {
