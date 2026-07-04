@@ -35,9 +35,7 @@ export function useAddToSavings() {
         return { id: goalId, current_amount: amount }
       }
 
-      const user = await requireAuth()
-      void user // RPC function uses SECURITY DEFINER with ownership check
-
+      // RPC 'update_savings_progress' uses SECURITY DEFINER with ownership check internally
       const { data, error } = await supabase.rpc('update_savings_progress', {
         p_goal_id: goalId,
         p_amount: amount

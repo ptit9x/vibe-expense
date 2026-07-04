@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
@@ -50,6 +51,16 @@ export default function Dashboard() {
   const { data: wallets, error: walletError, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
 
+  const allTxns = useMemo(() => allTransactions || [], [allTransactions])
+  const totalBalance = useMemo(() => wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0, [wallets])
+  const currentMonthTxns = useMemo(() => allTxns.filter(t => t.transaction_date?.startsWith(currentMonth)), [allTxns, currentMonth])
+  const { income, expense } = useMemo(() => ({
+    income: currentMonthTxns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0),
+    expense: currentMonthTxns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0),
+  }), [currentMonthTxns])
+  const monthlyData = useMemo(() => computeMonthlyData(allTxns, 6, LOCALE_MAP[language]), [allTxns, language])
+  const expenseBreakdown = useMemo(() => computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory), [currentMonthTxns, t.dashboard.otherCategory])
+
   if (txError || walletError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -63,20 +74,8 @@ export default function Dashboard() {
     )
   }
 
-  const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
-  const allTxns = allTransactions || []
-
-  // Filter current month for summary cards
-  const currentMonthTxns = allTxns.filter(t => t.transaction_date?.startsWith(currentMonth))
-  const income = currentMonthTxns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0)
-  const expense = currentMonthTxns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0)
-
   // Recent transactions from current month only
   const recentTransactions: TransactionItem[] = currentMonthTxns.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
-  // Chart uses all 12 months of data for meaningful bars
-  const monthlyData = computeMonthlyData(allTxns, 6, LOCALE_MAP[language])
-  // Expense breakdown for current month
-  const expenseBreakdown = computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory)
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
 

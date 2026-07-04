@@ -31,9 +31,6 @@ export const isMockAuthAllowed = () => {
 }
 
 // Get current authenticated user ID from auth.users
-// NOTE: This function is unused — use requireAuth() instead which throws on missing auth.
-// Kept for reference but should be removed if not needed.
-
 // Require authenticated user — throws if not logged in
 // Use this in every mutation/query that needs auth
 export async function requireAuth() {

@@ -5,6 +5,43 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Local type definitions (mirrors src/types — Deno has no access to src/)
+interface AIAnalysis {
+  overall_score: number
+  grade: string
+  summary: string
+  insights: { icon: string; title: string; description: string; severity: string }[]
+  recommendations: { icon: string; title: string; description: string; priority: string }[]
+  risk_flags: { title: string; description: string; severity: string }[]
+  financial_runway: { months: number; description: string }
+  asset_allocation: {
+    emergency_fund: { percentage: number; amount: number; description: string }
+    investment_capital: { percentage: number; amount: number; description: string }
+    description: string
+  }
+  investment_channels: { name: string; risk_level: string; suggested_percentage: number; description: string }[]
+  action_plan: { icon: string; title: string; description: string; timeline: string; priority: string }[]
+  [key: string]: unknown
+}
+
+interface FinancialHealthMetrics {
+  totalIncome: number
+  totalExpense: number
+  totalDebt: number
+  totalLent: number
+  totalAssets: number
+  netWorth: number
+  assetToDebtRatio: number
+  savingsRate: number
+  expenseToIncomeRatio: number
+  debtToIncomeRatio: number
+  spendingTrend: string
+  topExpenseCategories: { category_name: string; total: number; percentage: number }[]
+  budgetUsage: { category_name: string; spent: number; budget: number; percentage: number }[]
+  savingsGoalProgress: { name: string; target: number; current: number; percentage: number }[]
+  monthlyExpenseComparison: { month: string; total: number }[]
+}
+
 const GEMINI_35_FLASH_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent'
 const GEMINI_25_FLASH_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
@@ -116,13 +153,13 @@ const LANG_MAP: Record<string, { name: string; instruction: string; advisorRole:
   },
 }
 
-function buildPrompt(metrics: any, locale: string): string {
+function buildPrompt(metrics: FinancialHealthMetrics, locale: string): string {
   const lang = LANG_MAP[locale] || LANG_MAP['vi']
 
   // Compute monthly average expense for runway hint
   const monthlyData = metrics.monthlyExpenseComparison || []
   const avgMonthlyExpense = monthlyData.length > 0
-    ? Math.round(monthlyData.reduce((s: number, m: any) => s + m.total, 0) / monthlyData.length)
+    ? Math.round(monthlyData.reduce((s: number, m: { month: string; total: number }) => s + m.total, 0) / monthlyData.length)
     : metrics.totalExpense
 
   return `${lang.advisorRole}
@@ -189,7 +226,7 @@ Rules:
 - risk_flags and investment_channels arrays can be empty if not applicable`
 }
 
-async function callGemini(prompt: string, apiUrl: string): Promise<any> {
+async function callGemini(prompt: string, apiUrl: string): Promise<AIAnalysis> {
   const apiKey = Deno.env.get('GEMINI_API_KEY')
   if (!apiKey) throw new Error('GEMINI_API_KEY not set')
 
@@ -224,7 +261,7 @@ async function callGemini(prompt: string, apiUrl: string): Promise<any> {
   return parseAIResponse(content)
 }
 
-function parseAIResponse(content: string): any {
+function parseAIResponse(content: string): AIAnalysis {
   let cleaned = content.trim()
 
   // Strip markdown code fences (```json ... ``` or ``` ... ```)

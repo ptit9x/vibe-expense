@@ -14,6 +14,7 @@ import type {
   AIAnalysis,
   HealthGrade,
 } from '@/types'
+import type { TranslationKey } from '@/lib/i18n/translations'
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -263,7 +264,10 @@ export function computeLocalScore(metrics: FinancialHealthMetrics): number {
   else score -= 15 // negative savings
 
   // Debt ratio (up to ±15)
-  if (metrics.debtToIncomeRatio === 0) score += 10
+  // Note: debtToIncomeRatio is 0 when there's no debt OR when income is 0.
+  // Distinguish: only award the no-debt bonus if there IS income.
+  if (metrics.totalDebt === 0 && metrics.totalIncome > 0) score += 10
+  else if (metrics.debtToIncomeRatio === 0 && metrics.totalIncome === 0) score += 0 // no income, neutral
   else if (metrics.debtToIncomeRatio <= 10) score += 5
   else if (metrics.debtToIncomeRatio <= 30) score -= 5
   else score -= 15
@@ -308,11 +312,18 @@ export function scoreToGrade(score: number): HealthGrade {
   return 'F'
 }
 
+// ── Template helper for i18n placeholders ───────────────────────────
+
+function tmpl(str: string, params: Record<string, string | number>): string {
+  return str.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''))
+}
+
 // ── Generate mock AI analysis locally ────────────────────────────────
 
-export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalysis {
+export function generateLocalAnalysis(metrics: FinancialHealthMetrics, t: TranslationKey, curSym = 'đ'): AIAnalysis {
   const score = computeLocalScore(metrics)
   const grade = scoreToGrade(score)
+  const la = t.localAnalysis
 
   const insights: AIAnalysis['insights'] = []
   const recommendations: AIAnalysis['recommendations'] = []
@@ -322,22 +333,22 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   if (metrics.savingsRate >= 20) {
     insights.push({
       icon: '💰',
-      title: 'Tỷ lệ tiết kiệm tốt',
-      description: `Bạn đang tiết kiệm ${metrics.savingsRate}% thu nhập — vượt mức khuyến nghị 20%!`,
+      title: la.savingsGood_title,
+      description: tmpl(la.savingsGood_desc, { rate: metrics.savingsRate }),
       severity: 'positive',
     })
   } else if (metrics.savingsRate >= 0) {
     insights.push({
       icon: '📊',
-      title: 'Tỷ lệ tiết kiệm thấp',
-      description: `Tiết kiệm ${metrics.savingsRate}% thu nhập. Nên đạt ít nhất 20%.`,
+      title: la.savingsLow_title,
+      description: tmpl(la.savingsLow_desc, { rate: metrics.savingsRate }),
       severity: 'neutral',
     })
   } else {
     insights.push({
       icon: '⚠️',
-      title: 'Chi tiêu vượt thu nhập',
-      description: `Bạn đang chi tiêu nhiều hơn thu nhập ${Math.abs(metrics.savingsRate)}%. Cần cắt giảm ngay!`,
+      title: la.overspending_title,
+      description: tmpl(la.overspending_desc, { rate: Math.abs(metrics.savingsRate) }),
       severity: 'negative',
     })
   }
@@ -346,82 +357,82 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   if (metrics.totalDebt > 0) {
     insights.push({
       icon: '💳',
-      title: 'Đang có khoản nợ',
-      description: `Tổng nợ ${metrics.totalDebt.toLocaleString('vi-VN')}đ (${metrics.debtToIncomeRatio}% thu nhập).`,
+      title: la.hasDebt_title,
+      description: tmpl(la.hasDebt_desc, { debt: `${metrics.totalDebt.toLocaleString()}${curSym}`, ratio: metrics.debtToIncomeRatio }),
       severity: metrics.debtToIncomeRatio > 30 ? 'negative' : 'neutral',
     })
     if (metrics.debtToIncomeRatio > 30) {
       risk_flags.push({
-        title: 'Nợ quá cao',
-        description: `Tỷ lệ nợ/thu nhập ${metrics.debtToIncomeRatio}% vượt ngưỡng an toàn 30%.`,
+        title: la.debtTooHigh_title,
+        description: tmpl(la.debtTooHigh_desc, { ratio: metrics.debtToIncomeRatio }),
         severity: 'danger',
       })
     }
   }
 
   // Net worth insight
-  const fmtAssets = metrics.totalAssets.toLocaleString('vi-VN')
-  const fmtNetWorth = metrics.netWorth.toLocaleString('vi-VN')
+  const fmtAssets = metrics.totalAssets.toLocaleString()
+  const fmtNetWorth = metrics.netWorth.toLocaleString()
   if (metrics.totalAssets > 0) {
     if (metrics.netWorth > 0) {
       if (metrics.totalDebt === 0) {
         insights.push({
           icon: '🏦',
-          title: 'Tài sản ròng dương',
-          description: `Tổng tài sản ${fmtAssets}đ, không có nợ. Tình trạng tài chính rất ổn định!`,
+          title: la.netWorthPositive_title,
+          description: tmpl(la.netWorthPositive_desc, { assets: `${fmtAssets}${curSym}` }),
           severity: 'positive',
         })
       } else if (metrics.assetToDebtRatio >= 200) {
         insights.push({
           icon: '🏦',
-          title: 'Tài sản đủ mạnh',
-          description: `Tổng tài sản ${fmtAssets}đ gấp ${Math.round(metrics.assetToDebtRatio / 100)} lần tổng nợ. Nợ được bảo đảm tốt.`,
+          title: la.assetsStrong_title,
+          description: tmpl(la.assetsStrong_desc, { assets: `${fmtAssets}${curSym}`, multiple: Math.round(metrics.assetToDebtRatio / 100) }),
           severity: 'positive',
         })
       } else if (metrics.assetToDebtRatio >= 100) {
         insights.push({
           icon: '🏦',
-          title: 'Tài sản đủ cover nợ',
-          description: `Tổng tài sản ${fmtAssets}đ đủ để trả toàn bộ nợ (${metrics.totalDebt.toLocaleString('vi-VN')}đ).`,
+          title: la.assetsCoverDebt_title,
+          description: tmpl(la.assetsCoverDebt_desc, { assets: `${fmtAssets}${curSym}`, debt: `${metrics.totalDebt.toLocaleString()}${curSym}` }),
           severity: 'neutral',
         })
       } else {
         insights.push({
           icon: '⚠️',
-          title: 'Tài sản chưa đủ cover nợ',
-          description: `Tổng tài sản ${fmtAssets}đ thấp hơn tổng nợ ${metrics.totalDebt.toLocaleString('vi-VN')}đ. Tài sản ròng âm.`,
+          title: la.assetsInsufficient_title,
+          description: tmpl(la.assetsInsufficient_desc, { assets: `${fmtAssets}${curSym}`, debt: `${metrics.totalDebt.toLocaleString()}${curSym}` }),
           severity: 'negative',
         })
         risk_flags.push({
-          title: 'Tài sản ròng âm',
-          description: `Tổng nợ (${metrics.totalDebt.toLocaleString('vi-VN')}đ) vượt tổng tài sản (${fmtAssets}đ). Nợ không được bảo đảm.`,
+          title: la.negativeNetWorth_title,
+          description: tmpl(la.negativeNetWorth_riskDesc, { debt: `${metrics.totalDebt.toLocaleString()}${curSym}`, assets: `${fmtAssets}${curSym}` }),
           severity: 'danger',
         })
       }
     } else {
       insights.push({
         icon: '⚠️',
-        title: 'Tài sản ròng âm',
-        description: `Tổng nợ vượt tổng tài sản. Tài sản ròng: ${fmtNetWorth}đ.`,
+        title: la.negativeNetWorth_title,
+        description: tmpl(la.negativeNetWorth_insightDesc, { netWorth: `${fmtNetWorth}${curSym}` }),
         severity: 'negative',
       })
       risk_flags.push({
-        title: 'Tài sản ròng âm',
-        description: `Tổng nợ (${metrics.totalDebt.toLocaleString('vi-VN')}đ) vượt tổng tài sản (${fmtAssets}đ).`,
+        title: la.negativeNetWorth_title,
+        description: tmpl(la.negativeNetWorth_riskDescShort, { debt: `${metrics.totalDebt.toLocaleString()}${curSym}`, assets: `${fmtAssets}${curSym}` }),
         severity: 'danger',
       })
     }
   } else if (metrics.totalDebt > 0) {
     insights.push({
       icon: '🚨',
-      title: 'Không có tài sản, đang có nợ',
-      description: `Bạn có nợ ${metrics.totalDebt.toLocaleString('vi-VN')}đ nhưng chưa có tài sản nào. Tạo ví để theo dõi!`,
+      title: la.noAssetsHasDebt_title,
+      description: tmpl(la.noAssetsHasDebt_desc, { debt: `${metrics.totalDebt.toLocaleString()}${curSym}` }),
       severity: 'negative',
     })
     recommendations.push({
       icon: '🏦',
-      title: 'Tạo ví và tích lũy tài sản',
-      description: 'Tạo ví tiền mặt/ngân hàng để theo dõi tài sản và xây dựng quỹ dự phòng.',
+      title: la.createWallet_title,
+      description: la.createWallet_desc,
       priority: 'high',
     })
   }
@@ -431,8 +442,8 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
     const top = metrics.topExpenseCategories[0]
     insights.push({
       icon: top.category_icon,
-      title: `Chi nhiều nhất: ${top.category_name}`,
-      description: `${top.percentage}% tổng chi tiêu (${top.total.toLocaleString('vi-VN')}đ).`,
+      title: tmpl(la.topCategory_title, { name: top.category_name }),
+      description: tmpl(la.topCategory_desc, { percentage: top.percentage, amount: `${top.total.toLocaleString()}${curSym}` }),
       severity: top.percentage > 40 ? 'negative' : 'neutral',
     })
   }
@@ -441,21 +452,21 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   if (metrics.spendingTrend === 'increasing') {
     insights.push({
       icon: '📈',
-      title: 'Chi tiêu đang tăng',
-      description: 'So với tháng trước, chi tiêu của bạn có xu hướng tăng.',
+      title: la.spendingIncreasing_title,
+      description: la.spendingIncreasing_desc,
       severity: 'negative',
     })
     recommendations.push({
       icon: '📋',
-      title: 'Lập ngân sách chi tiêu',
-      description: 'Tạo budget cho các danh mục chi tiêu chính để kiểm soát tốt hơn.',
+      title: la.createBudget_title,
+      description: la.createBudget_desc,
       priority: 'high',
     })
   } else if (metrics.spendingTrend === 'decreasing') {
     insights.push({
       icon: '📉',
-      title: 'Chi tiêu đang giảm',
-      description: 'Tốt! Chi tiêu đang có xu hướng giảm so với trước.',
+      title: la.spendingDecreasing_title,
+      description: la.spendingDecreasing_desc,
       severity: 'positive',
     })
   }
@@ -464,7 +475,7 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   const overBudget = metrics.budgetUsage.filter((b) => b.percentage > 100)
   if (overBudget.length > 0) {
     risk_flags.push({
-      title: `${overBudget.length} danh mục vượt ngân sách`,
+      title: tmpl(la.overBudget_title, { count: overBudget.length }),
       description: overBudget.map((b) => `${b.category_name}: ${b.percentage}%`).join(', '),
       severity: 'warning',
     })
@@ -474,37 +485,39 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   if (metrics.savingsRate < 20) {
     recommendations.push({
       icon: '🏦',
-      title: 'Tăng tỷ lệ tiết kiệm',
-      description: 'Đặt mục tiêu tiết kiệm ít nhất 20% thu nhập hàng tháng.',
+      title: la.increaseSavings_title,
+      description: la.increaseSavings_desc,
       priority: 'high',
     })
   }
   if (metrics.totalDebt > 0) {
     recommendations.push({
       icon: '💳',
-      title: 'Lên kế hoạch trả nợ',
-      description: 'Ưu tiên trả các khoản nợ lãi suất cao trước.',
+      title: la.debtPlan_title,
+      description: la.debtPlan_desc,
       priority: metrics.debtToIncomeRatio > 20 ? 'high' : 'medium',
     })
   }
   recommendations.push({
     icon: '📊',
-    title: 'Theo dõi chi tiêu hàng tuần',
-    description: 'Kiểm tra báo cáo chi tiêu hàng tuần để phát hiện sớm các khoản bất thường.',
+    title: la.weeklyTracking_title,
+    description: la.weeklyTracking_desc,
     priority: 'medium',
   })
 
   // Summary
   const summary =
     score >= 75
-      ? `Sức khỏe tài chính của bạn ở mức tốt (điểm ${score}/100, hạng ${grade}). Tiết kiệm ${metrics.savingsRate}% thu nhập. Tiếp tục duy trì!`
+      ? tmpl(la.summary_good, { score, grade, savingsRate: metrics.savingsRate })
       : score >= 50
-        ? `Sức khỏe tài chính ở mức trung bình (điểm ${score}/100, hạng ${grade}). Tiết kiệm ${metrics.savingsRate}% thu nhập. Cần cải thiện một số chỉ số.`
-        : `Sức khỏe tài chính cần cải thiện (điểm ${score}/100, hạng ${grade}). Chi tiêu vượt thu nhập hoặc nợ quá cao. Hãy xem các đề xuất bên dưới.`
+        ? tmpl(la.summary_average, { score, grade, savingsRate: metrics.savingsRate })
+        : tmpl(la.summary_poor, { score, grade })
 
   // Financial Runway
-  const avgMonthlyExpense = metrics.expenseToIncomeRatio > 0 && metrics.totalIncome > 0
-    ? metrics.totalExpense
+  // Use monthly expense comparison data for a more accurate average when available
+  const monthlyExpenses = metrics.monthlyExpenseComparison || []
+  const avgMonthlyExpense = monthlyExpenses.length > 0
+    ? Math.round(monthlyExpenses.reduce((sum, m) => sum + m.total, 0) / monthlyExpenses.length)
     : metrics.totalExpense
   const runwayMonths = avgMonthlyExpense > 0 && metrics.netWorth > 0
     ? Math.round(metrics.netWorth / avgMonthlyExpense)
@@ -513,12 +526,12 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   const financial_runway = {
     months: runwayMonths,
     description: runwayMonths >= 6
-      ? `Với tài sản ròng ${fmtNetWorth}đ, bạn có thể sống ${runwayMonths} tháng không có thu nhập. Đủ an toàn!`
+      ? tmpl(la.runway_safe, { netWorth: `${fmtNetWorth}${curSym}`, months: runwayMonths })
       : runwayMonths >= 3
-        ? `Tài sản ròng ${fmtNetWorth}đ đủ cho ${runwayMonths} tháng. Nên tăng quỹ dự phòng lên 6 tháng.`
+        ? tmpl(la.runway_ok, { netWorth: `${fmtNetWorth}${curSym}`, months: runwayMonths })
         : runwayMonths > 0
-          ? `Chỉ có đủ cho ${runwayMonths} tháng. Ưu tiên xây quỹ dự phòng 3-6 tháng chi tiêu.`
-          : `Tài sản ròng chưa đủ để cover chi tiêu. Cần ưu tiên tích lũy ngay.`,
+          ? tmpl(la.runway_short, { months: runwayMonths })
+          : la.runway_none,
   }
 
   // Asset Allocation
@@ -526,43 +539,43 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
     emergency_fund: {
       percentage: metrics.netWorth > 0 ? Math.min(Math.round((avgMonthlyExpense * 6 / metrics.netWorth) * 100), 80) : 100,
       amount: Math.round(avgMonthlyExpense * 6),
-      description: 'Quỹ dự phòng 3-6 tháng chi tiêu, đặt tại tài khoản tiết kiệm dễ rút.',
+      description: la.emergencyFund_desc,
     },
     investment_capital: {
       percentage: metrics.netWorth > 0 ? Math.max(100 - Math.min(Math.round((avgMonthlyExpense * 6 / metrics.netWorth) * 100), 80), 20) : 0,
       amount: metrics.netWorth > 0 ? Math.max(metrics.netWorth - avgMonthlyExpense * 6, 0) : 0,
-      description: 'Phần tài sản còn lại sau quỹ dự phòng, dùng để đầu tư sinh lời.',
+      description: la.investmentCapital_desc,
     },
     description: metrics.netWorth > avgMonthlyExpense * 6
-      ? 'Tài sản ròng đủ mạnh. Đã có quỹ dự phòng, phần còn lại nên đầu tư sinh lời.'
-      : 'Ưu tiên xây quỹ dự phòng 3-6 tháng trước khi nghĩ đến đầu tư.',
+      ? la.allocation_strong
+      : la.allocation_weak,
   }
 
   // Investment Channels
   const investment_channels = [
     {
-      name: 'Tiết kiệm ngân hàng',
+      name: la.channel_savings,
       risk_level: 'low' as const,
       suggested_percentage: 40,
-      description: 'Gửi tiết kiệm kỳ hạn 6-12 tháng, lãi suất ổn định, rủi ro gần như bằng 0.',
+      description: la.channel_savings_desc,
     },
     {
-      name: 'Chứng chỉ quỹ ETF',
+      name: la.channel_etf,
       risk_level: 'medium_low' as const,
       suggested_percentage: 30,
-      description: 'Đầu tư thụ động qua quỹ chỉ số, phân tán rủi ro, phù hợp người mới.',
+      description: la.channel_etf_desc,
     },
     {
-      name: 'Vàng',
+      name: la.channel_gold,
       risk_level: 'medium_low' as const,
       suggested_percentage: 20,
-      description: 'Tránh lạm phát, tính thanh khoản cao. Nên mua vàng miếng SJC hoặc quỹ vàng.',
+      description: la.channel_gold_desc,
     },
     {
-      name: 'Đầu tư phát triển bản thân',
+      name: la.channel_selfInvest,
       risk_level: 'medium' as const,
       suggested_percentage: 10,
-      description: 'Học kỹ năng mới, chứng chỉ chuyên môn — khoản đầu tư ROI cao nhất.',
+      description: la.channel_selfInvest_desc,
     },
   ]
 
@@ -570,38 +583,38 @@ export function generateLocalAnalysis(metrics: FinancialHealthMetrics): AIAnalys
   const action_plan = [
     {
       icon: '🏦',
-      title: 'Xây quỹ dự phòng',
-      description: `Mục tiêu: ${Math.round(avgMonthlyExpense * 6).toLocaleString('vi-VN')}đ (6 tháng chi tiêu). Mở sổ tiết kiệm riêng.`,
-      timeline: '1-3 tháng',
+      title: la.action_emergency_title,
+      description: tmpl(la.action_emergency_desc, { target: `${Math.round(avgMonthlyExpense * 6).toLocaleString()}${curSym}` }),
+      timeline: la.timeline_1_3_months,
       priority: 'high' as const,
     },
     {
       icon: '📊',
-      title: 'Theo dõi chi tiêu hàng tuần',
-      description: 'Kiểm tra báo cáo chi tiêu mỗi tuần để phát hiện khoản bất thường sớm.',
-      timeline: 'Liên tục',
+      title: la.weeklyTracking_title,
+      description: la.action_weeklyTracking_desc,
+      timeline: la.timeline_ongoing,
       priority: 'medium' as const,
     },
     {
       icon: '🎯',
-      title: 'Đặt mục tiêu tiết kiệm',
-      description: 'Tạo mục tiêu tiết kiệm trong app để theo dõi tiến độ. Mục tiêu: 20% thu nhập.',
-      timeline: '1 tháng',
+      title: la.action_savingsGoal_title,
+      description: la.action_savingsGoal_desc,
+      timeline: la.timeline_1_month,
       priority: 'high' as const,
     },
     metrics.totalDebt > 0
       ? {
           icon: '💳',
-          title: 'Lên kế hoạch trả nợ',
-          description: `Tổng nợ ${metrics.totalDebt.toLocaleString('vi-VN')}đ. Ưu tiên trả nợ lãi suất cao trước.`,
-          timeline: '3-6 tháng',
+          title: la.debtPlan_title,
+          description: tmpl(la.action_debtPlan_desc, { debt: `${metrics.totalDebt.toLocaleString()}${curSym}` }),
+          timeline: la.timeline_3_6_months,
           priority: 'high' as const,
         }
       : {
           icon: '📈',
-          title: 'Bắt đầu đầu tư',
-          description: 'Tài chính ổn, không có nợ. Bắt đầu đầu tư nhỏ qua quỹ ETF hoặc vàng.',
-          timeline: '3-6 tháng',
+          title: la.action_startInvesting_title,
+          description: la.action_startInvesting_desc,
+          timeline: la.timeline_3_6_months,
           priority: 'medium' as const,
         },
   ].filter(Boolean)

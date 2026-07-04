@@ -151,7 +151,7 @@ export default function ResetPassword() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t.registerPage.atLeast6Chars}
+                placeholder={t.resetPassword.newPassword}
                 className="w-full h-12 px-4 pr-12 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button

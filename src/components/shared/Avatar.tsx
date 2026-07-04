@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const SIZE_MAP = {
@@ -36,11 +36,11 @@ interface AvatarProps {
 }
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
-  const [imgError, setImgError] = useState(false)
-  useEffect(() => setImgError(false), [src])
+  const [imgErrorSrc, setImgErrorSrc] = useState<string | null>(null)
   const displayName = name || 'User'
 
-  const showImage = src && !imgError
+  // If src changed since the error, clear the error state
+  const showImage = src && src !== imgErrorSrc
 
   return (
     <div
@@ -55,7 +55,7 @@ export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
           src={src}
           alt={displayName}
           className="h-full w-full object-cover"
-          onError={() => setImgError(true)}
+          onError={() => setImgErrorSrc(src ?? null)}
         />
       ) : (
         <div

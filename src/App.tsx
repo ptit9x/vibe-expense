@@ -105,8 +105,8 @@ function AppContent() {
           <Route path="/500" element={<ServerError />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+      </Suspense>
       <Toaster />
-    </Suspense>
     </>
   )
 }
