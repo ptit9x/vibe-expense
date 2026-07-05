@@ -38,6 +38,7 @@ const Forbidden = lazy(() => import('./pages/Forbidden'))
 
 import { Toaster } from '@/components/ui/sonner'
 import { useAuthListener } from '@/hooks/useAuth'
+import { useOutboxSync } from '@/hooks/useOutboxSync'
 import './App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -60,6 +61,7 @@ function LoadingSpinner() {
 
 function AppContent() {
   useAuthListener()
+  useOutboxSync()
 
   return (
     <>

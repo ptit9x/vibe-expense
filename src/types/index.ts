@@ -271,6 +271,20 @@ export interface FinancialReport {
   created_at: DateString
 }
 
+// ===== Offline Outbox =====
+
+export type OutboxOperation = 'create' | 'update'
+
+export interface OutboxEntry {
+  tempId: string              // crypto.randomUUID() — khóa chính trong outbox
+  operation: OutboxOperation
+  payload: CreateTransactionInput | UpdateTransactionInput
+  createdAt: string           // ISO timestamp
+  status: 'pending' | 'syncing' | 'failed'
+  attempts: number            // số lần thử sync thất bại
+  lastError?: string          // message lỗi gần nhất (debug)
+}
+
 // ===== In-App Notifications =====
 
 export type NotificationType = 'info' | 'warning' | 'success' | 'budget_alert' | 'debt_reminder' | 'inactivity_reminder' | 'financial_health'

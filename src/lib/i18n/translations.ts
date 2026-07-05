@@ -31,6 +31,10 @@ export const translations = {
       minutesAgo: 'phút trước',
       hoursAgo: 'giờ trước',
       daysAgo: 'ngày trước',
+      offlineMode: 'Đang ngoại tuyến',
+      pendingSync: 'đang chờ đồng bộ',
+      syncComplete: 'Đã đồng bộ xong',
+      syncFailed: 'Đồng bộ thất bại, sẽ thử lại',
     },
     // Auth
     auth: {
@@ -170,6 +174,8 @@ export const translations = {
       today: 'Hôm nay',
       showingLast12Months: 'Hiển thị 12 tháng gần nhất',
       selectMonth: 'Chọn tháng',
+      savedOffline: 'Đã lưu offline, sẽ đồng bộ khi có mạng',
+      outboxFull: 'Đã đạt giới hạn 20 giao dịch offline. Vui lòng kết nối mạng để đồng bộ.',
     },
     // Wallet
     wallet: {
@@ -727,6 +733,10 @@ export const translations = {
       minutesAgo: 'minutes ago',
       hoursAgo: 'hours ago',
       daysAgo: 'days ago',
+      offlineMode: 'Offline mode',
+      pendingSync: 'pending sync',
+      syncComplete: 'Sync complete',
+      syncFailed: 'Sync failed, will retry',
     },
     // Auth
     auth: {
@@ -866,6 +876,8 @@ export const translations = {
       today: 'Today',
       showingLast12Months: 'Showing last 12 months',
       selectMonth: 'Select month',
+      savedOffline: 'Saved offline, will sync when online',
+      outboxFull: 'Reached the 20 offline transactions limit. Please connect to sync.',
     },
     // Wallet
     wallet: {

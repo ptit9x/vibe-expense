@@ -1,21 +1,25 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
+import { useTransaction } from '@/hooks/useTransactions'
+import { useTransactionSave } from '@/hooks/useTransactionSave'
 import { useTransactionFormStore } from '@/stores/transactionFormStore'
 import { TransactionForm } from '@/components/add-transaction'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
+import type { UpdateTransactionInput } from '@/types'
 
 export default function EditTransaction() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const updateTransaction = useUpdateTransaction()
+  const { saveUpdate, isPending } = useTransactionSave()
   const { t } = useI18n()
-  const { type, amount, walletId, toWalletId, categoryId, description, contactPerson, date, loadTransaction, reset } = useTransactionFormStore()
+  const {
+    type, amount, walletId, toWalletId, categoryId,
+    description, contactPerson, date, loadTransaction, reset,
+  } = useTransactionFormStore()
 
   const { data: transaction, isLoading, error } = useTransaction(id)
 
-  // Load transaction data into form once
   useEffect(() => {
     if (transaction) {
       loadTransaction({
@@ -33,18 +37,12 @@ export default function EditTransaction() {
     return () => reset()
   }, [transaction, loadTransaction, reset])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!id) return
-    if (!amount || parseFloat(amount) <= 0) {
-      toast.error(t.transaction.invalidAmount)
-      return
-    }
-    if (!walletId) {
-      toast.error(t.transaction.selectWallet)
-      return
-    }
+    if (!amount || parseFloat(amount) <= 0) { toast.error(t.transaction.invalidAmount); return }
+    if (!walletId) { toast.error(t.transaction.selectWallet); return }
 
-    updateTransaction.mutate({
+    const input: UpdateTransactionInput = {
       id,
       type: type as 'income' | 'expense' | 'lend' | 'borrow' | 'transfer',
       amount: parseFloat(amount),
@@ -54,7 +52,9 @@ export default function EditTransaction() {
       to_wallet_id: type === 'transfer' ? toWalletId || undefined : undefined,
       category_id: categoryId || undefined,
       transaction_date: date,
-    }, {
+    }
+
+    const result = await saveUpdate(input, {
       onSuccess: () => {
         reset()
         toast.success(t.settings.transactionUpdated)
@@ -64,6 +64,13 @@ export default function EditTransaction() {
         toast.error(error instanceof Error ? error.message : t.common.error)
       },
     })
+
+    if (result.offline) {
+      toast.dismiss()
+      toast.info(t.transaction.savedOffline)
+    } else if (result.outboxFull) {
+      toast.error(t.transaction.outboxFull)
+    }
   }
 
   if (isLoading) {
@@ -89,7 +96,7 @@ export default function EditTransaction() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TransactionForm onSave={handleSave} isPending={updateTransaction.isPending} />
+      <TransactionForm onSave={handleSave} isPending={isPending} />
     </div>
   )
 }
