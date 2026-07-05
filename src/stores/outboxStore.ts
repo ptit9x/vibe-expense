@@ -1,14 +1,18 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { OutboxEntry, OutboxOperation, CreateTransactionInput, UpdateTransactionInput } from '@/types'
+import type { OutboxEntry, CreateTransactionInput, UpdateTransactionInput } from '@/types'
 
 interface OutboxState {
   entries: OutboxEntry[]
 
   // Actions
-  add: (operation: OutboxOperation, payload: CreateTransactionInput | UpdateTransactionInput) => string
+  add: {
+    (operation: 'create', payload: CreateTransactionInput): string
+    (operation: 'update', payload: UpdateTransactionInput): string
+  }
   updateStatus: (tempId: string, status: OutboxEntry['status'], lastError?: string) => void
   remove: (tempId: string) => void
+  retryFailed: () => void
   clearFailed: () => void
   clearAll: () => void
   getPending: () => OutboxEntry[]
@@ -21,23 +25,22 @@ export const useOutboxStore = create<OutboxState>()(
     (set, get) => ({
       entries: [],
 
-      add: (operation, payload) => {
-        // Giới hạn: không cho phép ghi thêm nếu đã quá MAX_OFFLINE_ENTRIES
+      add: ((operation: 'create' | 'update', payload: CreateTransactionInput | UpdateTransactionInput) => {
         if (get().entries.length >= MAX_OFFLINE_ENTRIES) {
           throw new Error('OUTBOX_FULL')
         }
         const tempId = crypto.randomUUID()
-        const entry: OutboxEntry = {
+        const entry = {
           tempId,
           operation,
           payload,
           createdAt: new Date().toISOString(),
-          status: 'pending',
+          status: 'pending' as const,
           attempts: 0,
         }
-        set((state) => ({ entries: [...state.entries, entry] }))
+        set((state) => ({ entries: [...state.entries, entry as OutboxEntry] }))
         return tempId
-      },
+      }) as OutboxState['add'],
 
       updateStatus: (tempId, status, lastError) =>
         set((state) => ({
@@ -55,6 +58,15 @@ export const useOutboxStore = create<OutboxState>()(
 
       remove: (tempId) =>
         set((state) => ({ entries: state.entries.filter((e) => e.tempId !== tempId) })),
+
+      retryFailed: () =>
+        set((state) => ({
+          entries: state.entries.map((e) =>
+            e.status === 'failed'
+              ? { ...e, status: 'pending' as const, lastError: undefined }
+              : e
+          ),
+        })),
 
       clearFailed: () =>
         set((state) => ({ entries: state.entries.filter((e) => e.status !== 'failed') })),

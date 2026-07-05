@@ -273,17 +273,20 @@ export interface FinancialReport {
 
 // ===== Offline Outbox =====
 
-export type OutboxOperation = 'create' | 'update'
+export type OutboxStatus = 'pending' | 'syncing' | 'failed'
 
-export interface OutboxEntry {
+export interface OutboxBase {
   tempId: string              // crypto.randomUUID() — khóa chính trong outbox
-  operation: OutboxOperation
-  payload: CreateTransactionInput | UpdateTransactionInput
   createdAt: string           // ISO timestamp
-  status: 'pending' | 'syncing' | 'failed'
+  status: OutboxStatus
   attempts: number            // số lần thử sync thất bại
   lastError?: string          // message lỗi gần nhất (debug)
 }
+
+/** Discriminated union — operation determines payload type */
+export type OutboxEntry =
+  | (OutboxBase & { operation: 'create'; payload: CreateTransactionInput })
+  | (OutboxBase & { operation: 'update'; payload: UpdateTransactionInput })
 
 // ===== In-App Notifications =====
 

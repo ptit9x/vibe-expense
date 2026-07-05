@@ -4,7 +4,8 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { useOutboxStore } from '@/stores/outboxStore'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import type {
-  Transaction, CreateTransactionInput, UpdateTransactionInput,
+  Transaction, Wallet, Category,
+  CreateTransactionInput, UpdateTransactionInput,
 } from '@/types'
 
 interface SaveResult {
@@ -13,11 +14,17 @@ interface SaveResult {
   tempId?: string
 }
 
+interface SaveCallbacks {
+  onSuccess?: () => void
+  onError?: (e: Error) => void
+  onOffline?: () => void
+}
+
 /**
  * Encapsulates add/edit transaction với offline support.
- * - Online: gọi Supabase mutation như cũ.
- * - Offline (và Supabase configured): ghi outbox + optimistic cache.
- * - Mock mode (no Supabase): luôn online path (mutation trả object giả).
+ * - Online: await mutateAsync → onSuccess/onError.
+ * - Offline: ghi outbox + optimistic cache → onOffline (KHÔNG gọi onSuccess).
+ * - Mock mode (no Supabase): luôn online path.
  */
 export function useTransactionSave() {
   const isOnline = useOnlineStatus()
@@ -28,23 +35,16 @@ export function useTransactionSave() {
 
   async function saveCreate(
     input: CreateTransactionInput,
-    callbacks?: { onSuccess?: () => void; onError?: (e: Error) => void }
+    callbacks?: SaveCallbacks
   ): Promise<SaveResult> {
-    // Mock mode → dùng mutation bình thường
-    if (!isSupabaseConfigured()) {
-      createTx.mutate(input, {
-        onSuccess: callbacks?.onSuccess,
-        onError: (e) => callbacks?.onError?.(e),
-      })
-      return { offline: false }
-    }
-
-    // Online → Supabase
-    if (isOnline) {
-      createTx.mutate(input, {
-        onSuccess: callbacks?.onSuccess,
-        onError: (e) => callbacks?.onError?.(e),
-      })
+    // Mock mode hoặc online → Supabase
+    if (!isSupabaseConfigured() || isOnline) {
+      try {
+        await createTx.mutateAsync(input)
+        callbacks?.onSuccess?.()
+      } catch (e) {
+        callbacks?.onError?.(e instanceof Error ? e : new Error(String(e)))
+      }
       return { offline: false }
     }
 
@@ -55,24 +55,26 @@ export function useTransactionSave() {
     } catch {
       return { offline: false, outboxFull: true }
     }
-    const tempTx = buildTempTransaction(tempId, input)
+    const tempTx = buildTempTransaction(tempId, input, queryClient)
     queryClient.setQueriesData<Transaction[]>(
       { queryKey: ['transactions'] },
       (old) => (old ? [tempTx, ...old] : old)
     )
-    callbacks?.onSuccess?.()
+    callbacks?.onOffline?.()
     return { offline: true, tempId }
   }
 
   async function saveUpdate(
     input: UpdateTransactionInput,
-    callbacks?: { onSuccess?: () => void; onError?: (e: Error) => void }
+    callbacks?: SaveCallbacks
   ): Promise<SaveResult> {
     if (!isSupabaseConfigured() || isOnline) {
-      updateTx.mutate(input, {
-        onSuccess: callbacks?.onSuccess,
-        onError: (e) => callbacks?.onError?.(e),
-      })
+      try {
+        await updateTx.mutateAsync(input)
+        callbacks?.onSuccess?.()
+      } catch (e) {
+        callbacks?.onError?.(e instanceof Error ? e : new Error(String(e)))
+      }
       return { offline: false }
     }
 
@@ -91,7 +93,7 @@ export function useTransactionSave() {
     queryClient.setQueryData<Transaction>(['transaction', id], (old) =>
       old ? { ...old, ...changes } : old
     )
-    callbacks?.onSuccess?.()
+    callbacks?.onOffline?.()
     return { offline: true, tempId }
   }
 
@@ -102,8 +104,32 @@ export function useTransactionSave() {
   }
 }
 
-/** Build optimistic temp Transaction từ input create */
-function buildTempTransaction(tempId: string, input: CreateTransactionInput): Transaction {
+// ===== Helpers =====
+
+type QC = ReturnType<typeof useQueryClient>
+
+/** Look up wallet từ TanStack Query cache by ID */
+function lookupWallet(qc: QC, walletId: string | null | undefined): Wallet | undefined {
+  if (!walletId) return undefined
+  for (const [, data] of qc.getQueriesData<Wallet[]>({ queryKey: ['wallets'] })) {
+    const found = data?.find((w) => w.id === walletId)
+    if (found) return found
+  }
+  return undefined
+}
+
+/** Look up category từ TanStack Query cache by ID */
+function lookupCategory(qc: QC, categoryId: string | null | undefined): Category | undefined {
+  if (!categoryId) return undefined
+  for (const [, data] of qc.getQueriesData<Category[]>({ queryKey: ['categories'] })) {
+    const found = data?.find((c) => c.id === categoryId)
+    if (found) return found
+  }
+  return undefined
+}
+
+/** Build optimistic temp Transaction, fill relation data từ cache để UI không hiện undefined */
+function buildTempTransaction(tempId: string, input: CreateTransactionInput, qc: QC): Transaction {
   return {
     id: tempId,
     user_id: '',
@@ -117,6 +143,10 @@ function buildTempTransaction(tempId: string, input: CreateTransactionInput): Tr
     transaction_date: input.transaction_date,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Relations — lookup từ cache để UI render đúng tên/icon/màu
+    wallet: lookupWallet(qc, input.wallet_id),
+    to_wallet: lookupWallet(qc, input.to_wallet_id),
+    category: lookupCategory(qc, input.category_id),
   }
 }
 

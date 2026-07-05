@@ -35,6 +35,7 @@ export const translations = {
       pendingSync: 'đang chờ đồng bộ',
       syncComplete: 'Đã đồng bộ xong',
       syncFailed: 'Đồng bộ thất bại, sẽ thử lại',
+      retry: 'Thử lại',
     },
     // Auth
     auth: {
@@ -737,6 +738,7 @@ export const translations = {
       pendingSync: 'pending sync',
       syncComplete: 'Sync complete',
       syncFailed: 'Sync failed, will retry',
+      retry: 'Retry',
     },
     // Auth
     auth: {

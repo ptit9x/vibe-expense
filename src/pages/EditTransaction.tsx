@@ -63,12 +63,14 @@ export default function EditTransaction() {
       onError: (error) => {
         toast.error(error instanceof Error ? error.message : t.common.error)
       },
+      onOffline: () => {
+        reset()
+        toast.info(t.transaction.savedOffline)
+        navigate(-1)
+      },
     })
 
-    if (result.offline) {
-      toast.dismiss()
-      toast.info(t.transaction.savedOffline)
-    } else if (result.outboxFull) {
+    if (result.outboxFull) {
       toast.error(t.transaction.outboxFull)
     }
   }

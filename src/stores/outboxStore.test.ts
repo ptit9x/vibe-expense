@@ -22,6 +22,7 @@ describe('outboxStore', () => {
     expect(entries).toHaveLength(1)
     expect(entries[0].status).toBe('pending')
     expect(entries[0].attempts).toBe(0)
+    expect(entries[0].operation).toBe('create')
   })
 
   it('updateStatus() marks failed and increments attempts', () => {
@@ -67,5 +68,27 @@ describe('outboxStore', () => {
     ).toThrow('OUTBOX_FULL')
     // Vẫn đúng MAX_OFFLINE_ENTRIES, không thêm entry thừa
     expect(useOutboxStore.getState().entries).toHaveLength(MAX_OFFLINE_ENTRIES)
+  })
+
+  it('retryFailed() resets failed entries back to pending and clears lastError', () => {
+    const tempId = useOutboxStore.getState().add('create', sampleInput)
+    useOutboxStore.getState().updateStatus(tempId, 'failed', 'network error')
+    expect(useOutboxStore.getState().entries[0].status).toBe('failed')
+
+    useOutboxStore.getState().retryFailed()
+    const e = useOutboxStore.getState().entries[0]
+    expect(e.status).toBe('pending')
+    expect(e.lastError).toBeUndefined()
+  })
+
+  it('retryFailed() does not affect pending or syncing entries', () => {
+    const id1 = useOutboxStore.getState().add('create', { ...sampleInput, amount: 1 })
+    useOutboxStore.getState().add('create', { ...sampleInput, amount: 2 })
+    useOutboxStore.getState().updateStatus(id1, 'syncing')
+    // id2 still pending
+    useOutboxStore.getState().retryFailed()
+    const entries = useOutboxStore.getState().entries
+    expect(entries[0].status).toBe('syncing')
+    expect(entries[1].status).toBe('pending')
   })
 })
