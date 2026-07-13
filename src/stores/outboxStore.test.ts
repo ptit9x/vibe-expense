@@ -91,4 +91,27 @@ describe('outboxStore', () => {
     expect(entries[0].status).toBe('syncing')
     expect(entries[1].status).toBe('pending')
   })
+
+  // C4 fix: updating a transaction whose id matches a pending create's tempId
+  // must merge into that create entry — not create a separate update entry
+  // (which would UPDATE a non-existent DB row and silently lose the edits).
+  it('add(update) merges into a pending create with matching tempId', () => {
+    const tempId = useOutboxStore.getState().add('create', sampleInput)
+    // Simulate editing the just-created transaction offline
+    useOutboxStore.getState().add('update', { id: tempId, amount: 500 })
+
+    const entries = useOutboxStore.getState().entries
+    expect(entries).toHaveLength(1) // still a single entry, not two
+    expect(entries[0].operation).toBe('create')
+    expect(entries[0].tempId).toBe(tempId)
+    expect((entries[0].payload as CreateTransactionInput).amount).toBe(500) // merged
+  })
+
+  it('add(update) creates a new entry when target is NOT a pending create', () => {
+    // Updating an existing DB transaction offline → separate update entry
+    useOutboxStore.getState().add('update', { id: 'existing-db-id', amount: 200 })
+    const entries = useOutboxStore.getState().entries
+    expect(entries).toHaveLength(1)
+    expect(entries[0].operation).toBe('update')
+  })
 })

@@ -35,7 +35,6 @@ export const translations = {
       pendingSync: 'đang chờ đồng bộ',
       syncComplete: 'Đã đồng bộ xong',
       syncFailed: 'Đồng bộ thất bại, sẽ thử lại',
-      retry: 'Thử lại',
     },
     // Auth
     auth: {
@@ -738,7 +737,6 @@ export const translations = {
       pendingSync: 'pending sync',
       syncComplete: 'Sync complete',
       syncFailed: 'Sync failed, will retry',
-      retry: 'Retry',
     },
     // Auth
     auth: {
@@ -1409,4 +1407,10 @@ export const translations = {
 } as const
 
 export type Language = keyof typeof translations
-export type TranslationKey = typeof translations.vi
+// Structural type so translations.en is assignable to translations.vi despite
+// differing string literals. All code consuming `t` should accept this widened
+// type (or typeof translations.vi, which is assignable to it).
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepString<T[K]>
+}
+export type TranslationKey = DeepString<typeof translations.vi>

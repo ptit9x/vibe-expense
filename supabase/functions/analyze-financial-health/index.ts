@@ -245,7 +245,9 @@ async function callGemini(prompt: string, apiUrl: string): Promise<AIAnalysis> {
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`Gemini API error (${apiUrl.split('/').pop()?.split(':')[0]}): ${response.status} ${text}`)
+    // Log full upstream response server-side only; do not leak it to the client
+    console.error(`Gemini API error (${apiUrl.split('/').pop()?.split(':')[0]}): ${response.status}`, text)
+    throw new Error('AI analysis service temporarily unavailable')
   }
 
   const data = await response.json()
@@ -291,7 +293,7 @@ function parseAIResponse(content: string): AIAnalysis {
     if (depth > 0) {
       let repaired = cleaned.slice(firstBrace)
       // Remove trailing incomplete value (partial string, number, etc.)
-      repaired = repaired.replace(/[^,\[{]\s*$/, '')
+      repaired = repaired.replace(/[^,[{]\s*$/, '')
       // Count unclosed brackets
       let opens = 0
       let closeChars = ''
@@ -326,6 +328,8 @@ function parseAIResponse(content: string): AIAnalysis {
     } catch { /* continue */ }
   }
 
-  console.error('Raw AI response (first 500 chars):', content.slice(0, 500))
-  throw new Error('Failed to parse AI response as JSON. Raw: ' + content.slice(0, 200))
+  // Do not log raw AI response — it contains user financial data (income,
+  // expenses, debt, savings). Log a generic failure message only.
+  console.error('Failed to parse AI response as JSON')
+  throw new Error('Failed to parse AI response as JSON')
 }

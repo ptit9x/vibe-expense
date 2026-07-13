@@ -10,7 +10,18 @@ import App from './App.tsx'
 // Inject Speed Insights for Vercel performance monitoring
 injectSpeedInsights()
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Sensible global defaults so new hooks that forget staleTime don't
+      // refetch on every mount/focus. Individual hooks can override.
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: true,
+    },
+  },
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

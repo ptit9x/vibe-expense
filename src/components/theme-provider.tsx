@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 export type ThemeColor = "zinc" | "blue" | "green" | "orange" | "rose" | "violet"
 export type Mode = "light" | "dark" | "system"
@@ -107,7 +107,7 @@ export function ThemeProvider({
         setMode(resolvedMode === "dark" ? "light" : "dark")
     }, [resolvedMode, setMode])
 
-    const value = { theme, mode, resolvedMode, setTheme, setMode, toggleMode }
+    const value = useMemo(() => ({ theme, mode, resolvedMode, setTheme, setMode, toggleMode }), [theme, mode, resolvedMode, setTheme, setMode, toggleMode])
 
     return (
         <ThemeProviderContext.Provider {...props} value={value}>

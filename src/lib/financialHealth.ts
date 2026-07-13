@@ -265,15 +265,19 @@ export function computeLocalScore(metrics: FinancialHealthMetrics): number {
 
   // Debt ratio (up to ±15)
   // Note: debtToIncomeRatio is 0 when there's no debt OR when income is 0.
-  // Distinguish: only award the no-debt bonus if there IS income.
+  // Distinguish these cases to avoid false positives at the income=0 boundary.
   if (metrics.totalDebt === 0 && metrics.totalIncome > 0) score += 10
-  else if (metrics.debtToIncomeRatio === 0 && metrics.totalIncome === 0) score += 0 // no income, neutral
+  else if (metrics.totalDebt === 0 && metrics.totalIncome === 0) score += 0 // no debt, no income → neutral
+  else if (metrics.totalIncome === 0) score -= 15 // has debt but no income → worst case
   else if (metrics.debtToIncomeRatio <= 10) score += 5
   else if (metrics.debtToIncomeRatio <= 30) score -= 5
   else score -= 15
 
   // Expense-to-income ratio (up to ±10)
-  if (metrics.expenseToIncomeRatio <= 50) score += 10
+  // H3 fix: when income is 0, the ratio is guarded to 0 which would falsely
+  // award +10. Treat zero-income as neutral (no data to assess the ratio).
+  if (metrics.totalIncome === 0) score += 0
+  else if (metrics.expenseToIncomeRatio <= 50) score += 10
   else if (metrics.expenseToIncomeRatio <= 70) score += 5
   else if (metrics.expenseToIncomeRatio <= 90) score -= 5
   else score -= 10

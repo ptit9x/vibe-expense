@@ -81,6 +81,16 @@ export function useUploadAvatar() {
         throw new Error('Supabase not configured')
       }
 
+      // Early client-side validation before loading the file into memory.
+      // Prevents memory exhaustion from very large / non-image selections.
+      const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        throw new Error('Unsupported file type. Please use JPG, PNG, WebP, or HEIC.')
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File too large. Maximum 10MB.')
+      }
+
       const user = await requireAuth()
 
       // Resize image client-side before upload

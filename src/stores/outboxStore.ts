@@ -20,12 +20,39 @@ interface OutboxState {
 
 const MAX_OFFLINE_ENTRIES = 20
 
+// After this many failed attempts, an entry is considered permanently failed
+// and will not be retried automatically — the user must clear or resolve it.
+export const MAX_ATTEMPTS = 5
+
 export const useOutboxStore = create<OutboxState>()(
   persist(
     (set, get) => ({
       entries: [],
 
       add: ((operation: 'create' | 'update', payload: CreateTransactionInput | UpdateTransactionInput) => {
+        // C4 fix: if this is an update whose target id matches a pending create's
+        // tempId, merge the changes into that create entry instead of adding a
+        // separate update entry. Otherwise the sync would try to UPDATE a row
+        // whose id is a tempId (not yet in the DB) → 0 rows affected → silent loss.
+        if (operation === 'update') {
+          const updatePayload = payload as UpdateTransactionInput
+          const { id: targetId, ...changes } = updatePayload
+          const existingCreate = get().entries.find(
+            (e) => e.operation === 'create' && e.status === 'pending' && e.tempId === targetId
+          )
+          if (existingCreate) {
+            const createPayload = existingCreate.payload as CreateTransactionInput
+            set((state) => ({
+              entries: state.entries.map((e) =>
+                e.tempId === targetId
+                  ? ({ ...e, payload: { ...createPayload, ...changes } as CreateTransactionInput } as OutboxEntry)
+                  : e
+              ),
+            }))
+            return targetId // reuse the create entry's tempId
+          }
+        }
+
         if (get().entries.length >= MAX_OFFLINE_ENTRIES) {
           throw new Error('OUTBOX_FULL')
         }
@@ -62,7 +89,8 @@ export const useOutboxStore = create<OutboxState>()(
       retryFailed: () =>
         set((state) => ({
           entries: state.entries.map((e) =>
-            e.status === 'failed'
+            // Only retry entries that haven't exhausted their attempts
+            e.status === 'failed' && e.attempts < MAX_ATTEMPTS
               ? { ...e, status: 'pending' as const, lastError: undefined }
               : e
           ),
@@ -78,6 +106,16 @@ export const useOutboxStore = create<OutboxState>()(
     {
       name: 'vibe-expense-outbox',
       partialize: (state) => ({ entries: state.entries }),
+      // H1 fix: on rehydration, any entry left in 'syncing' state (from a crash
+      // or tab close mid-sync) is reset to 'pending' so it gets retried. Without
+      // this, a 'syncing' entry is never picked up again (doSync only processes
+      // pending + failed) and stays orphaned forever.
+      onRehydrateStorage: () => (state) => {
+        if (!state) return
+        state.entries = state.entries.map((e) =>
+          e.status === 'syncing' ? { ...e, status: 'pending' as const } : e
+        )
+      },
     }
   )
 )

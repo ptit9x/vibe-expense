@@ -1,7 +1,9 @@
 import { TRANSACTION_TYPES } from '@/constants/categories'
-import { translations } from '@/lib/i18n/translations'
+import type { TranslationKey } from '@/lib/i18n/translations'
 
-type Translations = typeof translations.vi
+// Use the widened structural type so translations.en (string literals) is
+// assignable alongside translations.vi.
+type Translations = TranslationKey
 
 // Resolve a nested translation key like 'categories.food'
 function resolveTranslation(t: Translations, key: string): string {

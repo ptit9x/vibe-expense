@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
-import { useOutboxStore } from '@/stores/outboxStore'
+import { useOutboxStore, MAX_ATTEMPTS } from '@/stores/outboxStore'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import type { OutboxEntry } from '@/types'
 
@@ -69,8 +69,12 @@ export function useOutboxSync() {
 
     try {
       // Một pass — xử lý tất cả pending + failed hiện có
+      // H2 fix: skip entries that have exhausted MAX_ATTEMPTS — they need manual
+      // resolution (user clears them via clearFailed). This prevents infinite
+      // retry loops on permanent failures (FK violations, constraint errors).
       const todo = useOutboxStore.getState().entries.filter(
-        (e) => e.status === 'pending' || e.status === 'failed'
+        (e) =>
+          (e.status === 'pending' || e.status === 'failed') && e.attempts < MAX_ATTEMPTS
       )
 
       for (const entry of todo) {

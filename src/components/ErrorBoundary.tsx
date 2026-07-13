@@ -28,8 +28,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error('[ErrorBoundary] Caught render error:', error);
-    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
+    // ErrorBoundary is a catch-all safety net; logging is acceptable but gate
+    // the verbose component stack behind DEV to avoid leaking tree structure
+    // to the browser console in production.
+    if (import.meta.env.DEV) {
+      console.error('[ErrorBoundary] Caught render error:', error)
+      console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack)
+    }
   }
 
   handleReload = () => {

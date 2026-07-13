@@ -42,11 +42,18 @@ import { useOutboxSync } from '@/hooks/useOutboxSync'
 import './App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 
-/** Scroll to top on route change */
+/** Scroll to top on route change.
+ *  The scrollable container is <main> (has overflow-y-auto), not window.
+ *  Fallback to window for pages rendered outside MainLayout (auth/error pages). */
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
-    window.scrollTo(0, 0)
+    const main = document.querySelector('main')
+    if (main) {
+      main.scrollTo({ top: 0 })
+    } else {
+      window.scrollTo(0, 0)
+    }
   }, [pathname])
   return null
 }
