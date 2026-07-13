@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { useOutboxStore } from '@/stores/outboxStore'
 import { useI18n } from '@/lib/i18n'
@@ -5,9 +6,19 @@ import { WifiOff, CloudUpload, RotateCw, AlertTriangle } from 'lucide-react'
 
 export function OfflineBanner() {
   const isOnline = useOnlineStatus()
-  const pendingCount = useOutboxStore((s) => s.entries.filter((e) => e.status === 'pending' || e.status === 'syncing').length)
-  const failedCount = useOutboxStore((s) => s.entries.filter((e) => e.status === 'failed').length)
+  const entries = useOutboxStore((s) => s.entries)
   const retryFailed = useOutboxStore((s) => s.retryFailed)
+
+  // Derive counts via useMemo — avoids new-array-in-selector re-render issue
+  // (Zustand v5 uses Object.is by default; .filter() returns a new ref each call)
+  const pendingCount = useMemo(
+    () => entries.filter((e) => e.status === 'pending' || e.status === 'syncing').length,
+    [entries]
+  )
+  const failedCount = useMemo(
+    () => entries.filter((e) => e.status === 'failed').length,
+    [entries]
+  )
   const { t } = useI18n()
 
   const showOffline = !isOnline

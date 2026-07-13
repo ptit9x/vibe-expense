@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
+import { computeWalletBalances } from '@/lib/walletBalance'
 import type { Wallet, CreateWalletInput, UpdateWalletInput } from '@/types'
 import { getMockWallets } from '@/mocks/mockWallets'
 
@@ -32,47 +33,8 @@ export function useWallets(includeInactive = false) {
         return [] as Wallet[]
       }
 
-      // Batch compute balances — single query instead of N+1 RPC calls
-      const walletIds = data.map(w => w.id)
-      const { data: txData } = await supabase
-        .from('transactions')
-        .select('wallet_id, to_wallet_id, type, amount')
-        .in('wallet_id', walletIds)
-        .eq('user_id', user.id)
-
-      // Build balance map
-      const balanceMap = new Map<string, number>()
-      for (const tx of (txData || [])) {
-        const wId = tx.wallet_id
-        const prev = balanceMap.get(wId) || 0
-        if (tx.type === 'income' || tx.type === 'borrow') {
-          balanceMap.set(wId, prev + tx.amount)
-        } else if (tx.type === 'expense' || tx.type === 'lend' || tx.type === 'transfer') {
-          balanceMap.set(wId, prev - tx.amount)
-        }
-      }
-
-      // Also credit destination wallets for transfers
-      const { data: transferData } = await supabase
-        .from('transactions')
-        .select('to_wallet_id, amount')
-        .in('to_wallet_id', walletIds)
-        .eq('user_id', user.id)
-        .eq('type', 'transfer')
-
-      for (const tx of (transferData || [])) {
-        if (tx.to_wallet_id) {
-          const prev = balanceMap.get(tx.to_wallet_id) || 0
-          balanceMap.set(tx.to_wallet_id, prev + tx.amount)
-        }
-      }
-
-      const walletsWithBalance = data.map(wallet => ({
-        ...wallet,
-        balance: (balanceMap.get(wallet.id) || 0) + (wallet.initial_balance || 0),
-      }))
-
-      return walletsWithBalance as Wallet[]
+      // Batch compute balances via shared utility
+      return computeWalletBalances(data, user.id)
     },
     staleTime: 5 * 60 * 1000, // 5 min — wallets change rarely
   })

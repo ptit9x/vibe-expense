@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
+import { computeWalletBalances } from '@/lib/walletBalance'
 import {
   computeHealthMetrics,
   generateLocalAnalysis,
@@ -7,7 +8,7 @@ import {
 
 import { getMockTransactions } from '@/mocks/mockTransactions'
 import { getMockWallets } from '@/mocks/mockWallets'
-import type { FinancialReport, AIAnalysis, FinancialHealthMetrics } from '@/types'
+import type { FinancialReport, AIAnalysis, FinancialHealthMetrics, Wallet } from '@/types'
 import { translations } from '@/lib/i18n/translations'
 import type { Language } from '@/lib/i18n'
 
@@ -55,11 +56,11 @@ export function useGenerateReport() {
         : getMockTransactions()
 
       // Try to reuse cached wallets from useWallets() instead of re-fetching
-      const cachedWallets = queryClient.getQueryData<import('@/types').Wallet[]>(['wallets', false])
+      const cachedWallets = queryClient.getQueryData<Wallet[]>(['wallets', false])
       const wallets = cachedWallets
         ? cachedWallets.filter(w => w.is_active)
         : isSupabaseConfigured()
-          ? await fetchWallets()
+          ? await fetchActiveWallets()
           : getMockWallets()
 
       const metrics = computeHealthMetrics({
@@ -148,58 +149,16 @@ async function fetchTransactionsForPeriod(
   return (data || []) as unknown as import('@/types').Transaction[]
 }
 
-async function fetchWallets() {
+async function fetchActiveWallets(): Promise<Wallet[]> {
   const user = await requireAuth()
-
-  // Fetch wallets — balance is NOT a DB column, compute client-side
-  const { data: walletData, error: wError } = await supabase
+  const { data, error } = await supabase
     .from('wallets')
     .select('id, user_id, name, type, icon, color, initial_balance, is_active, created_at, updated_at')
     .eq('user_id', user.id)
     .eq('is_active', true)
 
-  if (wError) throw wError
-  if (!walletData || walletData.length === 0) return [] as import('@/types').Wallet[]
-
-  // Batch compute balances — same logic as useWallets
-  const walletIds = walletData.map(w => w.id)
-
-  const { data: txData } = await supabase
-    .from('transactions')
-    .select('wallet_id, to_wallet_id, type, amount')
-    .in('wallet_id', walletIds)
-    .eq('user_id', user.id)
-
-  const balanceMap = new Map<string, number>()
-  for (const tx of (txData || [])) {
-    const wId = tx.wallet_id
-    const prev = balanceMap.get(wId) || 0
-    if (tx.type === 'income' || tx.type === 'borrow') {
-      balanceMap.set(wId, prev + tx.amount)
-    } else if (tx.type === 'expense' || tx.type === 'lend' || tx.type === 'transfer') {
-      balanceMap.set(wId, prev - tx.amount)
-    }
-  }
-
-  // Credit destination wallets for transfers
-  const { data: transferData } = await supabase
-    .from('transactions')
-    .select('to_wallet_id, amount')
-    .in('to_wallet_id', walletIds)
-    .eq('user_id', user.id)
-    .eq('type', 'transfer')
-
-  for (const tx of (transferData || [])) {
-    if (tx.to_wallet_id) {
-      const prev = balanceMap.get(tx.to_wallet_id) || 0
-      balanceMap.set(tx.to_wallet_id, prev + tx.amount)
-    }
-  }
-
-  return walletData.map(wallet => ({
-    ...wallet,
-    balance: (balanceMap.get(wallet.id) || 0) + (wallet.initial_balance || 0),
-  })) as import('@/types').Wallet[]
+  if (error) throw error
+  return computeWalletBalances(data || [], user.id)
 }
 
 async function callAnalysisEdgeFunction(

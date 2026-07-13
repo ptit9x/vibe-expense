@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/uiStore'
@@ -43,7 +44,7 @@ function getTypeStyle(type: TransactionType): { color: string; prefix: string } 
   }
 }
 
-export function TransactionRow({
+export const TransactionRow = memo(function TransactionRow({
   id,
   type,
   amount,
@@ -122,7 +123,7 @@ export function TransactionRow({
       </div>
     </Link>
   )
-}
+})
 
 function formatRelativeDate(dateStr: string, locale: string, todayLabel: string): string {
   const today = new Date()
