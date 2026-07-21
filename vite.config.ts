@@ -3,10 +3,45 @@ import path from "path"
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
+      devOptions: {
+        enabled: false,
+      },
+      manifest: {
+        name: 'Vibe Expense',
+        short_name: 'Vibe Expense',
+        description: 'Quản lý chi tiêu cá nhân',
+        start_url: '/dashboard',
+        display: 'standalone',
+        background_color: '#F9FAFB',
+        theme_color: '#3B82F6',
+        orientation: 'portrait',
+        icons: [
+          {
+            src: '/icons/logo.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
