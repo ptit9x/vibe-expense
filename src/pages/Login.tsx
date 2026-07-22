@@ -60,7 +60,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
-            className="w-full h-12 px-4 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
+            className="clay-input w-full h-12 px-4 rounded-xl text-base focus:outline-none"
           />
         </div>
 
@@ -74,7 +74,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.loginPage.enterPassword}
-              className="w-full h-12 px-4 pr-12 bg-gray-50/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-base focus:outline-none focus:ring-2 focus:border-indigo-400 focus:ring-indigo-400/20"
+              className="clay-input w-full h-12 px-4 pr-12 rounded-xl text-base focus:outline-none"
             />
             <button
               type="button"
@@ -96,7 +96,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-base rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          className="clay-button-primary w-full h-12 text-white font-semibold text-base rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
           {t.auth.login}

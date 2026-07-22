@@ -3,6 +3,29 @@
 @theme {
   --radius: 0.5rem;
 
+  /* Claymorphism shadows */
+  --clay-shadow-light: rgba(255, 255, 255, 0.9);
+  --clay-shadow-dark: rgba(174, 174, 192, 0.4);
+
+  /* Dark mode clay shadows */
+  --clay-dark-shadow-light: rgba(45, 50, 80, 0.15);
+  --clay-dark-shadow-dark: rgba(0, 0, 0, 0.5);
+
+  /* Clay surface colors (pastel) */
+  --color-clay-base: hsl(230 25% 95%);
+  --color-clay-surface: hsl(230 30% 96%);
+  --color-clay-elevated: hsl(0 0% 100%);
+
+  /* Dark clay surfaces */
+  --color-clay-dark-base: hsl(224 30% 10%);
+  --color-clay-dark-surface: hsl(224 28% 13%);
+  --color-clay-dark-elevated: hsl(224 26% 16%);
+
+  /* Radius */
+  --radius-clay: 1.5rem;
+  --radius-clay-lg: 2rem;
+  --radius-clay-xl: 2.5rem;
+
   /* Colors - Light mode — Indigo-tinted modern palette */
   --color-background: hsl(220 20% 97%);
   --color-foreground: hsl(224 71% 4%);
@@ -69,7 +92,7 @@
 }
 
 body {
-  background-color: var(--color-background);
+  background-color: var(--color-clay-base);
   color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -96,7 +119,13 @@ body {
   --color-border: var(--color-dark-border);
   --color-input: var(--color-dark-input);
   --color-ring: var(--color-dark-ring);
-  background-color: var(--color-dark-background);
+  /* Override clay tokens for dark mode */
+  --color-clay-base: var(--color-clay-dark-base);
+  --color-clay-surface: var(--color-clay-dark-surface);
+  --color-clay-elevated: var(--color-clay-dark-elevated);
+  --clay-shadow-light: rgba(45, 50, 80, 0.15);
+  --clay-shadow-dark: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-clay-dark-base);
   color: var(--color-dark-foreground);
 }
 
@@ -355,6 +384,251 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ==================== CLAYMORPHISM SYSTEM ==================== */
+
+/* --- Clay Card (puffy, raised surface) --- */
+.clay-card {
+  background: linear-gradient(145deg, var(--color-clay-elevated), var(--color-clay-surface));
+  border-radius: var(--radius-clay);
+  box-shadow:
+    -8px -8px 16px var(--clay-shadow-light),
+     8px  8px 16px var(--clay-shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .clay-card {
+  background: linear-gradient(145deg, var(--color-clay-dark-elevated), var(--color-clay-dark-surface));
+  box-shadow:
+    -6px -6px 14px rgba(45, 50, 80, 0.12),
+     6px  6px 14px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Clay Button (raised, pressable) --- */
+.clay-button {
+  background: linear-gradient(145deg, var(--color-clay-elevated), var(--color-clay-surface));
+  border-radius: 1rem;
+  box-shadow:
+    -4px -4px 8px var(--clay-shadow-light),
+     4px  4px 8px var(--clay-shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.clay-button:hover {
+  box-shadow:
+    -2px -2px 6px var(--clay-shadow-light),
+     2px  2px 6px var(--clay-shadow-dark);
+}
+
+.clay-button:active,
+.clay-button.pressed {
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow-dark),
+    inset -4px -4px 8px var(--clay-shadow-light);
+}
+
+.dark .clay-button {
+  background: linear-gradient(145deg, var(--color-clay-dark-elevated), var(--color-clay-dark-surface));
+  box-shadow:
+    -4px -4px 8px rgba(45, 50, 80, 0.1),
+     4px  4px 8px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.dark .clay-button:active,
+.dark .clay-button.pressed {
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.45),
+    inset -4px -4px 8px rgba(45, 50, 80, 0.1);
+}
+
+/* --- Clay Button Primary (colored gradient clay) --- */
+.clay-button-primary {
+  background: linear-gradient(145deg, hsl(243 75% 65%), hsl(243 75% 53%));
+  border-radius: 1rem;
+  box-shadow:
+    -4px -4px 8px var(--clay-shadow-light),
+     4px  4px 8px rgba(99, 102, 241, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.clay-button-primary:hover {
+  box-shadow:
+    -2px -2px 6px var(--clay-shadow-light),
+     2px  2px 6px rgba(99, 102, 241, 0.3);
+}
+
+.clay-button-primary:active {
+  box-shadow:
+    inset 4px 4px 8px rgba(67, 56, 202, 0.4),
+    inset -4px -4px 8px rgba(165, 180, 252, 0.2);
+}
+
+.dark .clay-button-primary {
+  background: linear-gradient(145deg, hsl(243 60% 55%), hsl(243 65% 43%));
+  box-shadow:
+    -4px -4px 8px rgba(45, 50, 80, 0.15),
+     4px  4px 8px rgba(79, 70, 229, 0.4);
+}
+
+/* --- Clay Input (inset, concave) --- */
+.clay-input {
+  background: var(--color-clay-surface);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow-dark),
+    inset -4px -4px 8px var(--clay-shadow-light);
+  transition: all 0.2s ease;
+}
+
+.clay-input:focus {
+  box-shadow:
+    inset 4px 4px 8px var(--clay-shadow-dark),
+    inset -4px -4px 8px var(--clay-shadow-light),
+    0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.dark .clay-input {
+  background: var(--color-clay-dark-surface);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.45),
+    inset -4px -4px 8px rgba(45, 50, 80, 0.1);
+}
+
+/* --- Clay Badge (pill) --- */
+.clay-badge {
+  background: var(--color-clay-surface);
+  border-radius: 9999px;
+  box-shadow:
+    -2px -2px 4px var(--clay-shadow-light),
+     2px  2px 4px var(--clay-shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .clay-badge {
+  background: var(--color-clay-dark-surface);
+  box-shadow:
+    -2px -2px 4px rgba(45, 50, 80, 0.1),
+     2px  2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Clay FAB (floating action button) --- */
+.clay-fab {
+  background: linear-gradient(145deg, hsl(243 75% 65%), hsl(263 75% 55%));
+  border-radius: 9999px;
+  box-shadow:
+    -6px -6px 14px var(--clay-shadow-light),
+     6px  6px 14px rgba(99, 102, 241, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.clay-fab:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(67, 56, 202, 0.4),
+    inset -4px -4px 10px rgba(165, 180, 252, 0.2);
+}
+
+.dark .clay-fab {
+  box-shadow:
+    -6px -6px 14px rgba(45, 50, 80, 0.15),
+     6px  6px 14px rgba(79, 70, 229, 0.5);
+}
+
+/* --- Clay Navbar (bottom nav / sidebar) --- */
+.clay-navbar {
+  background: linear-gradient(145deg, var(--color-clay-elevated), var(--color-clay-surface));
+  box-shadow:
+    -6px -6px 14px var(--clay-shadow-light),
+     6px  6px 14px var(--clay-shadow-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .clay-navbar {
+  background: linear-gradient(145deg, var(--color-clay-dark-elevated), var(--color-clay-dark-surface));
+  box-shadow:
+    -4px -4px 10px rgba(45, 50, 80, 0.12),
+     4px  4px 10px rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* --- Clay Nav Item Active (puffy pill) --- */
+.clay-nav-active {
+  background: linear-gradient(145deg, hsl(243 75% 93%), hsl(243 75% 88%));
+  border-radius: 1rem;
+  box-shadow:
+    -3px -3px 6px var(--clay-shadow-light),
+     3px  3px 6px var(--clay-shadow-dark);
+}
+
+.dark .clay-nav-active {
+  background: linear-gradient(145deg, hsl(243 30% 20%), hsl(243 30% 15%));
+  box-shadow:
+    -3px -3px 6px rgba(45, 50, 80, 0.12),
+     3px  3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Clay Header (page top, colored) --- */
+.clay-header {
+  background: linear-gradient(145deg, hsl(243 75% 68%), hsl(263 65% 60%));
+  box-shadow:
+    -6px 6px 14px var(--clay-shadow-dark),
+     6px 6px 14px rgba(99, 102, 241, 0.25);
+}
+
+.dark .clay-header {
+  background: linear-gradient(145deg, hsl(243 50% 40%), hsl(263 45% 32%));
+  box-shadow:
+    -4px 4px 10px rgba(45, 50, 80, 0.15),
+     4px 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Clay Inset (for list items, "pressed" area) --- */
+.clay-inset {
+  background: var(--color-clay-surface);
+  border-radius: var(--radius-clay);
+  box-shadow:
+    inset 3px 3px 6px var(--clay-shadow-dark),
+    inset -3px -3px 6px var(--clay-shadow-light);
+}
+
+.dark .clay-inset {
+  background: var(--color-clay-dark-surface);
+  box-shadow:
+    inset 3px 3px 6px rgba(0, 0,  0, 0.4),
+    inset -3px -3px 6px rgba(45, 50, 80, 0.1);
+}
+
+/* --- Clay Icon Container --- */
+.clay-icon {
+  background: linear-gradient(145deg, var(--color-clay-elevated), var(--color-clay-surface));
+  border-radius: 0.875rem;
+  box-shadow:
+    -3px -3px 6px var(--clay-shadow-light),
+     3px  3px 6px var(--clay-shadow-dark);
+}
+
+.dark .clay-icon {
+  background: linear-gradient(145deg, var(--color-clay-dark-elevated), var(--color-clay-dark-surface));
+  box-shadow:
+    -3px -3px 6px rgba(45, 50, 80, 0.1),
+     3px  3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Clay Divider (soft) --- */
+.clay-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--clay-shadow-dark), transparent);
+}
+
+.dark .clay-divider {
+  background: linear-gradient(to right, transparent, rgba(45, 50, 80, 0.3), transparent);
 }
 
 /* Safe area for notched devices */

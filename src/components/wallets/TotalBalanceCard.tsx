@@ -21,7 +21,7 @@ export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }:
         <Button
           variant="ghost"
           size="icon"
-          className="h-11 w-11 rounded-full bg-white/20 hover:bg-white/30 shrink-0"
+          className="h-11 w-11 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.15),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] hover:bg-white/30 shrink-0"
           onClick={onToggleBalance}
           aria-label={showBalance ? 'Hide balance' : 'Show balance'}
         >

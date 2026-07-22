@@ -16,8 +16,8 @@ export default function AuthLayout() {
   // If loading, show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-[var(--color-clay-base)] dark:bg-[var(--color-clay-dark-base)] flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-indigo-400 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -45,7 +45,7 @@ export default function AuthLayout() {
         <div className="mt-6 text-center text-sm">
           <Link
             to="/login"
-            className="text-white font-medium hover:text-white/90 underline underline-offset-2"
+            className="text-indigo-500 font-medium hover:text-indigo-600 underline underline-offset-2"
           >
             {t.forgotPassword.backToLogin}
           </Link>
@@ -54,12 +54,12 @@ export default function AuthLayout() {
     }
     return (
       <div className="mt-6 text-center text-sm">
-        <span className="text-white/70">
+        <span className="text-muted-foreground">
           {isLogin ? t.auth.dontHaveAccount : t.auth.alreadyHaveAccount}
         </span>{" "}
         <Link
           to={isLogin ? "/register" : "/login"}
-          className="text-white font-medium hover:text-white/90 underline underline-offset-2"
+          className="text-indigo-500 font-medium hover:text-indigo-600 underline underline-offset-2"
         >
           {isLogin ? t.auth.registerNow : t.auth.login}
         </Link>
@@ -68,23 +68,23 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-[var(--color-clay-base)] dark:bg-[var(--color-clay-dark-base)] flex items-center justify-center p-4 md:p-8">
       <div className="w-full max-w-md">
         {/* Branding - visible on all screens */}
         <div className="text-center mb-6 md:mb-8">
           <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-white" />
+            <div className="w-12 h-12 clay-icon flex items-center justify-center bg-gradient-to-br from-indigo-400/20 to-purple-400/20">
+              <Wallet className="h-5 w-5 text-indigo-500" />
             </div>
-            <h1 className="text-2xl font-bold text-white">{t.app.appName}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t.app.appName}</h1>
           </div>
-          <p className="text-white/70 text-sm hidden md:block">
+          <p className="text-muted-foreground text-sm hidden md:block">
             {getSubtitle()}
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white dark:bg-[hsl(224,30%,11%)] rounded-2xl md:rounded-3xl shadow-2xl md:shadow-xl px-6 py-8 md:px-8 md:py-10">
+        <div className="clay-card px-6 py-8 md:px-8 md:py-10 rounded-[2rem]">
           <Outlet />
         </div>
 

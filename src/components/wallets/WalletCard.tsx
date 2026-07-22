@@ -29,7 +29,7 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
 
   return (
     <div
-      className="relative overflow-hidden bg-white rounded-2xl shadow-sm transition-all hover:shadow-md group cursor-pointer"
+      className="relative overflow-hidden clay-card rounded-3xl transition-all group cursor-pointer hover:shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),4px_4px_10px_rgba(174,174,192,0.3)]"
       onClick={() => navigate(`/transactions?wallet_id=${wallet.id}`)}
     >
       <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: wallet.color }} />
@@ -38,8 +38,8 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
           {/* Left: Icon + Name + Type */}
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0"
-              style={{ backgroundColor: wallet.color + '15' }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 clay-icon"
+              style={{ background: `linear-gradient(145deg, ${wallet.color}25, ${wallet.color}10)` }}
             >
               {wallet.icon}
             </div>

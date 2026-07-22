@@ -36,7 +36,10 @@ export function SummaryCards({ income, expense, showBalance }: SummaryCardsProps
         variants={cardVariants}
         initial="hidden"
         animate="visible"
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 p-4 shadow-md shadow-emerald-500/20"
+        className="relative overflow-hidden rounded-3xl p-4
+          bg-gradient-to-br from-emerald-300 to-emerald-500
+          shadow-[-6px_-6px_14px_rgba(255,255,255,0.9),6px_6px_14px_rgba(16,185,129,0.35)]
+          border border-white/40"
       >
         <div className="absolute -top-3 -right-3 w-16 h-16 bg-white/10 rounded-full blur-lg" />
         <div className="relative z-10">
@@ -58,7 +61,10 @@ export function SummaryCards({ income, expense, showBalance }: SummaryCardsProps
         variants={cardVariants}
         initial="hidden"
         animate="visible"
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-400 to-rose-600 p-4 shadow-md shadow-rose-500/20"
+        className="relative overflow-hidden rounded-3xl p-4
+          bg-gradient-to-br from-rose-300 to-rose-500
+          shadow-[-6px_-6px_14px_rgba(255,255,255,0.9),6px_6px_14px_rgba(244,63,94,0.35)]
+          border border-white/40"
       >
         <div className="absolute -top-3 -right-3 w-16 h-16 bg-white/10 rounded-full blur-lg" />
         <div className="relative z-10">

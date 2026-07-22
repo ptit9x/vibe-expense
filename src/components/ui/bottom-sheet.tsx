@@ -34,7 +34,7 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 z-60 bg-black/50" onClick={handleClose}>
       <div
-        className="absolute bottom-20 left-0 right-0 bg-white dark:bg-[hsl(224,30%,11%)] rounded-t-3xl animate-slide-up flex flex-col"
+        className="absolute bottom-20 left-0 right-0 clay-card rounded-t-[2rem] rounded-b-3xl animate-slide-up flex flex-col mx-2"
         style={{ maxHeight: '70vh' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -48,7 +48,7 @@ export function BottomSheet({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
           <button
             onClick={handleClose}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="p-2 clay-button rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -62,7 +62,7 @@ export function BottomSheet({
 
         {/* Submit Button */}
         {submitLabel && onSubmit && (
-          <div className="px-5 pb-6 pt-3 shrink-0 border-t border-gray-100 dark:border-white/10">
+          <div className="px-5 pb-6 pt-3 shrink-0">
             <Button
               type="submit"
               onClick={onSubmit}

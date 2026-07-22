@@ -58,7 +58,7 @@ export default function MainLayout() {
 
       {/* ── Bottom Nav (mobile) ── */}
       <nav role="navigation" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="bg-white dark:bg-[hsl(224,30%,11%)] backdrop-blur-2xl border-t border-gray-200/40 dark:border-[hsl(224,25%,18%)]/40">
+        <div className="clay-navbar">
           <div className="flex h-[72px] items-center justify-around px-2">
             {bottomNavItems.map((item) => {
               const isActive = location.pathname.startsWith(item.href)
@@ -72,9 +72,9 @@ export default function MainLayout() {
                     className="relative -mt-8 z-10"
                   >
                     <motion.div
-                      className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
+                      className="clay-fab flex h-14 w-14 items-center justify-center"
                       whileTap={{ scale: 0.88 }}
-                      whileHover={{ scale: 1.05, boxShadow: '0 8px 30px rgba(99,102,241,0.4)' }}
+                      whileHover={{ scale: 1.05 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                     >
                       <Icon className="h-7 w-7 text-white" />
@@ -93,7 +93,7 @@ export default function MainLayout() {
                   {isActive && (
                     <motion.div
                       layoutId="bottomNavPill"
-                      className="absolute inset-0 rounded-2xl bg-indigo-50/80 dark:bg-indigo-500/20"
+                      className="absolute inset-0 clay-nav-active"
                       transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     />
                   )}
@@ -141,7 +141,7 @@ function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
   }
 
   return (
-    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-60 flex-col bg-white dark:bg-[hsl(224,30%,11%)] backdrop-blur-2xl border-r border-gray-200 dark:border-[hsl(224,25%,18%)] z-40">
+    <aside className="hidden lg:flex shrink-0 fixed left-0 top-0 h-full w-64 flex-col clay-navbar border-r z-40">
       {/* Logo */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-gray-100">
         <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
@@ -181,7 +181,7 @@ function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
               {isActive && (
                 <motion.div
                   layoutId="sidebarPill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20"
+                  className="absolute inset-0 rounded-xl clay-button-primary"
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
               )}

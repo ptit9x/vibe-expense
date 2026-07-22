@@ -74,13 +74,13 @@ export const TransactionRow = memo(function TransactionRow({
         'flex items-center justify-between transition-colors cursor-pointer',
         isCompact
           ? 'py-2.5 border-b border-gray-100 last:border-0'
-          : 'p-4 rounded-2xl border-0 shadow-sm hover:shadow-md transition-all bg-white'
+          : 'p-4 rounded-3xl border-0 transition-all clay-card hover:shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),4px_4px_10px_rgba(174,174,192,0.3)]'
       )}
     >
       <div className={cn('flex items-center min-w-0', isCompact ? 'gap-2.5 flex-1' : 'gap-3')}>
         <div
           className={cn(
-            'rounded-xl flex items-center justify-center shrink-0',
+            'rounded-xl flex items-center justify-center shrink-0 clay-icon',
             isCompact ? 'w-9 h-9 text-base' : 'w-10 h-10 text-lg'
           )}
           style={{ backgroundColor: (category?.color || '#6B7280') + (isCompact ? '15' : '20') }}
