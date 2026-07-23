@@ -38,8 +38,20 @@ export default function PasswordSettings() {
 
     try {
       if (isSupabaseConfigured()) {
-        const { error: reauthError } = await supabase.auth.reauthenticate()
-        if (reauthError) throw reauthError
+        // Verify current password before allowing change
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user?.email) throw new Error('No authenticated user')
+
+        const { error: verifyError } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password: currentPassword,
+        })
+        if (verifyError) {
+          setMessage(t.auth.currentPasswordIncorrect || 'Current password is incorrect')
+          setIsSuccess(false)
+          setIsLoading(false)
+          return
+        }
 
         const { error } = await supabase.auth.updateUser({ password: newPassword })
         if (error) throw error

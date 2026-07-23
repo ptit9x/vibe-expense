@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTransaction } from '@/hooks/useTransactions'
 import { useTransactionSave } from '@/hooks/useTransactionSave'
@@ -20,8 +20,11 @@ export default function EditTransaction() {
 
   const { data: transaction, isLoading, error } = useTransaction(id)
 
+  const loadedIdRef = useRef<string | null>(null)
+
   useEffect(() => {
-    if (transaction) {
+    if (transaction && loadedIdRef.current !== transaction.id) {
+      loadedIdRef.current = transaction.id
       loadTransaction({
         id: transaction.id,
         type: transaction.type,
@@ -30,12 +33,15 @@ export default function EditTransaction() {
         walletId: transaction.wallet_id || undefined,
         toWalletId: transaction.to_wallet_id || undefined,
         description: transaction.description || undefined,
-        contactPerson: (transaction as unknown as Record<string, unknown>).contact_person as string || undefined,
+        contactPerson: transaction.contact_person || undefined,
         date: transaction.transaction_date,
       })
     }
-    return () => reset()
-  }, [transaction, loadTransaction, reset])
+    return () => {
+      loadedIdRef.current = null
+      reset()
+    }
+  }, [transaction?.id, loadTransaction, reset])
 
   const handleSave = async () => {
     if (!id) return

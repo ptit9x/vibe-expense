@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { translations } from './translations'
 import type { Language, TranslationKey } from './translations'
 
@@ -39,16 +39,16 @@ export function I18nProvider({
     localStorage.setItem(storageKey, language)
   }, [language, storageKey])
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)
-  }
+  }, [])
 
   const value: I18nProviderState = useMemo(() => ({
     language,
     setLanguage,
     // eslint-disable-next-line security/detect-object-injection
     t: translations[language] as TranslationKey,
-  }), [language])
+  }), [language, setLanguage])
 
   return (
     <I18nProviderContext.Provider {...props} value={value}>

@@ -51,7 +51,9 @@ export default function MainLayout() {
         <OfflineBanner />
         <main className="flex-1 overflow-y-auto pb-[calc(72px+env(safe-area-inset-bottom))] max-w-3xl">
           <AnimatePresence mode="wait">
-            <Outlet />
+            <div key={location.pathname}>
+              <Outlet />
+            </div>
           </AnimatePresence>
         </main>
       </div>

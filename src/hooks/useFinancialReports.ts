@@ -142,7 +142,7 @@ async function fetchTransactionsForPeriod(
     )
     .eq('user_id', user.id)
     .gte('transaction_date', start)
-    .lte('transaction_date', end)
+    .lte('transaction_date', end + 'T23:59:59')
     .order('transaction_date', { ascending: false })
 
   if (error) throw error

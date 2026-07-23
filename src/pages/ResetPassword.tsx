@@ -92,10 +92,10 @@ export default function ResetPassword() {
   if (!isRecoverySession && !success) {
     return (
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
           {t.resetPassword.invalidLink}
         </h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           {t.resetPassword.invalidLinkDescription}
         </p>
         <button
@@ -115,10 +115,10 @@ export default function ResetPassword() {
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="h-8 w-8 text-green-600" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
           {t.resetPassword.resetSuccessTitle}
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
           {t.resetPassword.resetSuccessDescription}
         </p>
         <button
@@ -134,10 +134,10 @@ export default function ResetPassword() {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 text-center">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1 text-center">
         {t.resetPassword.title}
       </h2>
-      <p className="text-gray-500 text-sm mb-6 text-center">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 text-center">
         {t.resetPassword.description}
       </p>
 

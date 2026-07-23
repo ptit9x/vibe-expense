@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, requireAuth } from '@/lib/supabase'
 
 export interface MonthlyReport {
   month: string
@@ -33,6 +33,8 @@ export function useMonthlyReport(month: string) {
       if (!isSupabaseConfigured()) {
         return getMockReport(month)
       }
+
+      await requireAuth()
 
       const { data, error } = await supabase.rpc('get_monthly_report', {
         p_month: month

@@ -443,7 +443,7 @@ function CategoryCard({
             </button>
           )}
           <button
-            onClick={() => setExpanded(!expanded)}
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
             className="p-2.5 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <ChevronDown

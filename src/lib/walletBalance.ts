@@ -30,11 +30,13 @@ export async function computeWalletBalances(
   const walletIds = walletData.map((w) => w.id)
 
   // Fetch all transactions for these wallets
-  const { data: txData } = await supabase
+  const { data: txData, error: txError } = await supabase
     .from('transactions')
     .select('wallet_id, to_wallet_id, type, amount')
     .in('wallet_id', walletIds)
     .eq('user_id', userId)
+
+  if (txError) throw txError
 
   // Build balance map
   const balanceMap = new Map<string, number>()
@@ -49,12 +51,14 @@ export async function computeWalletBalances(
   }
 
   // Credit destination wallets for transfers
-  const { data: transferData } = await supabase
+  const { data: transferData, error: transferError } = await supabase
     .from('transactions')
     .select('to_wallet_id, amount')
     .in('to_wallet_id', walletIds)
     .eq('user_id', userId)
     .eq('type', 'transfer')
+
+  if (transferError) throw transferError
 
   for (const tx of transferData || []) {
     if (tx.to_wallet_id) {

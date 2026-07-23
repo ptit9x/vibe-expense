@@ -14,16 +14,12 @@ import {
 import { MonthlyChart, PullToRefreshWrapper, PageTransition, AnimatedFAB } from '@/components/shared'
 import { NotificationBell } from '@/components/notifications'
 import { useUIStore } from '@/stores/uiStore'
-import { useI18n, type Language } from '@/lib/i18n'
+import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import { computeMonthlyData } from '@/lib/computeMonthlyData'
 import type { Transaction } from '@/types'
 
 const RECENT_TRANSACTIONS_LIMIT = 10
-
-const LOCALE_MAP: Record<Language, string> = {
-  vi: 'vi-VN',
-  en: 'en-US',
-}
 
 function computeExpenseBreakdown(transactions: Transaction[], otherCategoryName: string): ExpenseItem[] {
   const expenses = transactions?.filter(t => t.type === 'expense') || []
@@ -58,7 +54,7 @@ export default function Dashboard() {
     income: currentMonthTxns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((s, t) => s + Number(t.amount), 0),
     expense: currentMonthTxns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((s, t) => s + Number(t.amount), 0),
   }), [currentMonthTxns])
-  const monthlyData = useMemo(() => computeMonthlyData(allTxns, 6, LOCALE_MAP[language]), [allTxns, language])
+  const monthlyData = useMemo(() => computeMonthlyData(allTxns, 6, getLocale(language)), [allTxns, language])
   const expenseBreakdown = useMemo(() => computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory), [currentMonthTxns, t.dashboard.otherCategory])
 
   if (txError || walletError) {
@@ -77,7 +73,7 @@ export default function Dashboard() {
   // Recent transactions from current month only
   const recentTransactions: TransactionItem[] = currentMonthTxns.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
 
-  const displayName = user?.full_name || user?.email?.split('@')[0] || t.dashboard.greeting.replace('!', '')
+  const displayName = user?.full_name || user?.email?.split('@')[0] || ''
 
   return (
     <PageTransition>
@@ -94,7 +90,7 @@ export default function Dashboard() {
 
         <div className="relative">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-white text-xl font-medium">{t.dashboard.greeting} {displayName} 👋</h1>
+          <h1 className="text-white text-xl font-medium">{displayName ? `${t.dashboard.greeting} ${displayName}` : t.dashboard.greeting} 👋</h1>
           <NotificationBell />
         </div>
 

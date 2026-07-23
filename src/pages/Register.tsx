@@ -11,7 +11,6 @@ export default function Register() {
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const { t } = useI18n()
 
   const register = useRegister()
@@ -29,18 +28,14 @@ export default function Register() {
       return
     }
 
-    setIsLoading(true)
-
     try {
       await register.mutateAsync({ email, password, full_name: fullName })
       toast.success(`${t.auth.registerSuccess} ${t.verifyEmail.instruction}`, {
         duration: 6000,
       })
-      navigate("/login")
+      navigate("/verify-email")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t.auth.somethingWrong)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -105,10 +100,10 @@ export default function Register() {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={register.isPending}
           className="clay-button-primary w-full h-12 text-white font-semibold text-base rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
+          {register.isPending && <Loader2 className="h-5 w-5 animate-spin" />}
           {t.auth.register}
         </button>
       </form>

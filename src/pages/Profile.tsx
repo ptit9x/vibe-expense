@@ -161,13 +161,13 @@ export default function Profile() {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </button>
 
-          {FEATURES.map((feature, index) => {
+          {FEATURES.map((feature) => {
             const Icon = feature.icon
             const label = t.settings[feature.labelKey.split('.')[1] as keyof typeof t.settings] as string
 
             return (
               <Link
-                key={index}
+                key={feature.href}
                 to={feature.href}
                 className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all"
               >

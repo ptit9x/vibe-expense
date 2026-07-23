@@ -22,8 +22,9 @@ export function computeMonthlyData(
   const months: MonthlyData[] = []
   for (let i = numMonths - 1; i >= 0; i--) {
     const d = new Date()
+    d.setDate(1) // Prevent JS Date overflow: setMonth(-1) on day 31 rolls to next month
     d.setMonth(d.getMonth() - i)
-    const monthKey = d.toISOString().slice(0, 7)
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
     const monthLabel = locale
       ? new Intl.DateTimeFormat(locale, { month: 'short' }).format(d)

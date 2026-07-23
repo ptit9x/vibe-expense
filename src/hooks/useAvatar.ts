@@ -12,11 +12,14 @@ function resizeImage(file: File, maxPx = 512): Promise<Blob> {
         ? imgOrBlob
         : (() => {
             const i = new Image()
-            i.src = URL.createObjectURL(imgOrBlob)
+            const innerUrl = URL.createObjectURL(imgOrBlob)
+            i.src = innerUrl
             return i
           })()
 
       img.onload = () => {
+        if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src)
+
         const { width, height } = img
 
         // Skip resize if already small enough
@@ -48,7 +51,10 @@ function resizeImage(file: File, maxPx = 512): Promise<Blob> {
           0.85,
         )
       }
-      img.onerror = () => reject(new Error('Failed to load image'))
+      img.onerror = () => {
+        if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src)
+        reject(new Error('Failed to load image'))
+      }
     }
 
     // Detect HEIC / HEIF (iPhone default format)
@@ -57,16 +63,22 @@ function resizeImage(file: File, maxPx = 512): Promise<Blob> {
       import('heic2any').then(({ default: heic2any }) => {
         heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 })
           .then((converted) => {
+            if (!converted) {
+              reject(new Error('HEIC conversion returned empty'))
+              return
+            }
             const blob = Array.isArray(converted) ? converted[0] : converted
             const img = new Image()
-            img.src = URL.createObjectURL(blob)
+            const url = URL.createObjectURL(blob)
+            img.src = url
             processImage(img)
           })
           .catch(() => reject(new Error('HEIC conversion failed')))
       }).catch(() => reject(new Error('HEIC library not loaded')))
     } else {
       const img = new Image()
-      img.src = URL.createObjectURL(file)
+      const url = URL.createObjectURL(file)
+      img.src = url
       processImage(img)
     }
   })

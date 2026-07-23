@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import type { TransactionType } from '@/types'
 
 interface TransactionRowProps {
@@ -20,11 +21,6 @@ interface TransactionRowProps {
   toWalletName?: string | null
   /** Layout variant: compact for dashboard, default for full list */
   variant?: 'default' | 'compact'
-}
-
-const localeMap: Record<string, string> = {
-  vi: 'vi-VN',
-  en: 'en-US',
 }
 
 function getTypeStyle(type: TransactionType): { color: string; prefix: string } {
@@ -57,7 +53,7 @@ export const TransactionRow = memo(function TransactionRow({
 }: TransactionRowProps) {
   const { currency, formatCurrency, showBalance } = useUIStore()
   const { language, t } = useI18n()
-  const locale = localeMap[language] || 'vi-VN'
+  const locale = getLocale(language)
 
   const isCompact = variant === 'compact'
   const dateLabel = isCompact

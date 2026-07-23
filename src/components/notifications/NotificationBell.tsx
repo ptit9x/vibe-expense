@@ -6,6 +6,7 @@ import { useAppNotifications, useMarkNotificationRead, useMarkAllNotificationsRe
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import type { NotificationType } from '@/types'
 
 const typeConfig: Record<NotificationType, { emoji: string; color: string }> = {
@@ -17,8 +18,6 @@ const typeConfig: Record<NotificationType, { emoji: string; color: string }> = {
   inactivity_reminder: { emoji: '⏰', color: 'bg-pink-100 text-pink-600' },
   financial_health: { emoji: '🏥', color: 'bg-indigo-100 text-indigo-600' },
 }
-
-const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
 
 function formatTimeAgo(dateStr: string, t: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }, locale: string): string {
   const now = Date.now()
@@ -37,7 +36,7 @@ function formatTimeAgo(dateStr: string, t: { justNow: string; minutesAgo: string
 
 export default function NotificationBell() {
   const { t, language } = useI18n()
-  const locale = localeMap[language] || 'vi-VN'
+  const locale = getLocale(language)
   const [isOpen, setIsOpen] = useState(false)
   const bellRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)

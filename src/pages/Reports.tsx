@@ -13,25 +13,28 @@ import { useI18n } from '@/lib/i18n'
 import type { Transaction } from '@/types'
 
 export default function Reports() {
-  const { showBalance, toggleBalance, currentMonth } = useUIStore()
+  const { showBalance, toggleBalance } = useUIStore()
   const { t } = useI18n()
   const { data: wallets, isLoading: walletsLoading, error: walletsError, refetch: refetchWallets } = useWallets()
-  const { data: transactions, isLoading: txLoading, error: txError, refetch: refetchTransactions } = useTransactions(currentMonth)
+  // Fetch 12 months for chart (null = last 12 months from useTransactions)
+  const { data: allTransactions, isLoading: txLoading, error: txError, refetch: refetchTransactions } = useTransactions(null)
 
   const isLoading = walletsLoading || txLoading
   const error = walletsError || txError
 
+  const transactions = allTransactions ?? []
+
   const totalBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0
 
-  const debt = (transactions ?? [])
+  const debt = transactions
     .filter((t: Transaction) => t.type === 'borrow')
     .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
     -
-    (transactions ?? [])
+    transactions
     .filter((t: Transaction) => t.type === 'lend')
     .reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0)
 
-  const monthlyData = computeMonthlyData(transactions ?? [], 6)
+  const monthlyData = computeMonthlyData(transactions, 6)
 
   return (
     <PageTransition>

@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import { useUIStore } from '@/stores/uiStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useTheme } from '@/components/theme-provider'
-
-const LOCALE_MAP: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
 
 interface ReportFiltersProps {
   children: ReactNode
@@ -258,7 +257,7 @@ export function YearlyReport({
     const monthTotal = filtered
       .filter(tx => tx.transaction_date?.substring(5, 7) === month)
       .reduce((sum, tx) => sum + Number(tx.amount), 0)
-    const monthLabel = new Date(2000, i).toLocaleDateString(LOCALE_MAP[language] || 'vi-VN', { month: 'short' })
+    const monthLabel = new Date(2000, i).toLocaleDateString(getLocale(language), { month: 'short' })
     return { month: monthLabel, value: monthTotal, monthNum: month }
   })
 

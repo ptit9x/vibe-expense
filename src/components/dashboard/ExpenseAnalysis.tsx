@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PieChart, Pie, ResponsiveContainer, Sector, type PieSectorDataItem } from 'recharts'
@@ -102,6 +102,10 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
   const total = items.reduce((sum, item) => sum + item.value, 0)
   const sortedItems = [...items].sort((a, b) => b.value - a.value).slice(0, 8)
   const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [items])
 
   const chartData = sortedItems.map((item, index) => ({
     name: item.name,

@@ -42,10 +42,10 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
         {t.forgotPassword.title}
       </h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
         {t.forgotPassword.description}
       </p>
 

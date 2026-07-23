@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TransactionRow } from '@/components/shared'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import { useUIStore } from '@/stores/uiStore'
 import PageHeader from '@/components/PageHeader'
 import { PullToRefreshWrapper, PageTransition } from '@/components/shared'
@@ -25,8 +26,6 @@ export default function Transactions() {
   const { data: wallets, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
   const { currency, formatCurrency, showBalance } = useUIStore()
-
-  const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
 
   const filterWallet = wallets?.find(w => w.id === walletFilter)
 
@@ -121,7 +120,7 @@ export default function Transactions() {
               const monthIncome = txns.filter(t => t.type === 'income' || t.type === 'borrow').reduce((sum, t) => sum + t.amount, 0)
               const monthExpense = txns.filter(t => t.type === 'expense' || t.type === 'lend').reduce((sum, t) => sum + t.amount, 0)
               const [year, mon] = monthKey.split('-')
-              const monthLabel = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString(localeMap[language] || 'vi-VN', { month: 'long', year: 'numeric' })
+              const monthLabel = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString(getLocale(language), { month: 'long', year: 'numeric' })
 
               return (
                 <Card key={monthKey} className="border shadow-sm overflow-hidden px-4 pt-3">

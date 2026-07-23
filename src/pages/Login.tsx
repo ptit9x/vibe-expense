@@ -10,7 +10,6 @@ export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const { t } = useI18n()
 
   const login = useLogin()
@@ -23,12 +22,10 @@ export default function Login() {
       return
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       toast.error(t.auth.passwordMinLength)
       return
     }
-
-    setIsLoading(true)
 
     try {
       await login.mutateAsync({ email, password })
@@ -36,8 +33,6 @@ export default function Login() {
       navigate("/dashboard")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t.auth.somethingWrong)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -95,10 +90,10 @@ export default function Login() {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={login.isPending}
           className="clay-button-primary w-full h-12 text-white font-semibold text-base rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
+          {login.isPending && <Loader2 className="h-5 w-5 animate-spin" />}
           {t.auth.login}
         </button>
       </form>

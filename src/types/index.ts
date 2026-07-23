@@ -136,6 +136,7 @@ export interface UpdateBudgetInput extends Partial<CreateBudgetInput> {
 export interface CreateSavingsGoalInput {
   name: string
   target_amount: number
+  current_amount?: number
   deadline?: DateString
   icon?: string
   color?: string

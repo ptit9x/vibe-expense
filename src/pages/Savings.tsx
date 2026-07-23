@@ -5,15 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useSavings, useCreateSavingsGoal } from '@/hooks/useSavings'
-import { useI18n, type Language } from '@/lib/i18n'
+import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import { useUIStore } from '@/stores/uiStore'
 import { PullToRefreshWrapper } from '@/components/shared'
 import type { SavingsGoal } from '@/types'
-
-const LOCALE_MAP: Record<Language, string> = {
-  vi: 'vi-VN',
-  en: 'en-US',
-}
 
 import { PageTransition } from '@/components/shared'
 
@@ -41,10 +37,12 @@ export default function Savings() {
       toast.error(t.savings.targetMustBePositive)
       return
     }
+    const current = parseFloat(currentAmount) || 0
     createGoal.mutate(
       {
         name: goalName.trim(),
         target_amount: target,
+        current_amount: current,
       },
       {
         onSuccess: () => {
@@ -157,7 +155,7 @@ export default function Savings() {
               <Button onClick={handleAddGoal} disabled={createGoal.isPending}>
                 {createGoal.isPending ? t.savingsPage.processing : t.common.save}
               </Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>{t.common.cancel}</Button>
+              <Button variant="outline" onClick={() => { setShowForm(false); setGoalName(''); setTargetAmount(''); setCurrentAmount('') }}>{t.common.cancel}</Button>
             </div>
           </CardContent>
         </Card>
@@ -222,7 +220,7 @@ export default function Savings() {
                   {goal.deadline && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString(LOCALE_MAP[language])}</span>
+                      <span>{t.savings.deadlineLabel}: {new Date(goal.deadline).toLocaleDateString(getLocale(language))}</span>
                     </div>
                   )}
                 </CardContent>
