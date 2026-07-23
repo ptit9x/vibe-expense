@@ -1,14 +1,13 @@
 import { Calendar, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/lib/i18n'
+import { getLocale } from '@/lib/locale'
 import type { FinancialReport } from '@/types'
 
 interface Props {
   reports: FinancialReport[]
   currentId?: string
 }
-
-const localeMap: Record<string, string> = { vi: 'vi-VN', en: 'en-US' }
 
 function formatDate(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale, {
@@ -29,7 +28,7 @@ function getGradeColor(grade: string): string {
 export default function ReportHistory({ reports, currentId }: Props) {
   const navigate = useNavigate()
   const { t, language } = useI18n()
-  const locale = localeMap[language] || 'vi-VN'
+  const locale = getLocale(language)
 
   if (reports.length === 0) return null
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PieChart, Pie, ResponsiveContainer, Sector, type PieSectorDataItem } from 'recharts'
@@ -103,9 +103,8 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
   const sortedItems = [...items].sort((a, b) => b.value - a.value).slice(0, 8)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  useEffect(() => {
-    setActiveIndex(0)
-  }, [items])
+  // Clamp activeIndex to valid range when items change (month switch, etc.)
+  const safeActiveIndex = sortedItems.length > 0 ? Math.min(activeIndex, sortedItems.length - 1) : 0
 
   const chartData = sortedItems.map((item, index) => ({
     name: item.name,
@@ -147,7 +146,7 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                     shape={(props: PieSectorDataItem & { index: number }) => (
                       <PieSector
                         {...(props as Omit<SectorProps, 'isActive' | 'currency' | 'formatCurrency'>)}
-                        isActive={props.index === activeIndex}
+                        isActive={props.index === safeActiveIndex}
                         currency={currency}
                         formatCurrency={formatCurrency}
                       />
