@@ -69,7 +69,7 @@ The schema is in `supabase/migrations/` and auto-deploys via GitHub Actions when
 |-------------|------------|
 | `SUPABASE_ACCESS_TOKEN` | Supabase Dashboard → Avatar → Account Settings → Access Tokens → [New access token.](https://supabase.com/dashboard/account/tokens) |
 | `POSTGRES_PASSWORD` | Supabase Dashboard → Database → Settings → Connection string (password part) |
-| `PROJECT_REF` | Supabase Dashboard → Project Settings → General → Project Reference |
+| `PROJECT_REF` | Supabase Dashboard → [Project Settings](https://supabase.com/dashboard/project/kusdcyhlyuuzjqdkwyqf/settings/general) → General settings → Project ID |
 
 **Steps:**
 1. Go to your GitHub repo → Settings → Secrets and variables → Actions
