@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
-export type ThemeColor = "zinc" | "blue" | "green" | "orange" | "rose" | "violet"
+export type ThemeColor = "zinc" | "blue" | "green" | "orange" | "rose" | "violet" | "christmas"
 export type Mode = "light" | "dark" | "system"
 
 type ThemeProviderProps = {
@@ -61,7 +61,7 @@ export function ThemeProvider({
         const root = window.document.documentElement
 
         // Color theme
-        root.classList.remove("theme-zinc", "theme-blue", "theme-green", "theme-orange", "theme-rose", "theme-violet")
+        root.classList.remove("theme-zinc", "theme-blue", "theme-green", "theme-orange", "theme-rose", "theme-violet", "theme-christmas")
         if (theme !== "zinc") {
             root.classList.add(`theme-${theme}`)
         }

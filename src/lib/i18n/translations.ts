@@ -528,6 +528,7 @@ export const translations = {
       orange: 'Cam',
       rose: 'Hồng',
       violet: 'Tím',
+      christmas: 'Giáng sinh',
     },
     // Profile/Budgets page
     profile: {
@@ -1232,6 +1233,7 @@ export const translations = {
       orange: 'Orange',
       rose: 'Rose',
       violet: 'Violet',
+      christmas: 'Christmas',
     },
     // Profile/Budgets page
     profile: {

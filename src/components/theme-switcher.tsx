@@ -24,6 +24,7 @@ export function ThemeSwitcher() {
                 <SelectItem value="orange">{t.theme.orange}</SelectItem>
                 <SelectItem value="rose">{t.theme.rose}</SelectItem>
                 <SelectItem value="violet">{t.theme.violet}</SelectItem>
+                <SelectItem value="christmas">🎄 {t.theme.christmas}</SelectItem>
             </SelectContent>
         </Select>
     )

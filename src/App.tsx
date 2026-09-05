@@ -39,6 +39,7 @@ const Forbidden = lazy(() => import('./pages/Forbidden'))
 import { Toaster } from '@/components/ui/sonner'
 import { useAuthListener } from '@/hooks/useAuth'
 import { useOutboxSync } from '@/hooks/useOutboxSync'
+import { Snowfall } from '@/components/shared'
 import './App.css'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -115,6 +116,7 @@ function AppContent() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <Snowfall />
       <Toaster />
     </>
   )
