@@ -77,4 +77,8 @@ VALUES
   (NULL, '💻 Công nghệ', 'expense', '💻', '#0EA5E9', true, 'categories.technology', 'technology'),
   (NULL, '🏘️ Cho thuê', 'income', '🏘️', '#8B5CF6', true, 'categories.rental', 'rental'),
   (NULL, '👴 Hưu trí & Trợ cấp', 'income', '👴', '#F59E0B', true, 'categories.pension', 'pension')
-ON CONFLICT (slug) WHERE is_system = true DO NOTHING;
+-- NOTE: the conflict predicate must match (imply) the partial index predicate
+-- `is_system = true AND slug IS NOT NULL` created above, otherwise Postgres
+-- raises 42P10 "no unique or exclusion constraint matching the ON CONFLICT
+-- specification".
+ON CONFLICT (slug) WHERE is_system = true AND slug IS NOT NULL DO NOTHING;
