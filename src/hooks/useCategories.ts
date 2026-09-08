@@ -21,12 +21,35 @@ export function useCategories(type?: TransactionType) {
 
       if (error) throw error
 
+      // Merge user override rows into their system parents instead of
+      // rendering them as extra subcategories (duplicate-looking rows).
+      // An override is a user-owned row whose parent is a SYSTEM category.
+      // User-created subcategories under user categories are unaffected.
+      const systemIds = new Set(allCategories.filter(c => c.is_system).map(c => c.id))
+      const overrides = allCategories.filter(c => c.user_id && c.parent_id && systemIds.has(c.parent_id))
+      const overridesByParent = new Map(overrides.map(o => [o.parent_id as string, o]))
+      const overriddenIds = new Set(overridesByParent.keys())
+
+      const tree = allCategories
+        .filter(c => !(c.user_id && overriddenIds.has(c.parent_id)))
+        .map(c => {
+          if (!overriddenIds.has(c.id)) return c
+          const o = overridesByParent.get(c.id)!
+          return {
+            ...c,
+            name: o.name ?? c.name,
+            icon: o.icon ?? c.icon,
+            color: o.color ?? c.color,
+          }
+        })
+
       const filteredCategories = type
-        ? allCategories.filter(c => c.type === type)
-        : allCategories
+        ? tree.filter(c => c.type === type)
+        : tree
 
       return filteredCategories.map(c => ({
         ...c,
+        name: stripEmojiPrefix(c.name),
         i18n_key: (c as Record<string, unknown>).i18n_key || extractI18nKey(c.name),
       })) as (Category & { i18n_key?: string })[]
     },
@@ -189,6 +212,21 @@ export function useCreateCategory() {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
     },
   })
+}
+
+// Strip leading emoji (+ variation selector/ZWJ/space) from a category name,
+// e.g. "🐕 Thú cưng" → "Thú cưng". The emoji already lives in the icon column.
+// Emoji/symbol codepoints are >= U+2100 (8448); Vietnamese (Latin Extended
+// Additional) tops out at U+1EFF, so this guard never strips Vietnamese letters.
+export function stripEmojiPrefix(name: string | null | undefined): string {
+  if (!name) return ''
+  let i = 0
+  while (i < name.length && name.codePointAt(i)! >= 8448) {
+    i += String.fromCodePoint(name.codePointAt(i)!).length
+  }
+  // Skip one space between the emoji and the label
+  if (name[i] === ' ') i++
+  return name.slice(i) || name
 }
 
 function extractI18nKey(name: string): string {
