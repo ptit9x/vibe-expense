@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Globe, DollarSign, Tags, Download, ChevronRight, Lock, MessageSquare, Bell, Sun, Moon, Camera, HeartPulse } from 'lucide-react'
+import { Globe, DollarSign, Tags, Download, ChevronRight, Lock, MessageSquare, Bell, Sun, Moon, Camera, HeartPulse, History } from 'lucide-react'
 import { useAuth, useLogout, useUpdateProfile } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 const FEATURES = [
   { icon: HeartPulse, labelKey: 'settings.financialHealth', href: '/financial-health', color: '#EC4899' },
   { icon: Lock, labelKey: 'settings.password', href: '/settings/password', color: '#6366F1' },
+  { icon: History, labelKey: 'settings.accessHistory', href: '/settings/access-history', color: '#14B8A6' },
   { icon: Globe, labelKey: 'settings.language', href: '/settings/language', color: '#8B5CF6' },
   { icon: DollarSign, labelKey: 'settings.currency', href: '/settings/currency', color: '#10B981' },
   { icon: Tags, labelKey: 'settings.categories', href: '/categories', color: '#F59E0B' },

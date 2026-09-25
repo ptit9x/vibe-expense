@@ -1,3 +1,21 @@
+// ===== Access History =====
+
+export type DeviceType = 'mobile' | 'tablet' | 'desktop' | 'unknown'
+
+export interface AccessLog {
+  id: UUID
+  user_id: UUID
+  device_type: DeviceType
+  browser: string
+  os: string
+  ip_address: string
+  country: string | null
+  user_agent: string | null
+  first_seen_at: DateString
+  last_seen_at: DateString
+  login_count: number
+}
+
 // ===== Base Types =====
 
 export type UUID = string

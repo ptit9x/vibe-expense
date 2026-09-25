@@ -26,6 +26,7 @@ const LanguageSettingsPage = lazy(() => import('./pages/LanguageSettings'))
 const CurrencySettingsPage = lazy(() => import('./pages/CurrencySettings'))
 const ExportDataPage = lazy(() => import('./pages/ExportData'))
 const PasswordSettingsPage = lazy(() => import('./pages/PasswordSettings'))
+const AccessHistoryPage = lazy(() => import('./pages/AccessHistory'))
 const CategoriesPage = lazy(() => import('./pages/Categories'))
 const SavingsPage = lazy(() => import('./pages/Savings'))
 const NotificationsPage = lazy(() => import('./pages/Notifications'))
@@ -38,6 +39,7 @@ const Forbidden = lazy(() => import('./pages/Forbidden'))
 
 import { Toaster } from '@/components/ui/sonner'
 import { useAuthListener } from '@/hooks/useAuth'
+import { useAccessTracker } from '@/hooks/useAccessLog'
 import { useOutboxSync } from '@/hooks/useOutboxSync'
 import { Snowfall } from '@/components/shared'
 import './App.css'
@@ -69,6 +71,7 @@ function LoadingSpinner() {
 
 function AppContent() {
   useAuthListener()
+  useAccessTracker()
   useOutboxSync()
 
   return (
@@ -103,6 +106,7 @@ function AppContent() {
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export" element={<ExportDataPage />} />
             <Route path="/settings/password" element={<PasswordSettingsPage />} />
+            <Route path="/settings/access-history" element={<AccessHistoryPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
