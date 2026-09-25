@@ -11,6 +11,7 @@ A personal finance management app built with React + Vite + TypeScript + Tailwin
 - **Wallets**: Manage multiple wallets (Cash, Bank, E-wallet)
 - **Reports**: Monthly reports with bar charts, category breakdown
 - **Settings**: Language, currency, password, data export
+- **Access History**: See which devices & browsers accessed your account, with current-device badge (Profile → Access History)
 - **Profile**: User info, coins, referral code
 
 ## Tech Stack
@@ -74,7 +75,7 @@ The schema is in `supabase/migrations/` and auto-deploys via GitHub Actions when
 **Steps:**
 1. Go to your GitHub repo → Settings → Secrets and variables → Actions
 2. Add the 3 secrets above
-3. Push any change to trigger the deploy workflow
+3. Push a change under `supabase/**` (or the workflow file) to trigger the deploy workflow
 
 ### 3. Local Development
 
@@ -131,7 +132,7 @@ vibe-expense/
 | AddTransaction | AmountDisplay, CategorySelector, WalletSelector, TypeDropdown, SaveButton |
 | Wallets | TotalBalanceCard, WalletCard, WalletList, AddWalletModal, AddWalletFAB |
 | Reports | BalanceOverview, MonthlyChart, QuickActions, ReportComponents (shared) |
-| Settings | LanguageSettings, CurrencySettings, PasswordSettings, ExportData |
+| Settings | LanguageSettings, CurrencySettings, PasswordSettings, ExportData, AccessHistory |
 
 ---
 
@@ -149,6 +150,7 @@ vibe-expense/
 | `/settings/currency` | CurrencySettings | Change currency |
 | `/settings/password` | PasswordSettings | Change account password |
 | `/settings/export` | ExportData | Export data to CSV/Excel |
+| `/settings/access-history` | AccessHistory | Devices & browsers that accessed the account |
 | `/budgets` | Profile | User profile, settings list |
 
 ---

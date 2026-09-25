@@ -72,10 +72,18 @@ Manual chunks split vendor code: `vendor` (react/react-dom/react-router-dom), `c
 - Migrations in `supabase/migrations/` — auto-deployed via GitHub Actions on push to `main` when `supabase/**` changes
 - RLS (Row Level Security) on all tables — `auth.uid() = user_id` policies
 - Monetary values: `DECIMAL(15,2)`
+- `access_logs` (access history): unique index `(user_id, device_type, browser, os, ip_address)` — same device+browser+IP never creates a duplicate row. `log_access(p_device_type, p_browser, p_os, p_ip, p_country, p_user_agent)` RPC upserts; only bumps `last_seen_at` and `login_count` (visits ≥10 minutes apart count once, so reloads/token refreshes don't inflate). **No DELETE policy by design — access history is immutable**
 - DB triggers handle: profile creation on signup, default wallet creation
 
-### Edge Function
+### Edge Functions
 `supabase/functions/analyze-financial-health/` — Deno function that takes `FinancialHealthMetrics`, calls Gemini 3.5 Flash API (fallback: Gemini 2.5 Flash) for AI financial analysis. Returns `AIAnalysis` JSON. All text in Vietnamese.
+
+`supabase/functions/whoami/` — returns the caller's IP + country from proxy headers. Used by access-history tracking to identify devices. JWT required, no secrets involved.
+
+### Access History (client flow)
+1. `src/lib/accessLog.ts` — `parseUserAgent()` (ua-parser-js) → device/browser/OS; `getClientInfo()` → IP via `whoami` edge fn (cached per page load); `logAccessOnce()` throttled 10 min via sessionStorage
+2. `useAccessTracker()` (mounted in App) logs on `INITIAL_SESSION`/`SIGNED_IN`; RPC `log_access` returns row id → stored in localStorage as "current device" marker
+3. `useAccessLogs()` query → page `/settings/access-history` (Profile menu) shows devices with current-device badge. Mock fallback: `src/mocks/mockAccessLogs.ts`
 
 ### Local Scoring Fallback
 `src/lib/financialHealth.ts` — pure functions (no side effects, no API calls) that compute health metrics and generate analysis locally when the AI edge function is unavailable.
@@ -101,6 +109,7 @@ Manual chunks split vendor code: `vendor` (react/react-dom/react-router-dom), `c
 - `WalletType`: `'cash' | 'bank' | 'e_wallet'`
 - `BudgetPeriod`: `'monthly' | 'weekly'`
 - `NotificationType`: `'info' | 'warning' | 'success' | 'budget_alert' | 'debt_reminder' | 'inactivity_reminder' | 'financial_health'`
+- `DeviceType`: `'mobile' | 'tablet' | 'desktop' | 'unknown'`; `AccessLog`: access history row (device_type, browser, os, ip_address, country, first_seen_at, last_seen_at, login_count)
 - Transaction relations: `wallet`, `to_wallet` (for transfers), `category` — fetched via Supabase joins using foreign key aliases in select string (see `TRANSACTION_SELECT` in hooks)
 
 ## Wallet Balance Computation
@@ -112,6 +121,7 @@ Balances are computed **client-side** in `useWallets` hook — batches all trans
 - `['transaction', id]` — single transaction
 - `['wallets', includeInactive?]` — wallet list
 - `['appNotifications']` — notification list
+- `['accessLogs']` — access history (devices/browsers/IP, ordered by last_seen_at)
 - `['dashboard']` — dashboard aggregated data
 Mutations invalidate all related keys on success (e.g., transaction mutations invalidate `['transactions']`, `['wallets']`, `['dashboard']`).
 
@@ -126,7 +136,8 @@ Mutations invalidate all related keys on success (e.g., transaction mutations in
 ## Deployment
 - **Frontend**: Vercel (SPA rewrite in vercel.json)
 - **Database/Edge Functions**: Supabase CLI via GitHub Actions (`.github/workflows/deploy-supabase.yml`)
-- CI chỉ trigger khi `supabase/**` thay đổi trên branch `main`
+- CI trigger khi `supabase/**` hoặc `.github/workflows/deploy-supabase.yml` thay đổi trên branch `main`
+- Workflow deploy lần lượt 2 edge functions (`analyze-financial-health`, `whoami`) — **thêm function mới thì phải thêm lệnh deploy vào workflow**
 - Required GitHub secrets: `SUPABASE_ACCESS_TOKEN`, `POSTGRES_PASSWORD`, `PROJECT_REF`
 - Edge function secrets (Supabase dashboard): `GEMINI_API_KEY`
 
