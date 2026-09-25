@@ -320,7 +320,6 @@ export const translations = {
       pets: 'Thú cưng',
       sports: 'Thể thao & Fitness',
       insurance: 'Bảo hiểm',
-      healthInsurance: 'Bảo hiểm sức khỏe',
       taxes: 'Thuế & Phí',
       technology: 'Công nghệ',
       rental: 'Cho thuê',
@@ -405,6 +404,7 @@ export const translations = {
     // Settings
     settings: {
       settings: 'Cài đặt',
+      accessHistory: 'Lịch sử truy cập',
       language: 'Ngôn ngữ',
       currency: 'Tiền tệ',
       password: 'Đổi mật khẩu',
@@ -454,6 +454,21 @@ export const translations = {
       profileUpdated: 'Cập nhật thông tin thành công',
       enterFullName: 'Nhập họ và tên',
       passwordChangeFailed: 'Đổi mật khẩu thất bại',
+    },
+    // Access history
+    accessHistory: {
+      description: 'Các thiết bị và trình duyệt đã dùng để truy cập tài khoản của bạn',
+      currentDevice: 'Đang dùng',
+      firstSeen: 'Lần đầu:',
+      visits: 'lượt',
+      empty: 'Chưa có lịch sử truy cập',
+      emptyHint: 'Lịch sử sẽ được ghi lại khi bạn truy cập ứng dụng',
+      device: {
+        desktop: 'Máy tính',
+        mobile: 'Điện thoại',
+        tablet: 'Máy tính bảng',
+        unknown: 'Thiết bị khác',
+      },
     },
     // Wallet card
     walletCard: {
@@ -1025,7 +1040,6 @@ export const translations = {
       pets: 'Pets',
       sports: 'Sports & Fitness',
       insurance: 'Insurance',
-      healthInsurance: 'Health Insurance',
       taxes: 'Taxes & Fees',
       technology: 'Technology',
       rental: 'Rental',
@@ -1111,6 +1125,7 @@ export const translations = {
     // Settings
     settings: {
       settings: 'Settings',
+      accessHistory: 'Access History',
       language: 'Language',
       currency: 'Currency',
       password: 'Change Password',
@@ -1160,6 +1175,21 @@ export const translations = {
       profileUpdated: 'Profile updated successfully',
       enterFullName: 'Enter your full name',
       passwordChangeFailed: 'Password change failed',
+    },
+    // Access history
+    accessHistory: {
+      description: 'Devices and browsers used to access your account',
+      currentDevice: 'Current',
+      firstSeen: 'First seen:',
+      visits: 'visits',
+      empty: 'No access history yet',
+      emptyHint: 'History will be recorded as you use the app',
+      device: {
+        desktop: 'Desktop',
+        mobile: 'Phone',
+        tablet: 'Tablet',
+        unknown: 'Other device',
+      },
     },
     // Wallet card
     walletCard: {
