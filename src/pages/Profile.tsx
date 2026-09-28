@@ -9,7 +9,8 @@ import PageHeader from '@/components/PageHeader'
 import { Avatar } from '@/components/shared'
 import { useUploadAvatar } from '@/hooks/useAvatar'
 import { useSubmitFeedback } from '@/hooks/useFeedback'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -267,31 +268,40 @@ export default function Profile() {
 
       {/* Feedback Dialog */}
       <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t.settings.feedback}</DialogTitle>
+        <DialogContent className="max-w-[400px] rounded-2xl p-6 gap-4">
+          <DialogHeader className="gap-2">
+            <DialogTitle className="text-lg text-gray-900 dark:text-gray-100">{t.settings.feedback}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t.settings.feedbackHint}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-1.5 py-1">
-            <p className="text-sm text-gray-500">{t.settings.feedbackHint}</p>
-            <textarea
+          <div className="space-y-1.5">
+            <Textarea
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value.slice(0, 5000))}
               placeholder={t.settings.feedbackPlaceholder}
               rows={5}
-              className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500"
+              aria-label={t.settings.feedback}
             />
-            <p className="text-right text-xs text-gray-400">{feedbackText.length}/5000</p>
+            <p className="text-right text-xs text-gray-400 dark:text-gray-500">{feedbackText.length}/5000</p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFeedbackDialogOpen(false)}>
+          <DialogFooter className="flex-row gap-3 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setIsFeedbackDialogOpen(false)}
+              disabled={submitFeedbackMutation.isPending}
+              className="flex-1 h-11 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 active:scale-[0.98] transition-all disabled:opacity-50"
+            >
               {t.common.cancel}
-            </Button>
-            <Button
+            </button>
+            <button
+              type="button"
               onClick={submitFeedback}
               disabled={submitFeedbackMutation.isPending || !feedbackText.trim()}
+              className="flex-1 h-11 rounded-xl text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 shadow-sm shadow-blue-200 dark:shadow-blue-900/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
             >
               {submitFeedbackMutation.isPending ? t.common.loading : t.settings.feedbackSend}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
