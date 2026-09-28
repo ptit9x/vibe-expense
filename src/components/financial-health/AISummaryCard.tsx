@@ -29,7 +29,7 @@ export default function AISummaryCard({ analysis }: Props) {
   const fht = t.financialHealth
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div className="clay-card overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-white" />

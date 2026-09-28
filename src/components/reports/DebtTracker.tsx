@@ -19,7 +19,7 @@ export function DebtTracker({ transactions }: DebtTrackerProps) {
   const netDebt = totalBorrowed - totalLent // dương = đang nợ người khác, âm = người khác nợ mình
 
   return (
-    <div className="bg-white mt-2 px-5 py-4">
+    <div className="clay-card mt-2 px-5 py-4">
       <div className="flex items-center gap-2 mb-4">
         <HandCoins className="h-5 w-5 text-indigo-500" />
         <p className="text-sm font-medium text-gray-900">{t.debtTracker.title}</p>

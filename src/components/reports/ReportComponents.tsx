@@ -14,7 +14,7 @@ interface ReportFiltersProps {
 
 export function ReportFilters({ children }: ReportFiltersProps) {
   return (
-    <div className="bg-white mt-2 px-5 py-3 flex gap-3">
+    <div className="clay-card mt-2 px-5 py-3 flex gap-3">
       {children}
     </div>
   )
@@ -288,7 +288,7 @@ export function YearlyReport({
       </div>
 
       {/* Stats */}
-      <div className="bg-white px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <div className="grid grid-cols-2 gap-4">
           <StatCard
             label={`${t.reports[totalLabelKey]} ${selectedYear}`}
@@ -320,13 +320,13 @@ export function YearlyReport({
       </ReportFilters>
 
       {/* Chart */}
-      <div className="bg-white mt-2 px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <MonthlyBarChart data={monthlyData} color={chartColor} />
       </div>
 
       {/* Category breakdown */}
       {byCategory.length > 0 && (
-        <div className="bg-white mt-2 px-5 py-4">
+        <div className="clay-card mt-2 px-5 py-4">
           {/* eslint-disable-next-line security/detect-object-injection */}
           <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[categoryLabelKey]}</p>
           <CategoryList items={byCategory} total={total} />
@@ -334,7 +334,7 @@ export function YearlyReport({
       )}
 
       {/* Monthly breakdown */}
-      <div className="bg-white mt-2 px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         {/* eslint-disable-next-line security/detect-object-injection */}
         <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
         <MonthlyList data={monthlyData} year={selectedYear} type={type} />

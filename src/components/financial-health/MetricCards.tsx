@@ -111,7 +111,7 @@ export default function MetricCards({ metrics }: Props) {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
+          className="clay-card p-4"
         >
           <div
             className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-2 ${card.color}`}

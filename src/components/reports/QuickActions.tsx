@@ -32,7 +32,7 @@ export function QuickActions({ items = defaultItems }: QuickActionsProps) {
             <Link
               key={item.href}
               to={item.href}
-              className="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              className="flex flex-col items-center p-4 clay-card hover:-translate-y-0.5 active:scale-[0.98] transition-transform"
             >
               <div 
                 className="w-12 h-12 rounded-full flex items-center justify-center mb-2"

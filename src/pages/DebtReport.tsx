@@ -83,7 +83,7 @@ export default function DebtReport() {
       <>
 
       {/* Summary Stats */}
-      <div className="bg-white px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="flex items-center gap-1.5 mb-1">
@@ -124,14 +124,14 @@ export default function DebtReport() {
       </div>
 
       {/* Monthly chart */}
-      <div className="bg-white mt-2 px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <p className="text-sm font-medium text-gray-900 mb-3">{t.debtTracker.monthlyDebt}</p>
         <MonthlyBarChart data={monthlyData} color="#6366F1" />
       </div>
 
       {/* By contact */}
       {contacts.length > 0 && (
-        <div className="bg-white mt-2 px-5 py-4">
+        <div className="clay-card mt-2 px-5 py-4">
           <p className="text-sm font-medium text-gray-900 mb-3">{t.debtTracker.byContact}</p>
           <div className="space-y-3">
             {contacts.map((contact) => {
@@ -166,7 +166,7 @@ export default function DebtReport() {
 
       {/* Recent lend transactions */}
       {lendTxns.length > 0 && (
-        <div className="bg-white mt-2 px-5 py-4">
+        <div className="clay-card mt-2 px-5 py-4">
           <p className="text-sm font-medium text-gray-900 mb-3">{t.debtTracker.lendList}</p>
           <div className="space-y-2">
             {lendTxns.slice(0, 10).map(tx => (
@@ -187,7 +187,7 @@ export default function DebtReport() {
 
       {/* Recent borrow transactions */}
       {borrowTxns.length > 0 && (
-        <div className="bg-white mt-2 px-5 py-4">
+        <div className="clay-card mt-2 px-5 py-4">
           <p className="text-sm font-medium text-gray-900 mb-3">{t.debtTracker.borrowList}</p>
           <div className="space-y-2">
             {borrowTxns.slice(0, 10).map(tx => (

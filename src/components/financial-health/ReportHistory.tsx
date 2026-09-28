@@ -33,7 +33,7 @@ export default function ReportHistory({ reports, currentId }: Props) {
   if (reports.length === 0) return null
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div className="clay-card overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
         <Calendar className="h-4 w-4 text-gray-400" />
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
