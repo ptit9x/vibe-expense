@@ -211,7 +211,7 @@ export default function ExportData() {
         </p>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl p-4 mb-3">
+        <div className="clay-card p-4 mb-3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-400" />
@@ -268,7 +268,7 @@ export default function ExportData() {
         </div>
 
         {/* Export Summary */}
-        <div className="bg-white rounded-xl p-4 mb-3">
+        <div className="clay-card p-4 mb-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">{t.settings.availableRecords}</span>
             <span className="text-sm font-medium text-gray-900">
@@ -278,7 +278,7 @@ export default function ExportData() {
         </div>
 
         {/* Export Buttons */}
-        <div className="bg-white rounded-xl p-4">
+        <div className="clay-card p-4">
           <div className="space-y-3">
             {/* Excel Export */}
             <button

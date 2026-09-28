@@ -11,7 +11,6 @@ import { useUploadAvatar } from '@/hooks/useAvatar'
 import { useSubmitFeedback } from '@/hooks/useFeedback'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 
@@ -152,7 +151,7 @@ export default function Profile() {
 
       <div className="px-4 py-3">
         <p className="text-sm font-medium text-gray-500 mb-3 px-1">{t.settings.settings}</p>
-        <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
+        <div className="clay-card overflow-hidden divide-y divide-gray-100">
           {/* Dark mode toggle — first item */}
           <button
             onClick={toggleMode}
@@ -224,7 +223,7 @@ export default function Profile() {
         </div>
 
         {/* Logout — separate danger card */}
-        <div className="mt-3 bg-white rounded-2xl shadow-sm">
+        <div className="mt-3 clay-card overflow-hidden">
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center p-3.5 text-red-500 font-medium hover:bg-red-50 rounded-2xl transition-all"
@@ -236,9 +235,9 @@ export default function Profile() {
 
       {/* Profile Edit Dialog */}
       <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-                  <DialogTitle>{t.settings.editProfile}</DialogTitle>
+        <DialogContent className="max-w-[400px] rounded-2xl p-6 gap-4">
+          <DialogHeader className="gap-2">
+                  <DialogTitle className="text-lg text-gray-900 dark:text-gray-100">{t.settings.editProfile}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
             <Avatar src={user?.avatar_url} name={profileName || displayName} size="lg" />
@@ -255,13 +254,23 @@ export default function Profile() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
+          <DialogFooter className="flex-row gap-3 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setIsProfileDialogOpen(false)}
+              disabled={updateProfile.isPending}
+              className="flex-1 h-11 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 active:scale-[0.98] transition-all disabled:opacity-50"
+            >
               {t.common.cancel}
-            </Button>
-            <Button onClick={saveProfile} disabled={updateProfile.isPending}>
+            </button>
+            <button
+              type="button"
+              onClick={saveProfile}
+              disabled={updateProfile.isPending}
+              className="flex-1 h-11 rounded-xl text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 shadow-sm shadow-blue-200 dark:shadow-blue-900/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
+            >
               {updateProfile.isPending ? t.common.loading : t.settings.updateProfile}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

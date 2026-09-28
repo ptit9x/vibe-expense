@@ -47,7 +47,7 @@ export function CategorySelector({ categories, selectedId, onSelect, isLoading }
   }
 
   return (
-    <div className="bg-white mt-2 px-5 py-4" ref={ref}>
+    <div className="clay-card mt-2 px-5 py-4" ref={ref}>
       <p className="text-xs text-gray-500 font-medium mb-2">{t.transaction.category}</p>
 
       <button

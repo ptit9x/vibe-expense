@@ -97,12 +97,12 @@ export default function FinancialHealth() {
         {/* Content */}
         <div className="px-4 -mt-4 space-y-4">
           {loadingReports && !activeReport ? (
-            <div className="bg-white rounded-2xl p-8 flex flex-col items-center justify-center">
+            <div className="clay-card p-8 flex flex-col items-center justify-center">
               <RefreshCw className="h-8 w-8 text-gray-300 animate-spin mb-3" />
               <p className="text-sm text-gray-400">{t.financialHealth.loadingReport}</p>
             </div>
           ) : !activeReport ? (
-            <div className="bg-white rounded-2xl p-8 flex flex-col items-center text-center">
+            <div className="clay-card p-8 flex flex-col items-center text-center">
               <FileText className="h-12 w-12 text-gray-300 mb-3" />
               <h3 className="text-base font-semibold text-gray-700 mb-1">
                 {t.financialHealth.noReport}

@@ -49,7 +49,7 @@ export default function AccessHistory() {
           <h1 className="text-xl font-semibold text-white">{t.settings.accessHistory}</h1>
         </PageHeader>
 
-        <div className="bg-white mt-2 px-5 py-4">
+        <div className="clay-card mt-2 px-5 py-4">
           <p className="text-sm font-medium text-gray-500 mb-4">{t.accessHistory.description}</p>
 
           {isLoading ? (

@@ -18,7 +18,7 @@ export function ContactPersonField({ value, onChange, type }: ContactPersonField
     : t.transaction.borrowerPlaceholder
 
   return (
-    <div className="bg-white mt-2 px-5 py-4">
+    <div className="clay-card mt-2 px-5 py-4">
       <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">{label}</p>
       <input
         type="text"

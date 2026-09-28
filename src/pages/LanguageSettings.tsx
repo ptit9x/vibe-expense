@@ -18,7 +18,7 @@ export default function LanguageSettings() {
         <h1 className="text-xl font-semibold text-white">{t.settings.language}</h1>
       </PageHeader>
 
-      <div className="bg-white mt-2 px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <p className="text-sm font-medium text-gray-500 mb-3">{t.settings.language}</p>
         <div className="space-y-3">
           {LANGUAGES.map((lang) => (

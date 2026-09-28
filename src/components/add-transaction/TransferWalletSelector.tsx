@@ -21,7 +21,7 @@ export function TransferWalletSelector({
   const { t } = useI18n()
 
   return (
-    <div className="bg-white mt-2 px-5 py-4">
+    <div className="clay-card mt-2 px-5 py-4">
       <WalletSelector
         wallets={wallets}
         selectedId={fromWalletId}

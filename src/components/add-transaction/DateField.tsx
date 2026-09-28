@@ -6,7 +6,7 @@ interface DateFieldProps {
 
 export function DateField({ value, onChange, label = 'Date' }: DateFieldProps) {
   return (
-    <div className="bg-white mt-2 px-5 py-4">
+    <div className="clay-card mt-2 px-5 py-4">
       <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">{label}</p>
       <input
         type="date"

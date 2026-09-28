@@ -76,7 +76,7 @@ export default function PasswordSettings() {
         <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
       </PageHeader>
 
-      <div className="bg-white mt-2 px-5 py-4">
+      <div className="clay-card mt-2 px-5 py-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm text-gray-400 font-medium uppercase tracking-wide mb-2 block">

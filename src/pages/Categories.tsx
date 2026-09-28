@@ -405,7 +405,7 @@ function CategoryCard({
   const hasChildren = subcategories.length > 0
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="clay-card overflow-hidden">
       {/* Parent row */}
       <div className="flex items-center justify-between p-4">
         <div

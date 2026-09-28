@@ -6,7 +6,7 @@ interface DescriptionFieldProps {
 
 export function DescriptionField({ value, onChange, placeholder = 'Add a note...' }: DescriptionFieldProps) {
   return (
-    <div className="bg-white mt-2 px-5 py-4">
+    <div className="clay-card mt-2 px-5 py-4">
       <input
         type="text"
         value={value}

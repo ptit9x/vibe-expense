@@ -147,7 +147,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
             wallets={wallets || []}
             selectedId={walletId}
             onSelect={setWalletId}
-            className="bg-white mt-2 px-5 py-4"
+            className="clay-card mt-2 px-5 py-4"
           />
         )}
 
