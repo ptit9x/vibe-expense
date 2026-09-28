@@ -103,7 +103,7 @@ export const TransactionRow = memo(function TransactionRow({
       </div>
       <div className={cn('shrink-0', isCompact ? 'ml-2' : 'text-right')}>
         <p className={cn(
-          'font-semibold',
+          'font-semibold tabular-nums',
           isCompact ? 'text-base' : 'font-bold',
           color
         )}>

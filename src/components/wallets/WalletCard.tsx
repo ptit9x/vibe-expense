@@ -59,7 +59,7 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
           {/* Right: Balance + Chevron */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="text-right">
-              <p className={cn("text-lg font-bold", balanceColor)}>
+              <p className={cn("text-lg font-bold tabular-nums", balanceColor)}>
                 {showBalance ? (
                   <>
                     {isNegative && '-'}

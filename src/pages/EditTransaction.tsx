@@ -83,7 +83,7 @@ export default function EditTransaction() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent" />
       </div>
     )
@@ -91,7 +91,7 @@ export default function EditTransaction() {
 
   if (error || !transaction) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500 mb-2">{t.settings.transactionNotFound}</p>
           <button onClick={() => navigate(-1)} className="text-blue-500 font-medium">
@@ -103,7 +103,7 @@ export default function EditTransaction() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <TransactionForm onSave={handleSave} isPending={isPending} />
     </div>
   )

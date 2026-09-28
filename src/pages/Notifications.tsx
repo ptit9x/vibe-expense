@@ -85,7 +85,7 @@ export default function NotificationsPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-background pb-20">
         {/* Header */}
         <div className="bg-white dark:bg-[hsl(224,30%,11%)] px-4 py-4 flex items-center justify-between sticky top-0 z-10 border-b border-gray-100 dark:border-[hsl(224,25%,18%)]">
           <div>

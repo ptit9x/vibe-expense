@@ -51,7 +51,7 @@ export default function DebtReport() {
 
   return (
     <PageTransition>
-    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchTx() }}>
+    <PullToRefreshWrapper className="min-h-screen bg-background pb-20" onRefresh={async () => { await refetchTx() }}>
       {/* Header */}
       <div className="bg-gradient-to-b from-indigo-500 to-indigo-600 px-5 pt-4 pb-6">
         <div className="flex items-center gap-3 mb-3">

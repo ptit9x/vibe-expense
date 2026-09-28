@@ -182,7 +182,7 @@ export default function ExportData() {
 
   return (
     <PageTransition>
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.exportData}</h1>
       </PageHeader>
@@ -284,7 +284,7 @@ export default function ExportData() {
             <button
               onClick={() => handleExport('xlsx')}
               disabled={exporting !== null}
-              className="w-full flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 active:scale-[0.98]"
+              className="w-full flex items-center gap-4 p-4 bg-background rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 active:scale-[0.98]"
             >
               {exporting === 'xlsx' ? (
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -305,7 +305,7 @@ export default function ExportData() {
             <button
               onClick={() => handleExport('csv')}
               disabled={exporting !== null}
-              className="w-full flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 active:scale-[0.98]"
+              className="w-full flex items-center gap-4 p-4 bg-background rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 active:scale-[0.98]"
             >
               {exporting === 'csv' ? (
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">

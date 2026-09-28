@@ -120,7 +120,7 @@ export default function Wallets() {
 
   return (
     <PageTransition>
-    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchWallets() }}>
+    <PullToRefreshWrapper className="min-h-screen bg-background pb-20" onRefresh={async () => { await refetchWallets() }}>
       {/* Header with Total Balance */}
       <TotalBalanceCard
         totalBalance={totalBalance}

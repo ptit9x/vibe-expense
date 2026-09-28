@@ -44,7 +44,7 @@ export default function AccessHistory() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-background pb-20">
         <PageHeader>
           <h1 className="text-xl font-semibold text-white">{t.settings.accessHistory}</h1>
         </PageHeader>

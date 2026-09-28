@@ -66,7 +66,7 @@ export default function AddTransaction() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <TransactionForm onSave={handleSave} isPending={isPending} />
       </div>
     </PageTransition>

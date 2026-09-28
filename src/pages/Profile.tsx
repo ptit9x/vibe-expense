@@ -93,7 +93,7 @@ export default function Profile() {
 
   return (
     <PageTransition>
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">{t.settings.settings}</h1>

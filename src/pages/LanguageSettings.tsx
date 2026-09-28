@@ -13,7 +13,7 @@ export default function LanguageSettings() {
 
   return (
     <PageTransition>
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <PageHeader>
         <h1 className="text-xl font-semibold text-white">{t.settings.language}</h1>
       </PageHeader>
@@ -25,7 +25,7 @@ export default function LanguageSettings() {
             <button
               key={lang.code}
               onClick={() => setLanguage(lang.code)}
-              className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center justify-between p-4 bg-background rounded-xl hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{lang.flag}</span>

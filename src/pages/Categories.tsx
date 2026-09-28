@@ -195,7 +195,7 @@ export default function Categories() {
 
   return (
     <PageTransition>
-    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await refetchCategories() }}>
+    <PullToRefreshWrapper className="min-h-screen bg-background pb-20" onRefresh={async () => { await refetchCategories() }}>
       {/* Header */}
       <PageHeader>
         <div className="flex items-center gap-3 mb-4">
@@ -347,7 +347,7 @@ export default function Categories() {
           <select
             value={formParentId || ''}
             onChange={(e) => setFormParentId(e.target.value || undefined)}
-            className="w-full h-12 px-3 bg-gray-50 rounded-lg text-base appearance-none"
+            className="w-full h-12 px-3 bg-background rounded-lg text-base appearance-none"
           >
             <option value="">{t.categoryManager.noneTopLevel}</option>
             {parentCategories.map(p => (

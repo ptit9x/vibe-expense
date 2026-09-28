@@ -39,7 +39,7 @@ export default function Reports() {
   return (
     <PageTransition>
     <PullToRefreshWrapper
-      className="min-h-screen bg-gray-50 pb-20"
+      className="min-h-screen bg-background pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       {isLoading ? (

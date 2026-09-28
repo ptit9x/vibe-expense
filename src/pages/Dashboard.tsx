@@ -59,7 +59,7 @@ export default function Dashboard() {
 
   if (txError || walletError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-red-500 mb-2">{txError?.message || walletError?.message || t.common.error}</p>
           <Button onClick={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}>
@@ -78,7 +78,7 @@ export default function Dashboard() {
   return (
     <PageTransition>
     <PullToRefreshWrapper
-      className="min-h-screen bg-gray-50 pb-20"
+      className="min-h-screen bg-background pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       {/* Header - Greeting with User Name */}
@@ -112,7 +112,7 @@ export default function Dashboard() {
               )}
             </Button>
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">
+          <p className="text-2xl font-bold text-white tracking-tight tabular-nums">
             {showBalance ? (
               <>
                 {currency.symbol}{formatCurrency(totalBalance)}

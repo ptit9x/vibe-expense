@@ -82,7 +82,7 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full h-12 px-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-12 px-4 bg-background rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 

@@ -49,7 +49,7 @@ export default function Transactions() {
   return (
     <PageTransition>
     <PullToRefreshWrapper
-      className="min-h-screen bg-gray-50 pb-20"
+      className="min-h-screen bg-background pb-20"
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       <PageHeader>
@@ -124,7 +124,7 @@ export default function Transactions() {
 
               return (
                 <Card key={monthKey} className="border shadow-sm overflow-hidden px-4 pt-3">
-                  <CardHeader className="bg-gray-50 border-b border-gray-100 py-3 -mx-4 px-4">
+                  <CardHeader className="bg-background border-b border-gray-100 py-3 -mx-4 px-4">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-gray-700 capitalize">
                         {monthLabel}
