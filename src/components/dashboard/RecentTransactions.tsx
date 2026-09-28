@@ -45,7 +45,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   const { t } = useI18n()
 
   return (
-    <Card className="rounded-2xl border-0 shadow-md bg-white overflow-hidden">
+    <Card className="border-0 overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
         <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
           <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs">📜</span>

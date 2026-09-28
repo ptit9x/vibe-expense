@@ -49,7 +49,7 @@ export function SummaryCards({ income, expense, showBalance }: SummaryCardsProps
             </div>
             <span className="text-xs font-medium text-white/80">{t.dashboard.income}</span>
           </div>
-          <p className="text-lg font-bold text-white leading-snug">
+          <p className="text-lg font-bold text-white leading-snug tabular-nums">
             {formatMoney(income, showBalance, currency.symbol, formatCurrency)}
           </p>
         </div>
@@ -74,7 +74,7 @@ export function SummaryCards({ income, expense, showBalance }: SummaryCardsProps
             </div>
             <span className="text-xs font-medium text-white/80">{t.dashboard.expense}</span>
           </div>
-          <p className="text-lg font-bold text-white leading-snug">
+          <p className="text-lg font-bold text-white leading-snug tabular-nums">
             {formatMoney(expense, showBalance, currency.symbol, formatCurrency)}
           </p>
         </div>

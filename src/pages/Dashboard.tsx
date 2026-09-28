@@ -12,6 +12,7 @@ import {
   type TransactionItem,
 } from '@/components/dashboard'
 import { MonthlyChart, PullToRefreshWrapper, PageTransition, AnimatedFAB } from '@/components/shared'
+import PageHeader from '@/components/PageHeader'
 import { NotificationBell } from '@/components/notifications'
 import { useUIStore } from '@/stores/uiStore'
 import { useI18n } from '@/lib/i18n'
@@ -82,20 +83,14 @@ export default function Dashboard() {
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       {/* Header - Greeting with User Name */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4 pt-6 pb-8">
-        {/* Decorative blur circles */}
-        <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute -bottom-8 -left-4 w-24 h-24 bg-pink-300/20 rounded-full blur-2xl" />
-        <div className="absolute top-10 right-20 w-16 h-16 bg-indigo-300/15 rounded-full blur-xl" />
-
-        <div className="relative">
+      <PageHeader className="px-4 pt-6 pb-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-white text-xl font-medium">{displayName ? `${t.dashboard.greeting} ${displayName}` : t.dashboard.greeting} 👋</h1>
           <NotificationBell />
         </div>
 
         {/* Balance Card */}
-        <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-5 shadow-lg border border-white/20">
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-5 shadow-lg border border-white/25">
           <div className="flex items-center justify-between mb-1">
             <p className="text-white/80 text-xs font-medium">{t.dashboard.totalBalance}</p>
             <Button
@@ -112,7 +107,7 @@ export default function Dashboard() {
               )}
             </Button>
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight tabular-nums">
+          <p className="text-3xl font-bold text-white tracking-tight tabular-nums">
             {showBalance ? (
               <>
                 {currency.symbol}{formatCurrency(totalBalance)}
@@ -122,8 +117,7 @@ export default function Dashboard() {
             )}
           </p>
         </div>
-        </div>
-      </div>
+      </PageHeader>
 
       {/* Content */}
       <div className="px-4 -mt-4 space-y-4">

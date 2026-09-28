@@ -26,7 +26,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
   const tooltipShadow = isDark ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)'
 
   return (
-    <Card className="rounded-2xl border-0 shadow-md bg-white overflow-hidden">
+    <Card className="border-0 overflow-hidden">
       <CardHeader className="pb-2 px-4 pt-4">
         <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
           <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs">📈</span>
