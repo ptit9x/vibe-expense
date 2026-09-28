@@ -8,6 +8,7 @@ import { useTheme } from '@/components/theme-provider'
 import PageHeader from '@/components/PageHeader'
 import { Avatar } from '@/components/shared'
 import { useUploadAvatar } from '@/hooks/useAvatar'
+import { useSubmitFeedback } from '@/hooks/useFeedback'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,8 +25,6 @@ const FEATURES = [
   { icon: Bell, labelKey: 'settings.notifications', href: '/notifications', color: '#06B6D4' },
 ]
 
-const FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScy98U6vpghurp-dkv5jKOnGlyUm3OkC05UoL82rSL17Biurg/viewform'
-
 import { PageTransition } from '@/components/shared'
 
 export default function Profile() {
@@ -40,6 +39,10 @@ export default function Profile() {
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
   const [profileName, setProfileName] = useState('')
+
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const submitFeedbackMutation = useSubmitFeedback()
 
   const handleLogout = async () => {
     try {
@@ -68,6 +71,19 @@ export default function Profile() {
       setIsProfileDialogOpen(false)
     } catch {
       toast.error(t.common.error)
+    }
+  }
+
+  const submitFeedback = async () => {
+    const trimmed = feedbackText.trim()
+    if (!trimmed || submitFeedbackMutation.isPending) return
+    try {
+      await submitFeedbackMutation.mutateAsync({ content: trimmed })
+      toast.success(t.settings.feedbackSent)
+      setIsFeedbackDialogOpen(false)
+      setFeedbackText('')
+    } catch {
+      toast.error(t.settings.feedbackFailed)
     }
   }
 
@@ -189,10 +205,9 @@ export default function Profile() {
           })}
 
           {/* Feedback */}
-          <a
-            href={FEEDBACK_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setIsFeedbackDialogOpen(true)}
             className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all"
           >
             <div className="flex items-center gap-3">
@@ -204,7 +219,7 @@ export default function Profile() {
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-gray-400" />
-          </a>
+          </button>
         </div>
 
         {/* Logout — separate danger card */}
@@ -245,6 +260,37 @@ export default function Profile() {
             </Button>
             <Button onClick={saveProfile} disabled={updateProfile.isPending}>
               {updateProfile.isPending ? t.common.loading : t.settings.updateProfile}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Feedback Dialog */}
+      <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t.settings.feedback}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5 py-1">
+            <p className="text-sm text-gray-500">{t.settings.feedbackHint}</p>
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value.slice(0, 5000))}
+              placeholder={t.settings.feedbackPlaceholder}
+              rows={5}
+              className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500"
+            />
+            <p className="text-right text-xs text-gray-400">{feedbackText.length}/5000</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsFeedbackDialogOpen(false)}>
+              {t.common.cancel}
+            </Button>
+            <Button
+              onClick={submitFeedback}
+              disabled={submitFeedbackMutation.isPending || !feedbackText.trim()}
+            >
+              {submitFeedbackMutation.isPending ? t.common.loading : t.settings.feedbackSend}
             </Button>
           </DialogFooter>
         </DialogContent>

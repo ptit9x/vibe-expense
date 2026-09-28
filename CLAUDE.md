@@ -72,6 +72,7 @@ Manual chunks split vendor code: `vendor` (react/react-dom/react-router-dom), `c
 - Migrations in `supabase/migrations/` — auto-deployed via GitHub Actions on push to `main` when `supabase/**` changes
 - RLS (Row Level Security) on all tables — `auth.uid() = user_id` policies
 - Monetary values: `DECIMAL(15,2)`
+- `feedback` (in-app góp ý): insert-only từ Profile — replaces Google Form. RLS: chỉ INSERT policy (`auth.uid() = user_id`), không có SELECT/UPDATE/DELETE cho client; đọc qua Supabase dashboard. GRANT INSERT cho `authenticated`
 - `access_logs` (access history): unique index `(user_id, device_type, browser, os, ip_address)` — same device+browser+IP never creates a duplicate row. `log_access(p_device_type, p_browser, p_os, p_ip, p_country, p_user_agent)` RPC upserts; only bumps `last_seen_at` and `login_count` (visits ≥10 minutes apart count once, so reloads/token refreshes don't inflate). **No DELETE policy by design — access history is immutable**
 - DB triggers handle: profile creation on signup, default wallet creation
 
