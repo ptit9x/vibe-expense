@@ -25,7 +25,15 @@ export function useTransactions(month?: string | null, walletId?: string) {
         .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
 
-      if (month) {
+      if (month && month.length === 10) {
+        // month = 'YYYY-MM-DD', filter single day
+        const [y, m, d] = month.split('-').map(Number)
+        const next = new Date(y, m - 1, d + 1)
+        const end = next.getFullYear() + '-' + String(next.getMonth() + 1).padStart(2, '0') + '-' + String(next.getDate()).padStart(2, '0')
+        query = query
+          .gte('transaction_date', month)
+          .lt('transaction_date', end)
+      } else if (month) {
         // month = 'YYYY-MM', filter from 1st to end of month
         const [year, mon] = month.split('-').map(Number)
         const nextMonth = mon === 12 ? `${year + 1}-01` : `${year}-${String(mon + 1).padStart(2, '0')}`

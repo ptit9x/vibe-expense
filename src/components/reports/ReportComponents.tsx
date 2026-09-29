@@ -232,6 +232,7 @@ export function YearlyReport({
   monthLabelKey,
 }: YearlyReportProps) {
   const [view, setView] = useState<'years' | 'months'>('years')
+  const [granularity, setGranularity] = useState<'day' | 'month' | 'year'>('year')
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedWallet, setSelectedWallet] = useState('all')
@@ -263,6 +264,71 @@ export function YearlyReport({
 
   const totalAllYears = yearlyData.reduce((sum, y) => sum + y.value, 0)
   const avgPerYear = yearlyData.length > 0 ? totalAllYears / yearlyData.length : 0
+
+  // Day granularity: last 30 days rolling
+  const dayData: { key: string; label: string; full: string; value: number }[] = (() => {
+    const byDay: Record<string, number> = {}
+    filtered.forEach(tx => {
+      const d = tx.transaction_date?.substring(0, 10)
+      if (!d) return
+      byDay[d] = (byDay[d] || 0) + Number(tx.amount)
+    })
+    const out: { key: string; label: string; full: string; value: number }[] = []
+    const now = new Date()
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+      out.push({
+        key,
+        label: String(d.getDate()),
+        full: d.toLocaleDateString(getLocale(language), { day: 'numeric', month: 'short' }),
+        value: byDay[key] || 0,
+      })
+    }
+    return out
+  })()
+
+  // Month granularity: last 12 months rolling
+  const monthData: { key: string; label: string; full: string; value: number }[] = (() => {
+    const byMonth: Record<string, number> = {}
+    filtered.forEach(tx => {
+      const m = tx.transaction_date?.substring(0, 7)
+      if (!m) return
+      byMonth[m] = (byMonth[m] || 0) + Number(tx.amount)
+    })
+    const out: { key: string; label: string; full: string; value: number }[] = []
+    const now = new Date()
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+      out.push({
+        key,
+        label: d.toLocaleDateString(getLocale(language), { month: 'short' }) + ' ' + String(d.getFullYear()).slice(2),
+        full: d.toLocaleDateString(getLocale(language), { month: 'long', year: 'numeric' }),
+        value: byMonth[key] || 0,
+      })
+    }
+    return out
+  })()
+
+  // Overview stats by granularity
+  const overviewTotal = granularity === 'day'
+    ? dayData.reduce((s, d) => s + d.value, 0)
+    : granularity === 'month'
+      ? monthData.reduce((s, m) => s + m.value, 0)
+      : totalAllYears
+  const overviewAvg = granularity === 'day' ? overviewTotal / 30 : granularity === 'month' ? overviewTotal / 12 : avgPerYear
+  const avgLabel = granularity === 'day'
+    ? (type === 'income' ? t.reports.avgIncomeDay : t.reports.avgExpenseDay)
+    : granularity === 'month'
+      ? (type === 'income' ? t.reports.avgIncomeMonth : t.reports.avgExpenseMonth)
+      : (type === 'income' ? t.reports.avgIncomeYear : t.reports.avgExpenseYear)
+  const chartData = granularity === 'day'
+    ? dayData.map(d => ({ month: d.label, value: d.value }))
+    : granularity === 'month'
+      ? monthData.map(m => ({ month: m.label, value: m.value }))
+      : yearlyData.map(y => ({ month: y.year, value: y.value }))
+  const listRows = (granularity === 'month' ? monthData : dayData).slice().reverse().filter(r => r.value > 0)
 
   // Months view: scope to selected year
   const yearFiltered = view === 'months' ? filtered.filter(tx => tx.transaction_date?.startsWith(String(selectedYear))) : []
@@ -314,6 +380,19 @@ export function YearlyReport({
         )}
         <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
         <p className="text-white/60 text-sm">{subtitle}</p>
+        {view === 'years' && (
+          <div className="flex gap-5 mt-3">
+            {(['day', 'month', 'year'] as const).map(g => (
+              <button
+                key={g}
+                onClick={() => setGranularity(g)}
+                className={'pb-1.5 text-sm border-b-2 transition-colors ' + (granularity === g ? 'text-white border-white font-semibold' : 'text-white/60 border-transparent hover:text-white/80')}
+              >
+                {t.reports[g]}
+              </button>
+            ))}
+          </div>
+        )}
         {view === 'months' && <YearPicker value={selectedYear} onChange={setSelectedYear} />}
       </div>
 
@@ -337,43 +416,67 @@ export function YearlyReport({
         <>
           {/* Chart by year */}
           <div className="clay-card mt-2 px-5 py-4">
-            <MonthlyBarChart data={yearlyData.map(y => ({ month: y.year, value: y.value }))} color={chartColor} />
+            <MonthlyBarChart data={chartData} color={chartColor} />
           </div>
 
           {/* Totals */}
           <div className="clay-card mt-2 px-5 py-4">
             <div className="flex items-center justify-between py-2 border-b border-gray-50">
               <span className="text-sm text-gray-500">{type === 'income' ? t.reports.totalAllIncome : t.reports.totalAllExpense}</span>
-              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(totalAllYears)}</span>
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(overviewTotal)}</span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-500">{type === 'income' ? t.reports.avgIncomeYear : t.reports.avgExpenseYear}</span>
-              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(avgPerYear)}</span>
+              <span className="text-sm text-gray-500">{avgLabel}</span>
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(overviewAvg)}</span>
             </div>
           </div>
 
-          {/* Year list */}
-          <div className="clay-card mt-2 px-5 py-4">
-            {yearlyData.length === 0 ? (
-              <p className="text-center text-sm text-gray-400 py-4">{t.transaction.noTransactions}</p>
-            ) : (
-              <div>
-                {yearlyData.slice().reverse().map(y => (
-                  <button
-                    key={y.year}
-                    onClick={() => { setSelectedYear(Number(y.year)); setView('months') }}
-                    className="flex w-full items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
-                  >
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{y.year}</span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-sm font-bold tabular-nums" style={{ color: chartColor }}>{money(y.value)}</span>
-                      <ChevronRight className="h-4 w-4 text-gray-300" />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* List */}
+          {granularity === 'year' ? (
+            <div className="clay-card mt-2 px-5 py-4">
+              {yearlyData.length === 0 ? (
+                <p className="text-center text-sm text-gray-400 py-4">{t.transaction.noTransactions}</p>
+              ) : (
+                <div>
+                  {yearlyData.slice().reverse().map(y => (
+                    <button
+                      key={y.year}
+                      onClick={() => { setSelectedYear(Number(y.year)); setView('months') }}
+                      className="flex w-full items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{y.year}</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-sm font-bold tabular-nums" style={{ color: chartColor }}>{money(y.value)}</span>
+                        <ChevronRight className="h-4 w-4 text-gray-300" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="clay-card mt-2 px-5 py-4">
+              {listRows.length === 0 ? (
+                <p className="text-center text-sm text-gray-400 py-4">{t.transaction.noTransactions}</p>
+              ) : (
+                <div>
+                  {listRows.map(r => (
+                    <Link
+                      key={r.key}
+                      to={'/transactions?month=' + r.key + '&type=' + type}
+                      className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{r.full}</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-sm font-bold tabular-nums" style={{ color: chartColor }}>{money(r.value)}</span>
+                        <ChevronRight className="h-4 w-4 text-gray-300" />
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>

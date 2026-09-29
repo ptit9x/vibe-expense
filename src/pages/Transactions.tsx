@@ -60,7 +60,7 @@ export default function Transactions() {
         <div className="flex items-center gap-2 mt-4">
           <input
             type="month"
-            value={month ?? ''}
+            value={month && month.length === 10 ? month.substring(0, 7) : month ?? ''}
             onChange={(e) => setMonth(e.target.value || null)}
             aria-label={t.transaction.selectMonth || 'Select month'}
             className="h-9 px-3 bg-white/20 text-white text-sm rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/30 [color-scheme:dark]"
