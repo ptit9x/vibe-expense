@@ -34,7 +34,7 @@ export default function ReportHistory({ reports, currentId }: Props) {
 
   return (
     <div className="clay-card overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+      <div className="px-4 py-3 flex items-center gap-2 bg-gray-50/60 dark:bg-white/5">
         <Calendar className="h-4 w-4 text-gray-400" />
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           {t.financialHealth.history.title}

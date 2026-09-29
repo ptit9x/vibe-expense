@@ -17,7 +17,7 @@ export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }:
   return (
     <PageHeader>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-white/60 text-sm font-medium uppercase tracking-wide">{t.wallet.totalBalance}</p>
+        <p className="text-white/70 text-sm font-medium">{t.wallet.totalBalance}</p>
         <Button
           variant="ghost"
           size="icon"
@@ -32,7 +32,7 @@ export function TotalBalanceCard({ totalBalance, showBalance, onToggleBalance }:
           )}
         </Button>
       </div>
-      <p className="text-3xl font-bold text-white tracking-tight">
+      <p className="text-3xl font-bold text-white tracking-tight tabular-nums">
         {showBalance ? (
           <>
             {currency.symbol}{formatCurrency(totalBalance)}

@@ -18,11 +18,11 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
   return (
     <PageHeader>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-white/60 text-sm">{t.reports.balance}</p>
+        <p className="text-white/70 text-sm font-medium">{t.reports.balance}</p>
         <Button
           variant="ghost"
           size="icon"
-          className="h-11 w-11 rounded-full bg-white/20 hover:bg-white/30"
+          className="h-11 w-11 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.15),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] hover:bg-white/30"
           onClick={onToggleBalance}
           aria-label={showBalance ? "Hide balance" : "Show balance"}
         >
@@ -34,7 +34,7 @@ export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }:
         </Button>
       </div>
 
-      <p className="text-3xl font-bold text-white mb-2">
+      <p className="text-3xl font-bold text-white mb-2 tabular-nums">
         {showBalance ? (
           <>
             {currency.symbol}{formatCurrency(balance)}

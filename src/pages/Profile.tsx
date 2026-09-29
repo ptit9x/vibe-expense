@@ -95,7 +95,7 @@ export default function Profile() {
     <div className="min-h-screen bg-background pb-20">
       <PageHeader>
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-white">{t.settings.settings}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">{t.settings.settings}</h1>
         </div>
 
         <div className="flex items-center gap-3">

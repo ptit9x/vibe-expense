@@ -87,7 +87,7 @@ export default function NotificationsPage() {
     <PageTransition>
       <div className="min-h-screen bg-background pb-20">
         {/* Header */}
-        <div className="bg-white dark:bg-[hsl(224,30%,11%)] px-4 py-4 flex items-center justify-between sticky top-0 z-10 border-b border-gray-100 dark:border-[hsl(224,25%,18%)]">
+        <div className="bg-white/80 dark:bg-[hsl(224,30%,11%)]/80 backdrop-blur-xl px-4 py-4 flex items-center justify-between sticky top-0 z-10">
           <div>
             <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t.notifications.title}</h1>
             {unreadCount > 0 && (
