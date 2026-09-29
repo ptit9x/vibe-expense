@@ -178,6 +178,7 @@ export function MonthlyList({ data, year, type }: MonthlyListProps) {
     </div>
   )
 }
+
 interface YearPickerProps {
   value: number
   onChange: (year: number) => void
@@ -204,7 +205,7 @@ export function YearPicker({ value, onChange }: YearPickerProps) {
 }
 
 // ===== Shared YearlyReport =====
-import { useYearTransactions } from '@/hooks/useTransactions'
+import { useAllTypeTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { PullToRefreshWrapper } from '@/components/shared'
 import { useWallets } from '@/hooks/useWallets'
@@ -230,31 +231,49 @@ export function YearlyReport({
   categoryLabelKey,
   monthLabelKey,
 }: YearlyReportProps) {
+  const [view, setView] = useState<'years' | 'months'>('years')
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedWallet, setSelectedWallet] = useState('all')
   const { t, language } = useI18n()
-  const { data: transactions, refetch: refetchTx } = useYearTransactions(selectedYear, type)
+  const { currency, formatCurrency, showBalance } = useUIStore()
+  const { data: transactions, refetch: refetchTx } = useAllTypeTransactions(type)
   const { data: categories, refetch: refetchCat } = useCategories()
   const { data: wallets } = useWallets()
 
   // Filter categories by type client-side (single cache key for all types)
   const filteredCategories = categories?.filter(c => c.type === type) ?? []
 
-  // Apply client-side filters for category & wallet
+  // Apply client-side filters for category & wallet (across ALL years)
   const filtered = transactions?.filter(tx => {
     if (selectedCategory !== 'all' && tx.category_id !== selectedCategory) return false
     if (selectedWallet !== 'all' && tx.wallet_id !== selectedWallet) return false
     return true
   }) || []
 
-  const total = filtered.reduce((sum, tx) => sum + Number(tx.amount), 0)
+  // Year-over-year aggregation
+  const yearlyData = Object.entries(
+    filtered.reduce((acc: Record<string, number>, tx) => {
+      const y = tx.transaction_date?.substring(0, 4)
+      if (!y) return acc
+      acc[y] = (acc[y] || 0) + Number(tx.amount)
+      return acc
+    }, {})
+  ).sort((a, b) => a[0].localeCompare(b[0])).map(([year, value]) => ({ year, value }))
+
+  const totalAllYears = yearlyData.reduce((sum, y) => sum + y.value, 0)
+  const avgPerYear = yearlyData.length > 0 ? totalAllYears / yearlyData.length : 0
+
+  // Months view: scope to selected year
+  const yearFiltered = view === 'months' ? filtered.filter(tx => tx.transaction_date?.startsWith(String(selectedYear))) : []
+
+  const total = yearFiltered.reduce((sum, tx) => sum + Number(tx.amount), 0)
   const avgMonthly = total / 12
 
   // Monthly data
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const month = (i + 1).toString().padStart(2, '0')
-    const monthTotal = filtered
+    const monthTotal = yearFiltered
       .filter(tx => tx.transaction_date?.substring(5, 7) === month)
       .reduce((sum, tx) => sum + Number(tx.amount), 0)
     const monthLabel = new Date(2000, i).toLocaleDateString(getLocale(language), { month: 'short' })
@@ -262,7 +281,7 @@ export function YearlyReport({
   })
 
   // Category breakdown
-  const byCategory = filtered.reduce((acc: { name: string; value: number; color: string; icon: string }[], tx) => {
+  const byCategory = yearFiltered.reduce((acc: { name: string; value: number; color: string; icon: string }[], tx) => {
     const catName = tx.category?.name || t.dashboard.otherCategory
     const existing = acc.find(item => item.name === catName)
     if (existing) {
@@ -278,32 +297,27 @@ export function YearlyReport({
     return acc
   }, []).sort((a, b) => b.value - a.value)
 
+  const money = (n: number) => (showBalance ? `${currency.symbol}${formatCurrency(n)}` : '••••••')
+
   return (
-    <PullToRefreshWrapper className="min-h-screen bg-gray-50 pb-20" onRefresh={async () => { await Promise.all([refetchTx(), refetchCat()]) }}>
+    <PullToRefreshWrapper className="min-h-screen bg-background pb-20" onRefresh={async () => { await Promise.all([refetchTx(), refetchCat()]) }}>
       {/* Header */}
       <div className={`${gradientClass} px-5 pt-4 pb-6`}>
+        {view === 'months' && (
+          <button
+            onClick={() => setView('years')}
+            className="flex items-center gap-1 text-white/80 hover:text-white text-sm font-medium mb-2 -ml-1 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            {t.reports.allYears}
+          </button>
+        )}
         <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
         <p className="text-white/60 text-sm">{subtitle}</p>
-        <YearPicker value={selectedYear} onChange={setSelectedYear} />
+        {view === 'months' && <YearPicker value={selectedYear} onChange={setSelectedYear} />}
       </div>
 
-      {/* Stats */}
-      <div className="clay-card mt-2 px-5 py-4">
-        <div className="grid grid-cols-2 gap-4">
-          <StatCard
-            label={`${t.reports[totalLabelKey]} ${selectedYear}`}
-            value={total}
-            color={chartColor}
-          />
-          <StatCard
-            label={t.reports.avgMonthly}
-            value={avgMonthly}
-            color="#6B7280"
-          />
-        </div>
-      </div>
-
-      {/* Filters */}
+      {/* Filters (shared) */}
       <ReportFilters>
         <SelectFilter
           value={selectedCategory}
@@ -319,26 +333,88 @@ export function YearlyReport({
         />
       </ReportFilters>
 
-      {/* Chart */}
-      <div className="clay-card mt-2 px-5 py-4">
-        <MonthlyBarChart data={monthlyData} color={chartColor} />
-      </div>
+      {view === 'years' ? (
+        <>
+          {/* Chart by year */}
+          <div className="clay-card mt-2 px-5 py-4">
+            <MonthlyBarChart data={yearlyData.map(y => ({ month: y.year, value: y.value }))} color={chartColor} />
+          </div>
 
-      {/* Category breakdown */}
-      {byCategory.length > 0 && (
-        <div className="clay-card mt-2 px-5 py-4">
-          {/* eslint-disable-next-line security/detect-object-injection */}
-          <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[categoryLabelKey]}</p>
-          <CategoryList items={byCategory} total={total} />
-        </div>
+          {/* Totals */}
+          <div className="clay-card mt-2 px-5 py-4">
+            <div className="flex items-center justify-between py-2 border-b border-gray-50">
+              <span className="text-sm text-gray-500">{type === 'income' ? t.reports.totalAllIncome : t.reports.totalAllExpense}</span>
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(totalAllYears)}</span>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-gray-500">{type === 'income' ? t.reports.avgIncomeYear : t.reports.avgExpenseYear}</span>
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tabular-nums">{money(avgPerYear)}</span>
+            </div>
+          </div>
+
+          {/* Year list */}
+          <div className="clay-card mt-2 px-5 py-4">
+            {yearlyData.length === 0 ? (
+              <p className="text-center text-sm text-gray-400 py-4">{t.transaction.noTransactions}</p>
+            ) : (
+              <div>
+                {yearlyData.slice().reverse().map(y => (
+                  <button
+                    key={y.year}
+                    onClick={() => { setSelectedYear(Number(y.year)); setView('months') }}
+                    className="flex w-full items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
+                  >
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{y.year}</span>
+                    <span className="flex items-center gap-1">
+                      <span className="text-sm font-bold tabular-nums" style={{ color: chartColor }}>{money(y.value)}</span>
+                      <ChevronRight className="h-4 w-4 text-gray-300" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Stats */}
+          <div className="clay-card mt-2 px-5 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <StatCard
+                label={`${t.reports[totalLabelKey]} ${selectedYear}`}
+                value={total}
+                color={chartColor}
+              />
+              <StatCard
+                label={t.reports.avgMonthly}
+                value={avgMonthly}
+                color="#6B7280"
+              />
+            </div>
+          </div>
+
+          {/* Chart */}
+          <div className="clay-card mt-2 px-5 py-4">
+            <MonthlyBarChart data={monthlyData} color={chartColor} />
+          </div>
+
+          {/* Category breakdown */}
+          {byCategory.length > 0 && (
+            <div className="clay-card mt-2 px-5 py-4">
+              {/* eslint-disable-next-line security/detect-object-injection */}
+              <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[categoryLabelKey]}</p>
+              <CategoryList items={byCategory} total={total} />
+            </div>
+          )}
+
+          {/* Monthly breakdown */}
+          <div className="clay-card mt-2 px-5 py-4">
+            {/* eslint-disable-next-line security/detect-object-injection */}
+            <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
+            <MonthlyList data={monthlyData} year={selectedYear} type={type} />
+          </div>
+        </>
       )}
-
-      {/* Monthly breakdown */}
-      <div className="clay-card mt-2 px-5 py-4">
-        {/* eslint-disable-next-line security/detect-object-injection */}
-        <p className="text-sm font-medium text-gray-900 mb-3">{t.reports[monthLabelKey]}</p>
-        <MonthlyList data={monthlyData} year={selectedYear} type={type} />
-      </div>
     </PullToRefreshWrapper>
   )
 }

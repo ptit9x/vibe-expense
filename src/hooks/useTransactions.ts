@@ -118,6 +118,35 @@ export function useYearTransactions(year: number, type?: 'income' | 'expense') {
   })
 }
 
+// Fetch ALL transactions of a type across all years (for year-over-year report)
+export function useAllTypeTransactions(type?: 'income' | 'expense') {
+  return useQuery({
+    queryKey: ['transactions', 'all-years', type],
+    queryFn: async () => {
+      if (!isSupabaseConfigured()) {
+        return getMockTransactions().filter(t => !type || t.type === type)
+      }
+
+      const user = await requireAuth()
+
+      let query = supabase
+        .from('transactions')
+        .select(TRANSACTION_SELECT)
+        .eq('user_id', user.id)
+        .order('transaction_date', { ascending: false })
+
+      if (type) {
+        query = query.eq('type', type)
+      }
+
+      const { data, error } = await query
+      if (error) throw error
+      return data as Transaction[]
+    },
+    staleTime: 2 * 60 * 1000, // 2 min
+  })
+}
+
 // Create transaction
 export function useCreateTransaction() {
   const queryClient = useQueryClient()
