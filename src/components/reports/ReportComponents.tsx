@@ -379,7 +379,7 @@ export function YearlyReport({
             {t.reports.allYears}
           </button>
         )}
-        <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-1">{title}</h1>
         <p className="text-white/60 text-sm">{subtitle}</p>
         {view === 'years' && (
           <div className="flex w-full mt-4 p-1 rounded-2xl bg-white/15 backdrop-blur-sm">

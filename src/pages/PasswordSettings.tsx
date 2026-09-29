@@ -73,7 +73,7 @@ export default function PasswordSettings() {
     <PageTransition>
     <div className="min-h-screen bg-background pb-20">
       <PageHeader>
-        <h1 className="text-xl font-semibold text-white">{t.passwordSettings.changePassword}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-white">{t.passwordSettings.changePassword}</h1>
       </PageHeader>
 
       <div className="clay-card mt-2 px-5 py-4">

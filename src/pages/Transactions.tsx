@@ -53,7 +53,7 @@ export default function Transactions() {
       onRefresh={async () => { await Promise.all([refetchTransactions(), refetchWallets()]) }}
     >
       <PageHeader>
-        <h1 className="text-xl font-semibold text-white mb-1">{t.transaction.transactionsTitle}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-1">{t.transaction.transactionsTitle}</h1>
         <p className="text-white/60 text-sm">{t.transaction.manageDaily}</p>
 
         {/* Filters */}

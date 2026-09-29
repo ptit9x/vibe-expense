@@ -58,7 +58,7 @@ export default function DebtReport() {
           <Link to="/reports" className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
             <ChevronLeft className="h-5 w-5 text-white" />
           </Link>
-          <h1 className="text-xl font-semibold text-white">{t.debtTracker.reportTitle}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">{t.debtTracker.reportTitle}</h1>
         </div>
         <p className="text-white/60 text-sm">{t.debtTracker.reportSubtitle}</p>
         <YearPicker value={selectedYear} onChange={setSelectedYear} />

@@ -205,7 +205,7 @@ export default function Categories() {
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <h1 className="text-xl font-semibold text-white">{t.categories.categoriesTitle}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">{t.categories.categoriesTitle}</h1>
         </div>
 
         {/* Type Tabs */}
@@ -246,7 +246,7 @@ export default function Categories() {
         {/* User Categories Section */}
         {userCategories.length > 0 && (
           <div>
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">
               {t.categoryManager.myCategories} ({userCategories.length})
             </h2>
             <div className="space-y-2">
@@ -287,7 +287,7 @@ export default function Categories() {
 
         {/* System Categories Section */}
         <div>
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+          <h2 className="text-sm font-medium text-gray-500 mb-3">
             {t.categoryManager.systemCategories} ({systemCategories.length})
           </h2>
           {isLoading ? (

@@ -184,7 +184,7 @@ export default function ExportData() {
     <PageTransition>
     <div className="min-h-screen bg-background pb-20">
       <PageHeader>
-        <h1 className="text-xl font-semibold text-white">{t.settings.exportData}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-white">{t.settings.exportData}</h1>
       </PageHeader>
 
       {walletsLoading ? (

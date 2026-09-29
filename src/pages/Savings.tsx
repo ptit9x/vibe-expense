@@ -65,7 +65,7 @@ export default function Savings() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t.savings.savings}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t.savings.savings}</h1>
           <p className="text-muted-foreground">{t.savings.trackGoals}</p>
         </div>
         <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl" onClick={() => setShowForm(!showForm)}>

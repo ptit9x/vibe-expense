@@ -85,18 +85,18 @@ export default function Dashboard() {
       {/* Header - Greeting with User Name */}
       <PageHeader className="px-4 pt-6 pb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-white text-xl font-medium">{displayName ? `${t.dashboard.greeting} ${displayName}` : t.dashboard.greeting} 👋</h1>
+          <h1 className="text-white text-2xl font-bold tracking-tight">{displayName ? `${t.dashboard.greeting} ${displayName}` : t.dashboard.greeting} 👋</h1>
           <NotificationBell />
         </div>
 
         {/* Balance Card */}
         <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-5 shadow-lg border border-white/25">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-white/80 text-xs font-medium">{t.dashboard.totalBalance}</p>
+            <p className="text-white/70 text-sm font-medium">{t.dashboard.totalBalance}</p>
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 rounded-full hover:bg-white/20"
+              className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 hover:bg-white/30"
               onClick={toggleBalance}
               aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
             >

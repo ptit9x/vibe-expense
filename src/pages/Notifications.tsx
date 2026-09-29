@@ -89,7 +89,7 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="bg-white/80 dark:bg-[hsl(224,30%,11%)]/80 backdrop-blur-xl px-4 py-4 flex items-center justify-between sticky top-0 z-10">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t.notifications.title}</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{t.notifications.title}</h1>
             {unreadCount > 0 && (
               <p className="text-sm text-gray-400 dark:text-gray-500">{unreadCount} {t.notifications.unread}</p>
             )}

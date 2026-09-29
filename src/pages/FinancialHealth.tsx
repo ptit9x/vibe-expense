@@ -56,7 +56,7 @@ export default function FinancialHealth() {
         <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4 pt-4 pb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-lg font-bold text-white">
+              <h1 className="text-2xl font-bold tracking-tight text-white">
                 {t.financialHealth.title}
               </h1>
               <p className="text-xs text-white/70 mt-0.5">
