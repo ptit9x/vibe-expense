@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
@@ -381,14 +382,25 @@ export function YearlyReport({
         <h1 className="text-xl font-semibold text-white mb-1">{title}</h1>
         <p className="text-white/60 text-sm">{subtitle}</p>
         {view === 'years' && (
-          <div className="flex gap-5 mt-3">
+          <div className="flex w-full mt-4 p-1 rounded-2xl bg-white/15 backdrop-blur-sm">
             {(['day', 'month', 'year'] as const).map(g => (
               <button
                 key={g}
                 onClick={() => setGranularity(g)}
-                className={'pb-1.5 text-sm border-b-2 transition-colors ' + (granularity === g ? 'text-white border-white font-semibold' : 'text-white/60 border-transparent hover:text-white/80')}
+                className="relative flex-1 py-2 text-sm rounded-xl transition-colors"
               >
-                {t.reports[g]}
+                {granularity === g && (
+                  <motion.span
+                    layoutId="granularity-pill"
+                    className="absolute inset-0 rounded-xl bg-white shadow-sm"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span
+                  className={"relative z-10 " + (granularity === g ? "text-gray-900 font-semibold" : "text-white/70")}
+                >
+                  {t.reports[g]}
+                </span>
               </button>
             ))}
           </div>
