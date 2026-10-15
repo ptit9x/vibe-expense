@@ -86,7 +86,7 @@ export interface Budget {
   end_date: DateString | null
   created_at: DateString
   // Relations
-  categories?: Category
+  category?: Category
 }
 
 export interface SavingsGoal {

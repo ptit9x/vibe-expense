@@ -22,7 +22,7 @@ function formatCompact(value: number, unitBillion: string, unitMillion: string):
 
 export default function MetricCards({ metrics }: Props) {
   const { t } = useI18n()
-  const { currency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
   const curSym = currency.symbol
 
   const trendIcon = {

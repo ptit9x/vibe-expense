@@ -9,7 +9,8 @@ import { PageTransition } from '@/components/shared'
 
 export default function CurrencySettings() {
   const { t } = useI18n()
-  const { currency, setCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const setCurrency = useUIStore((s) => s.setCurrency)
   const updateProfile = useUpdateProfile()
 
   const handleSelectCurrency = async (code: string) => {

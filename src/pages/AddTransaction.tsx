@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useTransactionSave } from '@/hooks/useTransactionSave'
 import { useTransactionFormStore } from '@/stores/transactionFormStore'
+import { useShallow } from 'zustand/react/shallow'
 import { TransactionForm } from '@/components/add-transaction'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
@@ -15,7 +16,19 @@ export default function AddTransaction() {
   const {
     type, amount, walletId, toWalletId, categoryId,
     description, contactPerson, date, reset,
-  } = useTransactionFormStore()
+  } = useTransactionFormStore(
+    useShallow((s) => ({
+      type: s.type,
+      amount: s.amount,
+      walletId: s.walletId,
+      toWalletId: s.toWalletId,
+      categoryId: s.categoryId,
+      description: s.description,
+      contactPerson: s.contactPerson,
+      date: s.date,
+      reset: s.reset,
+    }))
+  )
 
   const handleSave = async () => {
     // --- validation ---

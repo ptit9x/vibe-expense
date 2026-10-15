@@ -8,7 +8,7 @@ interface AmountDisplayProps {
 
 export function AmountDisplay({ value, onChange }: AmountDisplayProps) {
   const { t } = useI18n()
-  const { currency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value

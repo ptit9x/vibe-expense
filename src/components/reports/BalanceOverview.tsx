@@ -13,7 +13,8 @@ interface BalanceOverviewProps {
 
 export function BalanceOverview({ balance, debt, showBalance, onToggleBalance }: BalanceOverviewProps) {
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
 
   return (
     <PageHeader>

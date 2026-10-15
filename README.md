@@ -146,12 +146,17 @@ vibe-expense/
 | `/reports` | Reports | Overview with quick actions |
 | `/reports/expense` | ExpenseReport | Expense bar chart, category breakdown |
 | `/reports/income` | IncomeReport | Income bar chart, category breakdown |
+| `/budgets` | Budgets | Per-category spending limits (monthly/weekly) |
+| `/categories` | Categories | Manage transaction categories |
+| `/savings` | Savings | Savings goals tracking |
+| `/notifications` | Notifications | In-app notification center |
+| `/financial-health` | FinancialHealth | AI financial health report |
 | `/settings/language` | LanguageSettings | Change app language |
 | `/settings/currency` | CurrencySettings | Change currency |
 | `/settings/password` | PasswordSettings | Change account password |
 | `/settings/export` | ExportData | Export data to CSV/Excel |
 | `/settings/access-history` | AccessHistory | Devices & browsers that accessed the account |
-| `/budgets` | Profile | User profile, settings list |
+| `/profile` | Profile | User profile, settings list |
 
 ---
 
@@ -163,7 +168,7 @@ vibe-expense/
 | Account | /wallets |
 | Add (FAB) | /add-transaction |
 | Report | /reports |
-| Khác | /budgets |
+| Khác | /profile |
 
 ---
 

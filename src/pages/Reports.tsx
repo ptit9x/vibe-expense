@@ -13,7 +13,8 @@ import { useI18n } from '@/lib/i18n'
 import type { Transaction } from '@/types'
 
 export default function Reports() {
-  const { showBalance, toggleBalance } = useUIStore()
+  const showBalance = useUIStore((s) => s.showBalance)
+  const toggleBalance = useUIStore((s) => s.toggleBalance)
   const { t } = useI18n()
   const { data: wallets, isLoading: walletsLoading, error: walletsError, refetch: refetchWallets } = useWallets()
   // Fetch 12 months for chart (null = last 12 months from useTransactions)

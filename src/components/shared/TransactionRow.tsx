@@ -51,7 +51,9 @@ export const TransactionRow = memo(function TransactionRow({
   toWalletName,
   variant = 'default',
 }: TransactionRowProps) {
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
   const { language, t } = useI18n()
   const locale = getLocale(language)
 

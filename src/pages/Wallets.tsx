@@ -27,8 +27,10 @@ export default function Wallets() {
   const updateWallet = useUpdateWallet()
   const deleteWallet = useDeleteWallet()
   const deactivateWallet = useToggleWalletActive()
-  const { showForm, toggleForm } = useWalletsStore()
-  const { showBalance, toggleBalance } = useUIStore()
+  const showForm = useWalletsStore((s) => s.showForm)
+  const toggleForm = useWalletsStore((s) => s.toggleForm)
+  const showBalance = useUIStore((s) => s.showBalance)
+  const toggleBalance = useUIStore((s) => s.toggleBalance)
   const { t } = useI18n()
 
   // Edit wallet state
@@ -62,7 +64,7 @@ export default function Wallets() {
     toast.success(t.common.success)
   }
 
-  const handleDeleteWallet = (wallet: Wallet) => {
+  const handleDeleteWallet = useCallback((wallet: Wallet) => {
     if (wallet.type === 'cash' && wallet.name === 'Cash') {
       toast.error(t.wallet.cannotDeleteDefault)
       return
@@ -80,9 +82,9 @@ export default function Wallets() {
         onError: (err) => toast.error(err.message || t.common.error),
       })
     })
-  }
+  }, [t, showConfirm, deleteWallet.mutate])
 
-  const handleToggleActive = (wallet: Wallet) => {
+  const handleToggleActive = useCallback((wallet: Wallet) => {
     if (wallet.is_active) {
       deactivateWallet.mutate(wallet, {
         onSuccess: () => toast.success(`"${wallet.name}" ${t.settings.walletDeactivated.toLowerCase()}`),
@@ -94,15 +96,15 @@ export default function Wallets() {
         onError: () => toast.error(t.common.error),
       })
     }
-  }
+  }, [t, deactivateWallet.mutate])
 
-  const handleEditWallet = (wallet: Wallet) => {
+  const handleEditWallet = useCallback((wallet: Wallet) => {
     setEditingWallet(wallet)
     setEditName(wallet.name)
     setEditIcon(wallet.icon)
     setEditColor(wallet.color)
     setEditModalOpen(true)
-  }
+  }, [])
 
   const handleSaveEdit = () => {
     if (!editingWallet || !editName.trim()) return

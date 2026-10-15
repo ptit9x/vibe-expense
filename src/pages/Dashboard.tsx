@@ -42,7 +42,11 @@ function computeExpenseBreakdown(transactions: Transaction[], otherCategoryName:
 
 export default function Dashboard() {
   const { data: user } = useAuth()
-  const { showBalance, toggleBalance, currentMonth, currency, formatCurrency } = useUIStore()
+  const showBalance = useUIStore((s) => s.showBalance)
+  const toggleBalance = useUIStore((s) => s.toggleBalance)
+  const currentMonth = useUIStore((s) => s.currentMonth)
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   // Fetch 12 months for chart + expense breakdown
   const { data: allTransactions, error: txError, refetch: refetchTransactions } = useTransactions(null)
   const { data: wallets, error: walletError, refetch: refetchWallets } = useWallets()

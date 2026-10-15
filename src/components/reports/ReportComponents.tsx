@@ -58,7 +58,9 @@ interface StatCardProps {
 }
 
 export function StatCard({ label, value, color = '#3B82F6' }: StatCardProps) {
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
   return (
     <div>
       <p className="text-sm text-gray-400 mb-1">{label}</p>
@@ -75,7 +77,8 @@ interface MonthlyBarChartProps {
 }
 
 export function MonthlyBarChart({ data, color = '#3B82F6' }: MonthlyBarChartProps) {
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   const { resolvedMode } = useTheme()
   const isDark = resolvedMode === 'dark'
 
@@ -123,7 +126,8 @@ interface CategoryListProps {
 }
 
 export function CategoryList({ items, total }: CategoryListProps) {
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   return (
     <div className="space-y-3">
       {items.map((item) => (
@@ -158,7 +162,8 @@ interface MonthlyListProps {
 }
 
 export function MonthlyList({ data, year, type }: MonthlyListProps) {
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   return (
     <div className="space-y-2">
       {data.slice().reverse().map((item) => {
@@ -238,7 +243,9 @@ export function YearlyReport({
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedWallet, setSelectedWallet] = useState('all')
   const { t, language } = useI18n()
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
   const { data: transactions, refetch: refetchTx } = useAllTypeTransactions(type)
   const { data: categories, refetch: refetchCat } = useCategories()
   const { data: wallets } = useWallets()

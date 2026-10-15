@@ -21,7 +21,9 @@ export default function Savings() {
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
   const { t, language } = useI18n()
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
 
   const goalsData = goals as SavingsGoal[] | undefined
   const totalSaved = goalsData?.reduce((sum, g) => sum + (g.current_amount || 0), 0) || 0

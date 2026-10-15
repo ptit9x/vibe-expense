@@ -29,6 +29,7 @@ const PasswordSettingsPage = lazy(() => import('./pages/PasswordSettings'))
 const AccessHistoryPage = lazy(() => import('./pages/AccessHistory'))
 const CategoriesPage = lazy(() => import('./pages/Categories'))
 const SavingsPage = lazy(() => import('./pages/Savings'))
+const BudgetsPage = lazy(() => import('./pages/Budgets'))
 const NotificationsPage = lazy(() => import('./pages/Notifications'))
 const FinancialHealthPage = lazy(() => import('./pages/FinancialHealth'))
 
@@ -110,6 +111,7 @@ function AppContent() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/savings" element={<SavingsPage />} />
+            <Route path="/budgets" element={<BudgetsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/financial-health" element={<FinancialHealthPage />} />
           </Route>

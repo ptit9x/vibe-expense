@@ -25,7 +25,9 @@ export default function Transactions() {
   const { data: transactions, isLoading, refetch: refetchTransactions } = useTransactions(month, walletFilter || undefined)
   const { data: wallets, refetch: refetchWallets } = useWallets()
   const { t, language } = useI18n()
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
 
   const filterWallet = wallets?.find(w => w.id === walletFilter)
 

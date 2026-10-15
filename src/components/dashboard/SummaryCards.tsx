@@ -26,7 +26,8 @@ const cardVariants = {
 
 export function SummaryCards({ income, expense, showBalance }: SummaryCardsProps) {
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
 
   return (
     <div className="grid grid-cols-2 gap-3">

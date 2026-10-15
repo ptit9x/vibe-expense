@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTransaction } from '@/hooks/useTransactions'
 import { useTransactionSave } from '@/hooks/useTransactionSave'
 import { useTransactionFormStore } from '@/stores/transactionFormStore'
+import { useShallow } from 'zustand/react/shallow'
 import { TransactionForm } from '@/components/add-transaction'
 import { toast } from 'sonner'
 import { useI18n } from '@/lib/i18n'
@@ -16,7 +17,20 @@ export default function EditTransaction() {
   const {
     type, amount, walletId, toWalletId, categoryId,
     description, contactPerson, date, loadTransaction, reset,
-  } = useTransactionFormStore()
+  } = useTransactionFormStore(
+    useShallow((s) => ({
+      type: s.type,
+      amount: s.amount,
+      walletId: s.walletId,
+      toWalletId: s.toWalletId,
+      categoryId: s.categoryId,
+      description: s.description,
+      contactPerson: s.contactPerson,
+      date: s.date,
+      loadTransaction: s.loadTransaction,
+      reset: s.reset,
+    }))
+  )
 
   const { data: transaction, isLoading, error } = useTransaction(id)
 

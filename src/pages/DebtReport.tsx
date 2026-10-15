@@ -12,7 +12,9 @@ import { PageTransition } from '@/components/shared'
 export default function DebtReport() {
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const { t, language } = useI18n()
-  const { currency, formatCurrency, showBalance } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
+  const showBalance = useUIStore((s) => s.showBalance)
 
   // Fetch all transactions for the year (no type filter) then filter client-side
   const { data: transactions, isLoading, error, refetch: refetchTx } = useYearTransactions(selectedYear)

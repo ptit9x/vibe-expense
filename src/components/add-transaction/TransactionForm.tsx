@@ -1,6 +1,7 @@
 import { useWallets } from '@/hooks/useWallets'
 import { useCategories } from '@/hooks/useCategories'
 import { useTransactionFormStore } from '@/stores/transactionFormStore'
+import { useShallow } from 'zustand/react/shallow'
 import { getTransactionTypes } from '@/lib/categories'
 import { useI18n } from '@/lib/i18n'
 import {
@@ -44,7 +45,29 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     setContactPerson,
     setDate,
     toggleTypeDropdown,
-  } = useTransactionFormStore()
+  } = useTransactionFormStore(
+    useShallow((s) => ({
+      type: s.type,
+      amount: s.amount,
+      categoryId: s.categoryId,
+      walletId: s.walletId,
+      toWalletId: s.toWalletId,
+      description: s.description,
+      contactPerson: s.contactPerson,
+      date: s.date,
+      showTypeDropdown: s.showTypeDropdown,
+      mode: s.mode,
+      setType: s.setType,
+      setAmount: s.setAmount,
+      setCategoryId: s.setCategoryId,
+      setWalletId: s.setWalletId,
+      setToWalletId: s.setToWalletId,
+      setDescription: s.setDescription,
+      setContactPerson: s.setContactPerson,
+      setDate: s.setDate,
+      toggleTypeDropdown: s.toggleTypeDropdown,
+    }))
+  )
 
   const { data: wallets } = useWallets()
   const categoryType = type === 'lend' ? 'expense'

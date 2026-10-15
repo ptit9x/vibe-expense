@@ -224,7 +224,7 @@ function computeBudgetUsage(
       .reduce((sum, t) => sum + Number(t.amount), 0)
 
     return {
-      category_name: b.categories?.name || 'Unknown',
+      category_name: b.category?.name || 'Unknown',
       spent,
       budget: b.amount,
       percentage:

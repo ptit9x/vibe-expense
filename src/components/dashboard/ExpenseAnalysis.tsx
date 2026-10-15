@@ -98,7 +98,8 @@ const legendItemVariants = {
 
 export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   const total = items.reduce((sum, item) => sum + item.value, 0)
   const sortedItems = [...items].sort((a, b) => b.value - a.value).slice(0, 8)
   const [activeIndex, setActiveIndex] = useState(0)

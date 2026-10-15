@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Edit2, ChevronRight, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
@@ -13,10 +14,11 @@ interface WalletCardProps {
   onToggleActive: (wallet: Wallet) => void
 }
 
-export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActive }: WalletCardProps) {
+export const WalletCard = memo(function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActive }: WalletCardProps) {
   const navigate = useNavigate()
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
 
   const typeLabels: Record<WalletType, string> = {
     cash: t.wallet.cash,
@@ -120,4 +122,4 @@ export function WalletCard({ wallet, showBalance, onDelete, onEdit, onToggleActi
       </div>
     </div>
   )
-}
+})

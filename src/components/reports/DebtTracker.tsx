@@ -9,7 +9,8 @@ interface DebtTrackerProps {
 
 export function DebtTracker({ transactions }: DebtTrackerProps) {
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
 
   const lendTransactions = transactions.filter(tx => tx.type === 'lend')
   const borrowTransactions = transactions.filter(tx => tx.type === 'borrow')

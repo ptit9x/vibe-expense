@@ -16,7 +16,8 @@ interface MonthlyChartProps {
 
 export function MonthlyChart({ data }: MonthlyChartProps) {
   const { t } = useI18n()
-  const { currency, formatCurrency } = useUIStore()
+  const currency = useUIStore((s) => s.currency)
+  const formatCurrency = useUIStore((s) => s.formatCurrency)
   const { resolvedMode } = useTheme()
   const isDark = resolvedMode === 'dark'
 
