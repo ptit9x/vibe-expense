@@ -151,6 +151,47 @@ export interface UpdateBudgetInput extends Partial<CreateBudgetInput> {
   id: UUID
 }
 
+export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+export interface RecurringTransaction {
+  id: UUID
+  user_id: UUID
+  wallet_id: UUID | null
+  category_id: UUID | null
+  type: 'income' | 'expense'
+  amount: number
+  description: string | null
+  frequency: RecurringFrequency
+  interval_count: number
+  start_date: DateString
+  end_date: DateString | null
+  day_of_week: number | null
+  day_of_month: number | null
+  month_of_year: number | null
+  next_due_date: DateString
+  is_active: boolean
+  created_at: DateString
+  updated_at: DateString
+  // Relations
+  wallet?: { id: UUID; name: string; icon: string | null; color: string | null }
+  category?: Category
+}
+
+export interface CreateRecurringInput {
+  wallet_id: UUID | null
+  category_id: UUID | null
+  type: 'income' | 'expense'
+  amount: number
+  description: string | null
+  frequency: RecurringFrequency
+  interval_count: number
+  start_date: DateString
+  end_date?: DateString | null
+  day_of_week?: number | null
+  day_of_month?: number | null
+  month_of_year?: number | null
+}
+
 export interface CreateSavingsGoalInput {
   name: string
   target_amount: number
