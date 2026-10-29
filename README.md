@@ -5,8 +5,9 @@ A personal finance management app built with React + Vite + TypeScript + Tailwin
 ## Features
 
 - **Auth**: Login/Register with Supabase Auth
-- **Dashboard**: Overview with balance, income/expense stats, charts, recent transactions
-- **Balance Toggle**: Hide/show balance amounts with eye icon for privacy
+- **Dashboard**: Overview with balance, net cashflow, month switcher, income/expense stats, charts, recent transactions
+- **Balance Toggle**: Hide/show balance amounts with eye icon for privacy (44px tap target, accessible label)
+- **UI/UX (2026-10-29)**: Claymorphism design system, centred 880px content, desktop sidebar “Quản lý” section (Transactions, Budgets, Categories, Savings, Recurring, Financial Health), single primary FAB in the bottom nav, sticky Save button on the transaction form — details in `docs/ui-ux-improvement-2026-10-29.md`
 - **Transactions**: Add, view, filter income/expense transactions
 - **Wallets**: Manage multiple wallets (Cash, Bank, E-wallet)
 - **Reports**: Monthly reports with bar charts, category breakdown
@@ -32,10 +33,10 @@ UI state that doesn't need server sync lives in Zustand stores under `src/stores
 
 ```
 src/stores/
-├── addTransactionStore.ts  # Transaction form state
-├── dashboardStore.ts       # Dashboard UI state
-├── walletsStore.ts         # Wallets UI state
-└── reportsStore.ts          # Reports UI state
+├── uiStore.ts               # Balance visibility, current month (YYYY-MM), currency + formatters
+├── transactionFormStore.ts  # Transaction form state (add/edit)
+├── walletsStore.ts          # Wallets UI state
+└── outboxStore.ts           # Offline outbox queue
 ```
 
 **Rules:**
@@ -166,9 +167,11 @@ vibe-expense/
 |-----|-------|
 | Home | /dashboard |
 | Account | /wallets |
-| Add (FAB) | /add-transaction |
+| Add (FAB — primary action duy nhất) | /add-transaction |
 | Report | /reports |
-| Khác | /profile |
+| Profile | /profile |
+
+Desktop sidebar adds a “Quản lý” section: /transactions, /budgets, /categories, /savings, /recurring, /financial-health.
 
 ---
 

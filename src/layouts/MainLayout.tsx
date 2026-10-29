@@ -8,9 +8,15 @@ import {
   Wallet,
   Plus,
   BarChart3,
-  Menu,
+  CircleUserRound,
   LogOut,
   Bell,
+  Target,
+  LayoutGrid,
+  PiggyBank,
+  Repeat,
+  HeartPulse,
+  ReceiptText,
 } from 'lucide-react'
 
 import { Avatar, OfflineBanner } from '@/components/shared'
@@ -21,8 +27,19 @@ const bottomNavItems = [
   { icon: Wallet, labelKey: 'nav.account', href: '/wallets' },
   { icon: Plus, labelKey: 'nav.add', href: '/add-transaction', isPlus: true },
   { icon: BarChart3, labelKey: 'nav.report', href: '/reports' },
-  { icon: Menu, labelKey: 'nav.profile', href: '/profile' },
+  { icon: CircleUserRound, labelKey: 'nav.profile', href: '/profile' },
 ]
+
+// Desktop-only: features that were previously hidden behind Profile.
+// Reuses existing routes — no new i18n keys needed beyond nav fallback labels.
+const desktopExtraItems = [
+  { icon: ReceiptText, labelKey: 'transactions', href: '/transactions' },
+  { icon: Target, labelKey: 'budgets', href: '/budgets' },
+  { icon: LayoutGrid, labelKey: 'categories', href: '/categories' },
+  { icon: PiggyBank, labelKey: 'savings', href: '/savings' },
+  { icon: Repeat, labelKey: 'recurring', href: '/recurring' },
+  { icon: HeartPulse, labelKey: 'financialHealth', href: '/financial-health' },
+] as const
 
 export default function MainLayout() {
   const location = useLocation()
@@ -49,7 +66,7 @@ export default function MainLayout() {
     <div className="flex h-screen flex-col">
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <OfflineBanner />
-        <main className="flex-1 overflow-y-auto pb-[calc(72px+env(safe-area-inset-bottom))] max-w-3xl">
+        <main className="flex-1 overflow-y-auto pb-[calc(72px+env(safe-area-inset-bottom))] w-full max-w-[880px] mx-auto">
           <AnimatePresence mode="wait">
             <div key={location.pathname}>
               <Outlet />
@@ -89,7 +106,8 @@ export default function MainLayout() {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className="relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px]"
+                  aria-current={isActive ? 'page' : undefined}
+                  className="relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[64px] min-h-[56px] rounded-2xl"
                 >
                   {/* Active pill background */}
                   {isActive && (
@@ -192,6 +210,20 @@ function DesktopSidebar({ user }: { user: import('@/types').AuthUser }) {
             </Link>
           )
         })}
+        <div className="pt-4 mt-2 border-t border-gray-200/60 dark:border-white/10">
+          <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">{t.nav.manage}</p>
+          {desktopExtraItems.map((item) => {
+            const isActive = location.pathname.startsWith(item.href)
+            const Icon = item.icon
+            return (
+              <Link key={item.href} to={item.href} aria-current={isActive ? 'page' : undefined} className={cn("relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all", isActive ? "text-white" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-gray-100/60 dark:hover:bg-white/5")}>
+                {isActive && <motion.div layoutId="sidebarPillExtra" className="absolute inset-0 rounded-xl clay-button-primary" transition={{ type: 'spring', stiffness: 350, damping: 30 }} />}
+                <Icon className="h-4 w-4 relative z-10" />
+                <span className="relative z-10">{t.nav[item.labelKey]}</span>
+              </Link>
+            )
+          })}
+        </div>
       </nav>
 
       {/* User info + Logout */}

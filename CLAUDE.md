@@ -8,6 +8,8 @@ Vibe Expense is a personal finance management app (Money Keeper clone) targeting
 
 **Stack**: React 19 + Vite 8 + TypeScript 6 + TailwindCSS v4 + Supabase (PostgreSQL + Auth + Edge Functions)
 
+**Context docs map:** this file is the primary AI context. `docs/project-docs.md` = long-form product/architecture doc, `docs/ui-ux-improvement-2026-10-29.md` = UI/UX Phase 1 audit + Phase 2 backlog, `README.md` = setup + overview. When code and docs disagree, code wins — fix the doc in the same change. Last context sync: 2026-10-30 (UI/UX Phase 1).
+
 ## Commands
 
 ```bash
@@ -59,6 +61,39 @@ When `VITE_SUPABASE_URL` is missing or contains "placeholder" (dev only), the ap
 
 ### Component Library
 shadcn/ui (new-york style, Radix primitives) in `src/components/ui/`. Custom shared components in `src/components/shared/` (AnimatedFAB, Avatar, EmptyState, PageTransition, PullToRefreshWrapper, SkeletonLoader, TransactionRow). Icons: Lucide React. Animations: Framer Motion.
+
+### UI/UX Design System — Claymorphism (updated 2026-10-29, Phase 1)
+Full audit + change log: `docs/ui-ux-improvement-2026-10-29.md`. Read it before changing UI.
+
+- **Surfaces:** Claymorphism is the visual system — `clay-card`, `clay-button`, `clay-button-primary`, `clay-input`, `clay-fab`, `clay-navbar`, `clay-nav-active`, `clay-header`, `clay-icon`, `clay-inset`, `clay-badge` in `src/index.css`, driven by `--clay-*` / `--color-clay-*` tokens. Colour themes (indigo default, blue/green/orange/rose/violet, christmas) remap those tokens — do NOT hardcode a brand gradient in a component.
+- **Semantic tokens first:** Use `--color-background/foreground/card/muted-foreground/primary/...` (Tailwind: `bg-background`, `text-muted-foreground`, …). Hardcoded `text-gray-*` / `bg-white` / `bg-gray-50` bypass the tokens and force brittle `.dark .bg-*` overrides in `index.css` (~150 lines) — Phase 2 backlog is removing them; do not add new ones.
+- **NO global `*` transition:** `index.css` must never re-add `html * { transition: … }` (removed 2026-10-29 — it animated every element on every render: mobile jank/battery). Theme transition is scoped to `html, body` only.
+- **Accessibility rules (enforced in Phase 1 components):** global `:focus-visible` ring in `index.css`; minimum tap target 44px (`.tap-target` helper; list rows 56px — `TransactionRow` is `min-h-[56px]`); `prefers-reduced-motion` is respected globally; toggle buttons need a correct `aria-label` + `aria-pressed`, nav links `aria-current="page"` when active. Muted text token is `hsl(220 12% 38%)` (light) for contrast — do not lighten it back.
+- **Layout:** `MainLayout` content is centred: `<main>` is `w-full max-w-[880px] mx-auto` with `lg:pl-64` for the sidebar. Mobile bottom nav (5 items, centre `+` is the SINGLE primary add action) vs desktop sidebar are different IA — see Navigation below.
+- **Card / Button defaults:** `CardHeader`/`CardContent` pad `p-4` on mobile, `p-6` from `sm:` — do not re-add uniform `p-6`. `Button` focus is `ring-ring` + offset (not `ring/20`). `PageHeader` uses ONE blurred glow layer (blur is GPU-expensive on mobile; do not stack `blur-3xl` layers).
+
+### Navigation (MainLayout)
+- **Mobile bottom nav (5):** Dashboard, Wallets, centre `+` → `/add-transaction` (clay FAB, the only primary FAB — Dashboard must NOT render its own `AnimatedFAB`, removed 2026-10-29), Reports, Profile (icon `CircleUserRound`, NOT `Menu`).
+- **Desktop sidebar (`lg:`):** the same 5 items PLUS a “Quản lý” section (`desktopExtraItems` in `MainLayout.tsx`): Transactions, Budgets, Categories, Savings, Recurring, Financial Health. These features must stay reachable from the sidebar — do not hide them behind Profile again. Extra-item labels are currently hardcoded Vietnamese (app default `vi`); move them to i18n in Phase 2.
+
+### Dashboard composition (Phase 1)
+- Header: greeting + `NotificationBell` + total-balance card with eye toggle (44×44, `aria-label` = “Ẩn/Hiện số dư”).
+- **Month switcher** directly under the header: ‹ / › chevrons drive `uiStore.currentMonth` via `setCurrentMonth` (`YYYY-MM`); forward is disabled at the current calendar month; tapping the label returns to the current month.
+- `SummaryCards`: net-cashflow card FIRST (`income − expense`, + % of income) above the Income/Expense gradient cards (gradients are `emerald-500→600` / `rose-500→600` for white-text contrast — do not go back to `300→500`). `totalBalance` prop is accepted but currently unused there.
+- `ExpenseAnalysis`: pie uses the category's OWN colour from the DB (`category.color`), palette `COLORS` is fallback only; interaction is `onMouseEnter` AND `onClick` (touch), and legend rows are buttons that set the active slice.
+- Recent transactions: prefer the selected month, but fall back to the latest transactions overall when that month is empty (a new month must not look like an empty app).
+- Hooks rule reminder: all hooks (incl. the month-label `useMemo`) must run BEFORE the `txError || walletError` early return.
+
+### Add/Edit Transaction form (Phase 1)
+- Container background is `bg-background` (was hardcoded `bg-gray-50`).
+- `SaveButton` is STICKY (`sticky bottom-[calc(72px+safe-area)]`, `lg:bottom-4`) and uses `clay-button-primary`, `min-h-[52px]` — the save action must always be reachable without scrolling to the end of the form.
+
+### Phase 2 additions (2026-10-30)
+- **i18n:** Phase 1 labels are real translation keys — `nav.{manage,transactions,budgets,categories,savings,recurring,financialHealth}`, `dashboard.{netCashflow,ofIncome,prevMonth,nextMonth,backToCurrentMonth,hideBalance,showBalance}`, `transaction.{searchPlaceholder,noSearchResults,clearSearch}` (vi + en in `src/lib/i18n/translations.ts`). Add new UI text there, not as hardcoded strings.
+- **Transactions search:** header search filters by description / category / wallet / to-wallet / contact_person, accent-insensitive (`normalizeVi` in `Transactions.tsx` — “an uong” matches “Ăn uống”). Loading = `SkeletonCard` ×2, empty/search-empty = `EmptyState` inside a clay card — reuse this pattern on other list pages.
+- **Charts:** `MonthlyChart` tooltip keeps the series name and the legend shows period totals for income/expense. `ExpenseAnalysis` shows top 7 categories and groups the rest into `dashboard.otherCategory` (do not slice-and-drop the tail). Card headers use Lucide icons (`BarChart3`, `PieChart`, `History`), not emoji.
+- **Quick amounts:** `AmountDisplay` renders quick-amount chips under the amount input (VND: 50k/100k/200k/500k/1tr; other currencies: 10/20/50/100/200) that SET the amount. Chips are `aria-pressed` toggle buttons.
+- **Semantic colour cleanup (partial):** dashboard/shared core components (`ExpenseAnalysis`, `RecentTransactions`, `TransactionRow`, `EmptyState`, chart headers) now use `text-foreground` / `text-muted-foreground` / `bg-muted` instead of `text-gray-*`. Remaining hardcoded gray/white elsewhere is still Phase 2 backlog — migrate per-file, and only remove a `.dark` override from `index.css` once no component uses that class.
 
 ### Internationalization
 Custom i18n in `src/lib/i18n/` — React context provider with `useI18n()` hook returning `{ language, setLanguage, t }`. Translations in `src/lib/i18n/translations.ts`. Default language: Vietnamese (`vi`). Categories in `src/constants/categories.ts` use i18n keys (`nameKey`, `subcategoryKeys`) resolved at render time.

@@ -69,9 +69,9 @@ export const TransactionRow = memo(function TransactionRow({
       to={`/edit-transaction/${id}`}
       aria-label={`${prefix}${currency.symbol}${formatCurrency(amount)} - ${description || category?.name || type} - ${dateLabel}`}
       className={cn(
-        'flex items-center justify-between transition-colors cursor-pointer',
+        'flex items-center justify-between transition-colors cursor-pointer min-h-[56px]',
         isCompact
-          ? 'py-2.5 border-b border-gray-100 last:border-0'
+          ? 'py-2.5 px-1 -mx-1 rounded-xl border-b border-gray-100 last:border-0 hover:bg-black/[0.02] dark:hover:bg-white/[0.03] active:bg-black/[0.04]'
           : 'p-4 rounded-3xl border-0 transition-all clay-card hover:shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),4px_4px_10px_rgba(174,174,192,0.3)]'
       )}
     >
@@ -86,12 +86,12 @@ export const TransactionRow = memo(function TransactionRow({
           {category?.icon || '💰'}
         </div>
         <div className="min-w-0 flex-1">
-          <p className={cn('font-medium truncate', isCompact ? 'text-sm text-gray-800' : '')}>
+          <p className={cn('font-medium truncate', isCompact ? 'text-sm text-foreground' : '')}>
             {description || (type === 'transfer' && walletName && toWalletName
               ? `${walletName} → ${toWalletName}`
               : category?.name)}
           </p>
-          <p className={cn('text-muted-foreground', isCompact ? 'text-sm text-gray-400' : 'text-sm')}>
+          <p className={cn('text-muted-foreground', isCompact ? 'text-sm' : 'text-sm')}>
             {isCompact
               ? dateLabel
               : type === 'transfer'
@@ -112,7 +112,7 @@ export const TransactionRow = memo(function TransactionRow({
           {showBalance ? (
             <>{prefix}{currency.symbol}{formatCurrency(amount)}</>
           ) : (
-            <span className="text-gray-300">••••••</span>
+            <span className="text-muted-foreground/60">••••••</span>
           )}
         </p>
         {!isCompact && (

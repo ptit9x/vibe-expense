@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { X } from 'lucide-react'
+import { X, Search } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,8 +10,13 @@ import { useI18n } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
 import { useUIStore } from '@/stores/uiStore'
 import PageHeader from '@/components/PageHeader'
-import { PullToRefreshWrapper, PageTransition } from '@/components/shared'
+import { PullToRefreshWrapper, PageTransition, EmptyState, SkeletonCard } from '@/components/shared'
 import type { Transaction } from '@/types'
+
+/** Accent-insensitive match so “an uong” finds “Ăn uống”. */
+function normalizeVi(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+}
 
 export default function Transactions() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -21,6 +26,7 @@ export default function Transactions() {
     return (p === 'income' || p === 'expense') ? p : 'all'
   })
   const walletFilter = searchParams.get('wallet_id')
+  const [query, setQuery] = useState('')
 
   const { data: transactions, isLoading, refetch: refetchTransactions } = useTransactions(month, walletFilter || undefined)
   const { data: wallets, refetch: refetchWallets } = useWallets()
@@ -34,14 +40,18 @@ export default function Transactions() {
   // Group transactions by month (keys already in DESC order from query)
   const grouped = useMemo(() => {
     if (!transactions) return []
-    const filtered = typeFilter === 'all' ? transactions : transactions.filter(txn => txn.type === typeFilter)
+    const q = normalizeVi(query.trim())
+    const bySearch = q
+      ? transactions.filter(txn => normalizeVi([txn.description || '', txn.category?.name || '', txn.wallet?.name || '', txn.to_wallet?.name || '', txn.contact_person || ''].join(' ')).includes(q))
+      : transactions
+    const filtered = typeFilter === 'all' ? bySearch : bySearch.filter(txn => txn.type === typeFilter)
     const groups: Record<string, Transaction[]> = {}
     for (const txn of filtered) {
       const m = txn.transaction_date.slice(0, 7)
       ;(groups[m] ??= []).push(txn)
     }
     return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]))
-  }, [transactions, typeFilter])
+  }, [transactions, typeFilter, query])
 
   const clearWalletFilter = () => {
     searchParams.delete('wallet_id')
@@ -85,6 +95,24 @@ export default function Transactions() {
           </div>
         </div>
 
+        {/* Search — note / category / wallet / contact, accent-insensitive */}
+        <div className="relative mt-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60 pointer-events-none" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.transaction.searchPlaceholder}
+            aria-label={t.common.search}
+            className="w-full h-11 pl-9 pr-10 bg-white/20 text-white placeholder-white/50 text-sm rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/40"
+          />
+          {query && (
+            <button type="button" onClick={() => setQuery('')} aria-label={t.transaction.clearSearch} className="absolute right-1 top-1/2 -translate-y-1/2 tap-target flex items-center justify-center rounded-full hover:bg-white/20 px-2">
+              <X className="h-4 w-4 text-white" />
+            </button>
+          )}
+        </div>
+
         {/* Wallet filter badge */}
         {walletFilter && filterWallet && (
           <div className="flex items-center gap-2 mt-3">
@@ -105,17 +133,14 @@ export default function Transactions() {
       <div className="px-4 -mt-3 space-y-3">
         {/* Monthly Grouped Transactions */}
         {isLoading ? (
-          <Card className="border shadow-sm">
-            <CardContent className="p-4 text-center text-gray-400 text-sm">
-              {t.common.loading}
-            </CardContent>
-          </Card>
+          <div className="space-y-3" aria-busy="true" aria-label={t.common.loading}>
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
         ) : grouped.length === 0 ? (
-          <Card className="border shadow-sm">
-            <CardContent className="p-4 text-center text-gray-400 text-sm">
-              {t.transaction.noTransactions}
-            </CardContent>
-          </Card>
+          <div className="clay-card">
+            <EmptyState icon={query ? '🔍' : '📭'} title={query ? t.transaction.noSearchResults : t.transaction.noTransactions} description={query ? query : undefined} />
+          </div>
         ) : (
           <div className="space-y-4">
             {grouped.map(([monthKey, txns]) => {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { History } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -47,8 +48,8 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <Card className="border-0 overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-        <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs">📜</span>
+        <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center"><History className="h-3.5 w-3.5 text-indigo-500" /></span>
           {t.transaction.recentTransactions}
         </CardTitle>
         <Button variant="ghost" size="sm" asChild className="text-xs text-indigo-500 hover:text-indigo-600 h-9 font-medium">
@@ -57,7 +58,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">
         {transactions.length === 0 ? (
-          <div className="text-center py-6 text-gray-400 text-sm">
+          <div className="text-center py-6 text-muted-foreground text-sm">
             {t.transaction.noTransactions}
           </div>
         ) : (

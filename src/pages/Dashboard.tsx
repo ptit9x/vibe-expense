@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useWallets } from '@/hooks/useWallets'
@@ -11,7 +11,7 @@ import {
   type ExpenseItem,
   type TransactionItem,
 } from '@/components/dashboard'
-import { MonthlyChart, PullToRefreshWrapper, PageTransition, AnimatedFAB } from '@/components/shared'
+import { MonthlyChart, PullToRefreshWrapper, PageTransition } from '@/components/shared'
 import PageHeader from '@/components/PageHeader'
 import { NotificationBell } from '@/components/notifications'
 import { useUIStore } from '@/stores/uiStore'
@@ -45,6 +45,7 @@ export default function Dashboard() {
   const showBalance = useUIStore((s) => s.showBalance)
   const toggleBalance = useUIStore((s) => s.toggleBalance)
   const currentMonth = useUIStore((s) => s.currentMonth)
+  const setCurrentMonth = useUIStore((s) => s.setCurrentMonth)
   const currency = useUIStore((s) => s.currency)
   const formatCurrency = useUIStore((s) => s.formatCurrency)
   // Fetch 12 months for chart + expense breakdown
@@ -61,6 +62,10 @@ export default function Dashboard() {
   }), [currentMonthTxns])
   const monthlyData = useMemo(() => computeMonthlyData(allTxns, 6, getLocale(language)), [allTxns, language])
   const expenseBreakdown = useMemo(() => computeExpenseBreakdown(currentMonthTxns, t.dashboard.otherCategory), [currentMonthTxns, t.dashboard.otherCategory])
+  const monthLabel = useMemo(() => {
+    const [y, m] = currentMonth.split('-').map(Number)
+    return new Date(y, m - 1, 1).toLocaleDateString(getLocale(language), { month: 'long', year: 'numeric' })
+  }, [currentMonth, language])
 
   if (txError || walletError) {
     return (
@@ -75,8 +80,15 @@ export default function Dashboard() {
     )
   }
 
-  // Recent transactions from current month only
-  const recentTransactions: TransactionItem[] = currentMonthTxns.slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
+  const shiftMonth = (delta: number) => {
+    const [y, m] = currentMonth.split('-').map(Number)
+    const d = new Date(y, m - 1 + delta, 1)
+    setCurrentMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+  const isCurrentCalendarMonth = currentMonth === new Date().toISOString().slice(0, 7)
+
+  // Recent: prefer current month, fall back to latest overall so a new month isn't empty
+  const recentTransactions: TransactionItem[] = (currentMonthTxns.length > 0 ? currentMonthTxns : allTxns).slice(0, RECENT_TRANSACTIONS_LIMIT) as TransactionItem[]
 
   const displayName = user?.full_name || user?.email?.split('@')[0] || ''
 
@@ -100,9 +112,10 @@ export default function Dashboard() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 hover:bg-white/30"
+              className="h-11 w-11 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 hover:bg-white/30"
               onClick={toggleBalance}
-              aria-label={showBalance ? t.dashboard.totalBalance : 'hidden'}
+              aria-label={showBalance ? t.dashboard.hideBalance : t.dashboard.showBalance}
+              aria-pressed={showBalance}
             >
               {showBalance ? (
                 <Eye className="h-4 w-4 text-white/70" />
@@ -123,18 +136,24 @@ export default function Dashboard() {
         </div>
       </PageHeader>
 
+      {/* Month switcher — previously dashboard was locked to store month with no UI */}
+      <div className="px-4 -mt-4">
+        <div className="clay-card flex items-center justify-between px-2 py-1.5 mb-4">
+          <button type="button" onClick={() => shiftMonth(-1)} aria-label={t.dashboard.prevMonth} className="tap-target flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 px-3"><ChevronLeft className="h-5 w-5" /></button>
+          <button type="button" onClick={() => !isCurrentCalendarMonth && setCurrentMonth(new Date().toISOString().slice(0, 7))} className="text-sm font-semibold capitalize px-2 py-2" aria-label={isCurrentCalendarMonth ? monthLabel : t.dashboard.backToCurrentMonth}>{monthLabel}{!isCurrentCalendarMonth && <span className="block text-[11px] font-medium text-muted-foreground normal-case">{t.dashboard.backToCurrentMonth}</span>}</button>
+          <button type="button" onClick={() => shiftMonth(1)} disabled={isCurrentCalendarMonth} aria-label={t.dashboard.nextMonth} className="tap-target flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 px-3 disabled:opacity-30"><ChevronRight className="h-5 w-5" /></button>
+        </div>
+      </div>
+
       {/* Content */}
-      <div className="px-4 -mt-4 space-y-4">
+      <div className="px-4 space-y-4">
         <SummaryCards totalBalance={totalBalance} income={income} expense={expense} showBalance={showBalance} />
         <ExpenseAnalysis items={expenseBreakdown} />
         <MonthlyChart data={monthlyData} />
         <RecentTransactions transactions={recentTransactions} />
       </div>
 
-      {/* FAB */}
-      <div className="fixed right-4 bottom-24 z-20">
-        <AnimatedFAB to="/add-transaction" ariaLabel={t.transaction.add} />
-      </div>
+      {/* No duplicate FAB here — the bottom-nav centre + is the single primary action */}
     </PullToRefreshWrapper>
     </PageTransition>
   )

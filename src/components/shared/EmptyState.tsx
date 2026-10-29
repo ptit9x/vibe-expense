@@ -19,8 +19,8 @@ export function EmptyState({ icon = '📭', title, description, action }: EmptyS
       <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-4 clay-icon">
         {icon}
       </div>
-      <p className="text-gray-700 font-medium mb-1">{title}</p>
-      {description && <p className="text-gray-400 text-sm max-w-xs">{description}</p>}
+      <p className="text-foreground font-medium mb-1">{title}</p>
+      {description && <p className="text-muted-foreground text-sm max-w-xs">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </motion.div>
   )

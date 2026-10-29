@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/lib/i18n'
 import { useUIStore } from '@/stores/uiStore'
@@ -21,6 +22,9 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
   const { resolvedMode } = useTheme()
   const isDark = resolvedMode === 'dark'
 
+  const totalIncome = data.reduce((s, d) => s + d.income, 0)
+  const totalExpense = data.reduce((s, d) => s + d.expense, 0)
+
   const tickColor = isDark ? '#94A3B8' : '#9CA3AF'
   const tooltipBg = isDark ? '#1e293b' : '#ffffff'
   const tooltipColor = isDark ? '#f1f5f9' : '#1f2937'
@@ -29,8 +33,8 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
   return (
     <Card className="border-0 overflow-hidden">
       <CardHeader className="pb-2 px-4 pt-4">
-        <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs">📈</span>
+        <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center"><BarChart3 className="h-3.5 w-3.5 text-indigo-500" /></span>
           {t.dashboard.monthlyOverview}
         </CardTitle>
       </CardHeader>
@@ -56,7 +60,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
               />
               <YAxis hide />
               <Tooltip
-                formatter={(value) => [currency.symbol + formatCurrency(Number(value)), '']}
+                formatter={(value, name) => [currency.symbol + formatCurrency(Number(value)), name]}
                 contentStyle={{
                   borderRadius: '12px',
                   border: 'none',
@@ -88,11 +92,11 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
         <div className="flex items-center justify-center gap-6 mt-3">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-500" />
-            <span className="text-xs text-gray-500 font-medium">{t.dashboard.income}</span>
+            <span className="text-xs text-muted-foreground font-medium">{t.dashboard.income}: <span className="font-semibold text-foreground tabular-nums">{currency.symbol}{formatCurrency(totalIncome)}</span></span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-gradient-to-b from-rose-400 to-rose-500" />
-            <span className="text-xs text-gray-500 font-medium">{t.dashboard.expense}</span>
+            <span className="text-xs text-muted-foreground font-medium">{t.dashboard.expense}: <span className="font-semibold text-foreground tabular-nums">{currency.symbol}{formatCurrency(totalExpense)}</span></span>
           </div>
         </div>
       </CardContent>

@@ -106,7 +106,7 @@ export function TransactionForm({ onSave, isPending }: TransactionFormProps) {
     : categories
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <PageHeader>
         <div className="flex items-center justify-between mb-4">
           <div className="w-10" />

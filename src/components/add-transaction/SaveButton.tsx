@@ -11,11 +11,11 @@ export function SaveButton({ onClick, isPending, label }: SaveButtonProps) {
   const defaultLabel = t.common.save
 
   return (
-    <div className="p-5">
+    <div className="sticky bottom-[calc(72px+env(safe-area-inset-bottom))] lg:bottom-4 z-20 px-5 py-3 -mx-0 bg-gradient-to-t from-[var(--color-clay-base)] via-[var(--color-clay-base)]/95 to-transparent dark:from-[var(--color-clay-dark-base)] dark:via-[var(--color-clay-dark-base)]/95">
       <button
         onClick={onClick}
         disabled={isPending}
-        className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-lg rounded-2xl hover:from-indigo-600 hover:to-purple-700 active:from-indigo-700 active:to-purple-800 transition-colors disabled:opacity-50 shadow-md shadow-indigo-500/20"
+        className="clay-button-primary w-full min-h-[52px] py-3.5 text-white font-semibold text-base rounded-2xl transition-all disabled:opacity-50"
       >
         {isPending ? t.common.loading : (label || defaultLabel)}
       </button>

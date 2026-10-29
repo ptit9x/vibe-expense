@@ -19,7 +19,11 @@ Personal finance management app (Money Keeper Clone) with Vietnamese UI.
 | Server State | TanStack Query | `src/hooks/` |
 | UI State | Zustand | `src/stores/` |
 
+> **Cập nhật 2026-10-29:** Mục UI/UX Style Guide + Footer Navigation + Changelog đã được cập nhật theo UI/UX Phase 1 (claymorphism). Chi tiết: `docs/ui-ux-improvement-2026-10-29.md` và section “UI/UX Design System” trong `CLAUDE.md`. Lưu ý: interface `uiStore` dạng lồng nhau (dashboard/reports) ở các bản cũ của file này là SAI — store thật là phẳng, xem `CLAUDE.md`.
+
 ### Zustand Stores
+
+Stores thật trong `src/stores/`: `uiStore` (phẳng: showBalance, currentMonth `YYYY-MM`, currency, toggleBalance, setCurrentMonth, formatCurrency, displayAmount), `transactionFormStore`, `walletsStore`, `outboxStore` (offline outbox).
 
 ```typescript
 // transactionFormStore - shared form state for add/edit transaction
@@ -223,30 +227,31 @@ const MOCK_USERS = {
 - `extractI18nKey()` derives key from name for old records
 - UI resolves i18n_key to translated label via translations.ts
 
-## UI/UX Style Guide
+## UI/UX Style Guide (cập nhật 2026-10-29 — claymorphism, thay bản blue/gray cũ)
 
 ### Design Tokens
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| Primary | Blue-500 (#3B82F6) | Headers, buttons |
-| Accent | Green-500 (#22C55E) | FAB, add buttons |
-| Background | Gray-50 (#F9FAFB) | Page background |
-| Cards | White (#FFFFFF) | Content sections |
+| Brand | `--clay-brand-*` (mặc định indigo hsl 243 75%) | Headers, FAB, primary button — đổi theo color theme, không hardcode |
+| Background | `--color-clay-base` / `bg-background` | Nền trang |
+| Cards | `.clay-card` (gradient clay surface + soft shadows) | Content sections |
+| Semantic | `--color-*` (background/foreground/muted-foreground/primary…) | Ưu tiên semantic tokens; tránh `text-gray-*`/`bg-white` cứng (gây dark-mode overrides trong index.css) |
+| Income / Expense | emerald-500→600 / rose-500→600 gradient | SummaryCards (chữ trắng cần nền đậm để đủ contrast) |
 
 ### Components
 
-- **Headers**: Blue gradient `from-blue-500 to-blue-600`
-- **Balance Cards**: White with `rounded-xl` and `shadow-sm`
-- **Scrollable Lists**: Horizontal scroll with `scrollbar-hide`
+- **Headers**: `PageHeader` dùng `.clay-header` (brand gradient), 1 lớp blur glow duy nhất
+- **Cards**: `Card` = clay-card, padding `p-4` mobile / `p-6` sm+
+- **Primary action**: CHỈ 1 FAB — nút `+` giữa bottom nav. Dashboard không có FAB riêng
+- **Save (form)**: `SaveButton` sticky phía trên bottom nav, `clay-button-primary`, min-h 52px
 - **Modals**: Slide-up with `rounded-t-3xl` + handle bar
-- **FAB Buttons**: Fixed `bottom-24`, `w-14 h-14`, `rounded-full`
+- **Accessibility**: tap target ≥44px (list row 56px), `:focus-visible` toàn cục, `prefers-reduced-motion`, cấm quay lại global `html * { transition }`
 
-### Mobile Patterns
+### Mobile + Desktop Patterns
 
-- Bottom navigation bar with 5 tabs
-- FAB for primary actions (add transaction, add wallet)
-- Modal positioned `bottom-20` to avoid nav bar
+- Bottom navigation 5 tab (mobile); nội dung căn giữa `max-w-[880px] mx-auto`
+- Desktop sidebar: 5 mục chính + section “Quản lý” (Transactions, Budgets, Categories, Savings, Recurring, Financial Health)
 - Safe area padding for notched devices
 
 ## Pages & Routes
@@ -278,9 +283,11 @@ const MOCK_USERS = {
 |-----|-------|-------|
 | Home | /dashboard | Home |
 | Account | /wallets | Account |
-| Add | /add-transaction | Add (FAB) |
+| Add | /add-transaction | Add (FAB giữa — primary action duy nhất) |
 | Report | /reports | Report |
-| Khác | /profile | Profile |
+| Profile (icon CircleUserRound) | /profile | Profile |
+
+Desktop sidebar có thêm section “Quản lý”: /transactions, /budgets, /categories, /savings, /recurring, /financial-health.
 
 ## Environment Variables
 
@@ -377,6 +384,22 @@ const { data, error } = await supabase
 ```
 
 ## Changelog
+
+### UI/UX Phase 2 (2026-10-30)
+- **i18n**: toàn bộ label Phase 1 thành translation keys (vi+en) — nav Quản lý, month switcher, net cashflow, search
+- **Transactions**: search không dấu theo ghi chú/danh mục/ví/người liên hệ; Skeleton/EmptyState thống nhất
+- **Charts**: MonthlyChart tooltip + tổng kỳ; pie top 7 + gộp “Khác”; headers dùng Lucide thay emoji
+- **Add Transaction**: quick amount chips (VND 50k–1tr)
+- **Tokens**: dashboard/shared lõi chuyển sang semantic foreground/muted
+- Chi tiết: `docs/ui-ux-improvement-2026-10-29.md`
+
+### UI/UX Phase 1 (2026-10-29)
+- **Dashboard**: month switcher, thẻ dòng tiền ròng, recent fallback, bỏ FAB trùng, nút ẩn số dư 44px + aria đúng
+- **Navigation**: content căn giữa 880px, desktop sidebar thêm section Quản lý (6 mục), Profile dùng icon CircleUserRound, bottom nav aria-current
+- **Performance/A11y**: bỏ global * transition, :focus-visible, prefers-reduced-motion, contrast muted, PageHeader 1 lớp blur
+- **Charts**: ExpenseAnalysis dùng màu category thật + touch/click + legend button
+- **Form**: SaveButton sticky + clay, nền form dùng bg-background
+- Chi tiết + Phase 2 backlog: `docs/ui-ux-improvement-2026-10-29.md`
 
 ### v1.7.0 (2026-05-08)
 - **Debt Tracking**: New `/reports/debt` page — monthly debt chart, debt by contact person, lend/borrow list

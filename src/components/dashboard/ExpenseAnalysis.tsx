@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { PieChart as PieChartIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PieChart, Pie, ResponsiveContainer, Sector, type PieSectorDataItem } from 'recharts'
 import { useI18n } from '@/lib/i18n'
@@ -101,7 +102,12 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
   const currency = useUIStore((s) => s.currency)
   const formatCurrency = useUIStore((s) => s.formatCurrency)
   const total = items.reduce((sum, item) => sum + item.value, 0)
-  const sortedItems = [...items].sort((a, b) => b.value - a.value).slice(0, 8)
+  // Top 7 individually; everything beyond that is grouped into “Other”
+  // so the pie stays readable instead of slicing off (and losing) the tail.
+  const sortedAll = [...items].sort((a, b) => b.value - a.value)
+  const sortedItems: ExpenseItem[] = sortedAll.length > 8
+    ? [...sortedAll.slice(0, 7), { name: t.dashboard.otherCategory, value: sortedAll.slice(7).reduce((s, i) => s + i.value, 0), icon: '📦', color: '#6B7280' }]
+    : sortedAll
   const [activeIndex, setActiveIndex] = useState(0)
 
   // Clamp activeIndex to valid range when items change (month switch, etc.)
@@ -111,20 +117,21 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
     name: item.name,
     value: item.value,
     icon: item.icon,
-    fill: COLORS[index % COLORS.length],
+    // Prefer the category's own colour from DB; palette is only a fallback
+    fill: item.color && item.color !== '#6B7280' ? item.color : COLORS[index % COLORS.length],
   }))
 
   return (
     <Card className="border-0 overflow-hidden">
       <CardHeader className="pb-2 px-4 pt-4">
-        <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-xs">📊</span>
+        <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center"><PieChartIcon className="h-3.5 w-3.5 text-indigo-500" /></span>
           {t.dashboard.expenseAnalysis}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">
         {sortedItems.length === 0 ? (
-          <div className="text-center py-6 text-gray-400 text-sm">
+          <div className="text-center py-6 text-muted-foreground text-sm">
             {t.dashboard.noExpenses}
           </div>
         ) : (
@@ -142,6 +149,7 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                     dataKey="value"
                     paddingAngle={3}
                     onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onClick={(_, index) => setActiveIndex(index)}
                     animationBegin={0}
                     animationDuration={800}
                     shape={(props: PieSectorDataItem & { index: number }) => (
@@ -166,12 +174,15 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
             >
               {sortedItems.map((item, index) => {
                 const percent = total > 0 ? Math.round((item.value / total) * 100) : 0
-                const color = COLORS[index % COLORS.length]
+                const color = chartData[index]?.fill || COLORS[index % COLORS.length]
                 return (
-                  <motion.div
+                  <motion.button
+                    type="button"
                     key={item.name}
                     variants={legendItemVariants}
-                    className="flex items-center gap-2"
+                    onClick={() => setActiveIndex(index)}
+                    className="flex w-full items-center gap-2 text-left rounded-xl px-1 py-1 -mx-1 hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
+                    aria-label={`${item.name}: ${percent}%`}
                   >
                     <div
                       className="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0"
@@ -181,12 +192,12 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs font-medium text-gray-700 truncate">{item.name}</span>
-                        <span className="text-xs font-semibold text-gray-900 shrink-0 ml-2">
+                        <span className="text-xs font-medium text-foreground truncate">{item.name}</span>
+                        <span className="text-xs font-semibold text-foreground shrink-0 ml-2 tabular-nums">
                           {currency.symbol}{formatCurrency(item.value)}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <motion.div
                           className="h-full rounded-full"
                           style={{ backgroundColor: color }}
@@ -196,7 +207,7 @@ export function ExpenseAnalysis({ items }: ExpenseAnalysisProps) {
                         />
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 )
               })}
             </motion.div>
